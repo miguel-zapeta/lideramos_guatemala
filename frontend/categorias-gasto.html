@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Categorías de gasto - Panel Administrativo</title>
+
+    <link rel="stylesheet" href="usuarios.css">
+</head>
+
+<body>
+
+    <!-- =========================
+         PANEL PRINCIPAL
+         ========================= -->
+
+    <div class="dashboard">
+
+        <!-- =========================
+             MENÚ LATERAL
+             ========================= -->
+
+        <aside class="sidebar">
+
+            <div class="sidebar-header">
+
+                <img src="Lideramos.png" alt="Logo de la organización" class="sidebar-logo" >
+
+            </div>
+
+
+            <!-- MENÚ -->
+
+            <nav class="menu">
+
+                <a href="usuarios.html" class="menu-item" data-modulo="usuarios">
+
+                    <span class="icon">👥</span>
+
+                    <span>Usuarios</span>
+
+                </a>
+
+
+                <a href="voluntarios.html" class="menu-item" data-modulo="voluntarios">
+
+                    <span class="icon">🤝</span>
+
+                    <span>Voluntarios</span>
+
+                </a>
+
+
+                <a href="finanzas.html" class="menu-item active" data-modulo="finanzas">
+
+                    <span class="icon">💰</span>
+
+                    <span>Finanzas</span>
+
+                </a>
+
+
+                <a href="actividades.html" class="menu-item" data-modulo="actividades">
+
+                    <span class="icon">📅</span>
+
+                    <span>Actividades</span>
+
+                </a>
+
+
+                <a href="#" class="menu-item" data-modulo="reportes">
+
+                    <span class="icon">📊</span>
+
+                    <span>Reportes</span>
+
+                </a>
+
+            </nav>
+
+
+            <!-- PARTE INFERIOR DEL MENÚ -->
+
+            <div class="sidebar-bottom">
+
+                <a href="#" class="menu-item" data-modulo="configuracion">
+
+                    <span class="icon">⚙️</span>
+
+                    <span>Configuración</span>
+
+                </a>
+
+                <a href="#" class="menu-item logout">
+
+                    <span class="icon">↪</span>
+
+                    <span>Cerrar sesión</span>
+
+                </a>
+
+            </div>
+
+        </aside>
+
+
+        <!-- =========================
+             CONTENIDO
+             ========================= -->
+
+        <main class="main-content">
+
+
+            <!-- BARRA SUPERIOR -->
+
+            <header class="topbar">
+
+                <div class="page-title">
+
+                    <h1>Categorías de gasto</h1>
+
+                    <p>Categorías de gasto de la organización</p>
+
+                </div>
+
+
+                <div class="admin-profile">
+
+                    <div
+                        class="admin-avatar"
+                        id="currentUserAvatar"
+                    >
+                        US
+                    </div>
+
+                    <div class="admin-info">
+
+                        <strong id="currentUserName">
+                            Usuario
+                        </strong>
+
+                        <span id="currentUserRole">
+                            Rol
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </header>
+
+
+            <!-- CONTENIDO DE CATEGORÍAS -->
+
+            <section class="content">
+
+
+                <!-- ENCABEZADO -->
+
+                <div class="section-header">
+
+                    <div>
+
+                        <h2>Lista de categorías</h2>
+
+                        <p>
+                            Consulta, edita o desactiva las categorías registradas.
+                        </p>
+
+                    </div>
+
+
+                    <div class="header-actions">
+
+                        <a href="gastos.html" class="link-volver">
+                            ← Volver
+                        </a>
+
+                        <button
+                            type="button"
+                            id="exportButton"
+                            class="new-user-button"
+                            title="Exportar a Excel lo mostrado en la tabla"
+                        >
+                            📥 Exportar Excel
+                        </button>
+
+                        <a href="nuevaCategoriaGasto.html" class="new-user-button">
+                            + Nueva categoría
+                        </a>
+
+                    </div>
+
+
+                </div>
+
+
+                <!-- TARJETAS DE RESUMEN -->
+
+                <div class="statistics">
+
+                    <div class="stat-card">
+
+                        <div class="stat-icon users-icon">
+                            🏷️
+                        </div>
+
+                        <div>
+
+                            <span>Total de categorías</span>
+
+                            <strong id="statTotal">—</strong>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="stat-card">
+
+                        <div class="stat-icon active-icon">
+                            ✓
+                        </div>
+
+                        <div>
+
+                            <span>Categorías activas</span>
+
+                            <strong id="statActivos">—</strong>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="stat-card">
+
+                        <div class="stat-icon inactive-icon">
+                            ○
+                        </div>
+
+                        <div>
+
+                            <span>Categorías inactivas</span>
+
+                            <strong id="statInactivos">—</strong>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- TABLA -->
+
+                <div class="table-container">
+
+                    <div class="table-header">
+
+                        <h3>Categorías registradas</h3>
+
+                        <div class="search-box">
+
+                            <span>🔍</span>
+
+                            <select id="searchField" title="Buscar por">
+                                <option value="todos">Todos</option>
+                                <option value="nombre">Nombre</option>
+                                <option value="descripcion">Descripción</option>
+                                <option value="rubro">Rubro</option>
+                                <option value="estado">Estado</option>
+                            </select>
+
+                            <input
+                                type="text"
+                                id="searchInput"
+                                placeholder="Buscar categoría..."
+                            >
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="table-responsive">
+
+                        <table>
+
+                            <thead>
+
+                                <tr>
+
+                                    <th>Categoría</th>
+
+                                    <th>Nombre</th>
+
+                                    <th>Descripción</th>
+
+                                    <th>Rubro</th>
+
+                                    <th>Estado</th>
+
+                                    <th>Acciones</th>
+
+                                </tr>
+
+                            </thead>
+
+
+                            <tbody id="categoriasTbody">
+
+                                <tr>
+
+                                    <td colspan="6">
+                                        Cargando categorías...
+                                    </td>
+
+                                </tr>
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+
+                    <!-- PAGINACIÓN -->
+
+                    <div class="pagination">
+
+                        <span id="paginationInfo">
+                            Cargando categorías...
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+        </main>
+
+    </div>
+
+</body>
+
+<script src="vendor/xlsx.full.min.js"></script>
+<script src="menu.js"></script>
+<script src="categorias-gasto.js"></script>
+
+</html>

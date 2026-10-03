@@ -1,0 +1,1029 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Nuevo Voluntario - Panel Administrativo</title>
+
+    <link rel="stylesheet" href="nuevoVoluntario.css">
+
+</head>
+
+
+<body>
+
+
+    <!-- =================================
+         DASHBOARD
+         ================================= -->
+
+    <div class="dashboard">
+
+
+        <!-- =================================
+             MENÚ LATERAL
+             ================================= -->
+
+        <aside class="sidebar">
+
+
+            <!-- LOGO -->
+
+            <div class="sidebar-header">
+
+                <img src="Lideramos.png" alt="Logo de la organización" class="sidebar-logo" >
+
+            </div>
+
+
+            <!-- MENÚ PRINCIPAL -->
+
+            <nav class="menu">
+
+
+                <a href="usuarios.html" class="menu-item" data-modulo="usuarios">
+
+                    <span class="icon">
+                        👥
+                    </span>
+
+                    <span>
+                        Usuarios
+                    </span>
+
+                </a>
+
+
+                <!-- VOLUNTARIOS ACTIVO -->
+
+                <a href="voluntarios.html" class="menu-item active" data-modulo="voluntarios">
+
+                    <span class="icon">
+                        🤝
+                    </span>
+
+                    <span>
+                        Voluntarios
+                    </span>
+
+                </a>
+
+
+                <a href="finanzas.html" class="menu-item" data-modulo="finanzas">
+
+                    <span class="icon">
+                        💰
+                    </span>
+
+                    <span>
+                        Finanzas
+                    </span>
+
+                </a>
+
+
+                <a href="actividades.html" class="menu-item" data-modulo="actividades">
+
+                    <span class="icon">
+                        📅
+                    </span>
+
+                    <span>
+                        Actividades
+                    </span>
+
+                </a>
+
+
+                <a href="#" class="menu-item" data-modulo="reportes">
+
+                    <span class="icon">
+                        📊
+                    </span>
+
+                    <span>
+                        Reportes
+                    </span>
+
+                </a>
+
+            </nav>
+
+
+            <!-- =================================
+                 PARTE INFERIOR
+                 ================================= -->
+
+            <div class="sidebar-bottom">
+
+
+                <a href="#" class="menu-item" data-modulo="configuracion">
+
+                    <span class="icon">
+                        ⚙️
+                    </span>
+
+                    <span>
+                        Configuración
+                    </span>
+
+                </a>
+
+
+                <a href="#" class="menu-item logout">
+
+                    <span class="icon">
+                        ↪
+                    </span>
+
+                    <span>
+                        Cerrar sesión
+                    </span>
+
+                </a>
+
+
+            </div>
+
+
+        </aside>
+
+
+        <!-- =================================
+             CONTENIDO PRINCIPAL
+             ================================= -->
+
+        <main class="main-content">
+
+
+            <!-- =================================
+                 BARRA SUPERIOR
+                 ================================= -->
+
+            <header class="topbar">
+
+
+                <div class="page-title">
+
+                    <h1>
+                        Voluntarios
+                    </h1>
+
+                    <p>
+                        Administración de voluntarios
+                    </p>
+
+                </div>
+
+
+                <!-- ADMINISTRADOR -->
+
+                <div class="admin-profile">
+
+
+                    <div class="admin-avatar" id="currentUserAvatar">
+                        AD
+                    </div>
+
+
+                    <div class="admin-info">
+
+                        <strong id="currentUserName">
+                            Administrador
+                        </strong>
+
+                        <span id="currentUserRole">
+                            Administrador
+                        </span>
+
+                    </div>
+
+
+                </div>
+
+
+            </header>
+
+
+            <!-- =================================
+                 CONTENIDO
+                 ================================= -->
+
+            <section class="content">
+
+
+                <!-- =================================
+                     ENCABEZADO DEL FORMULARIO
+                     ================================= -->
+
+                <div class="section-header">
+
+
+                    <div>
+
+                        <h2 id="formTitle">
+                            Registrar nuevo voluntario
+                        </h2>
+
+                        <p id="formSubtitle">
+                            Completa la información para registrar un nuevo voluntario.
+                        </p>
+
+                    </div>
+
+
+                </div>
+
+
+                <!-- =================================
+                     FORMULARIO
+                     ================================= -->
+
+                <div class="form-container">
+
+
+                    <form class="volunteer-form" id="volunteerForm">
+
+
+                        <!-- =================================
+                             INFORMACIÓN PERSONAL
+                             ================================= -->
+
+                        <div class="form-section">
+
+
+                            <div class="form-section-header">
+
+                                <div class="form-section-icon orange">
+                                    👤
+                                </div>
+
+
+                                <div>
+
+                                    <h3>
+                                        Información personal
+                                    </h3>
+
+                                    <p>
+                                        Datos básicos del voluntario.
+                                    </p>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="form-grid">
+
+
+                                <!-- NOMBRES -->
+
+                                <div class="form-group">
+
+                                    <label for="nombres">
+                                        Nombre
+                                        <span>*</span>
+                                    </label>
+
+                                    <input
+                                        type="text"
+                                        id="nombres"
+                                        name="nombres"
+                                        placeholder="Ingrese el nombre"
+                                        required
+                                    >
+
+                                </div>
+
+
+                                <!-- APELLIDOS -->
+
+                                <div class="form-group">
+
+                                    <label for="apellidos">
+                                        Apellido
+                                        <span>*</span>
+                                    </label>
+
+                                    <input
+                                        type="text"
+                                        id="apellidos"
+                                        name="apellidos"
+                                        placeholder="Ingrese el apellido"
+                                        required
+                                    >
+
+                                </div>
+
+
+                                <!-- EDAD -->
+
+                                <div class="form-group">
+
+                                    <label for="edad">
+                                        Edad
+                                    </label>
+
+                                    <input
+                                        type="number"
+                                        id="edad"
+                                        name="edad"
+                                        min="0"
+                                        step="1"
+                                        placeholder="Ej. 25"
+                                    >
+
+                                </div>
+
+
+                                <!-- DPI -->
+
+                                <div class="form-group">
+
+                                    <label for="dpi">
+                                        DPI
+                                    </label>
+
+                                    <input
+                                        type="number"
+                                        id="dpi"
+                                        name="dpi"
+                                        min="0"
+                                        step="1"
+                                        placeholder="Ej. 1234567890101"
+                                    >
+
+                                </div>
+
+
+                                <!-- MUNICIPIO -->
+
+                                <div class="form-group">
+
+                                    <label for="municipio">
+                                        Municipio
+                                    </label>
+
+                                    <input
+                                        type="text"
+                                        id="municipio"
+                                        name="municipio"
+                                        placeholder="Ingrese el municipio"
+                                    >
+
+                                </div>
+
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- =================================
+                             INFORMACIÓN EDUCATIVA
+                             ================================= -->
+
+                        <div class="form-section">
+
+
+                            <div class="form-section-header">
+
+                                <div class="form-section-icon pink">
+                                    🎓
+                                </div>
+
+
+                                <div>
+
+                                    <h3>
+                                        Información educativa
+                                    </h3>
+
+                                    <p>
+                                        Centro educativo y jornada del voluntario.
+                                    </p>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="form-grid">
+
+
+                                <!-- CENTRO EDUCATIVO -->
+
+                                <div class="form-group">
+
+                                    <label for="centro_educativo">
+                                        Centro educativo
+                                    </label>
+
+                                    <input
+                                        type="text"
+                                        id="centro_educativo"
+                                        name="centro_educativo"
+                                        placeholder="Ingrese el centro educativo"
+                                    >
+
+                                </div>
+
+
+                                <!-- JORNADA -->
+
+                                <div class="form-group">
+
+                                    <label for="jornada">
+                                        Jornada
+                                    </label>
+
+                                    <input
+                                        type="text"
+                                        id="jornada"
+                                        name="jornada"
+                                        placeholder="Ej. Matutina, Vespertina"
+                                    >
+
+                                </div>
+
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- =================================
+                             CONTACTO
+                             ================================= -->
+
+                        <div class="form-section">
+
+
+                            <div class="form-section-header">
+
+                                <div class="form-section-icon pink">
+                                    📱
+                                </div>
+
+
+                                <div>
+
+                                    <h3>
+                                        Información de contacto
+                                    </h3>
+
+                                    <p>
+                                        Teléfono del voluntario.
+                                    </p>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="form-grid">
+
+
+                                <!-- TELÉFONO -->
+
+                                <div class="form-group">
+
+                                    <label for="telefono">
+                                        Teléfono
+                                    </label>
+
+                                    <input
+                                        type="number"
+                                        id="telefono"
+                                        name="telefono"
+                                        min="0"
+                                        step="1"
+                                        placeholder="Ej. 55555555"
+                                    >
+
+                                </div>
+
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- =================================
+                             ENCARGADO
+                             ================================= -->
+
+                        <div class="form-section">
+
+
+                            <div class="form-section-header">
+
+                                <div class="form-section-icon purple">
+                                    🧑‍🤝‍🧑
+                                </div>
+
+
+                                <div>
+
+                                    <h3>
+                                        Encargado
+                                    </h3>
+
+                                    <p>
+                                        Persona encargada del voluntario.
+                                    </p>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="form-grid">
+
+
+                                <!-- ENCARGADO -->
+
+                                <div class="form-group">
+
+                                    <label for="encargado">
+                                        Nombre del encargado
+                                    </label>
+
+                                    <input
+                                        type="text"
+                                        id="encargado"
+                                        name="encargado"
+                                        placeholder="Ingrese el nombre del encargado"
+                                    >
+
+                                </div>
+
+
+                                <!-- TELÉFONO DEL ENCARGADO -->
+
+                                <div class="form-group">
+
+                                    <label for="telefono_encargado">
+                                        Teléfono del encargado
+                                    </label>
+
+                                    <input
+                                        type="number"
+                                        id="telefono_encargado"
+                                        name="telefono_encargado"
+                                        min="0"
+                                        step="1"
+                                        placeholder="Ej. 55555555"
+                                    >
+
+                                </div>
+
+
+                                <!-- DPI DEL ENCARGADO -->
+
+                                <div class="form-group">
+
+                                    <label for="dpi_del_encargado">
+                                        DPI del encargado
+                                    </label>
+
+                                    <input
+                                        type="number"
+                                        id="dpi_del_encargado"
+                                        name="dpi_del_encargado"
+                                        min="0"
+                                        step="1"
+                                        placeholder="Ej. 1234567890101"
+                                    >
+
+                                </div>
+
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- =================================
+                             DOCUMENTOS
+                             ================================= -->
+
+                        <div class="form-section">
+
+
+                            <div class="form-section-header">
+
+                                <div class="form-section-icon orange">
+                                    📄
+                                </div>
+
+
+                                <div>
+
+                                    <h3>
+                                        Documentos
+                                    </h3>
+
+                                    <p>
+                                        Documentos y cartas del voluntario.
+                                    </p>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="form-grid">
+
+
+                                <!-- DPI MAYOR DE EDAD -->
+
+                                <div class="form-group">
+
+                                    <label for="dpi18">
+                                        DPI (mayor de edad)
+                                    </label>
+
+                                    <select
+                                        id="dpi18"
+                                        name="dpi18"
+                                    >
+
+                                        <option value="">
+                                            Seleccione una opción
+                                        </option>
+
+                                        <option value="Sí">
+                                            Sí
+                                        </option>
+
+                                        <option value="Falta">
+                                            Falta
+                                        </option>
+
+                                        <option value="No aplica">
+                                            No aplica
+                                        </option>
+
+                                        <option value="otro">
+                                            Otro
+                                        </option>
+
+                                    </select>
+
+                                    <input
+                                        type="text"
+                                        id="dpi18_otro"
+                                        name="dpi18_otro"
+                                        placeholder="Especifique"
+                                        style="display: none; margin-top: 8px;"
+                                    >
+
+                                </div>
+
+
+                                <!-- DPI DEL ENCARGADO (TEXTO) -->
+
+                                <div class="form-group">
+
+                                    <label for="dpi_encargado">
+                                        DPI del encargado (respaldo)
+                                    </label>
+
+                                    <select
+                                        id="dpi_encargado"
+                                        name="dpi_encargado"
+                                    >
+
+                                        <option value="">
+                                            Seleccione una opción
+                                        </option>
+
+                                        <option value="Sí">
+                                            Sí
+                                        </option>
+
+                                        <option value="Falta">
+                                            Falta
+                                        </option>
+
+                                        <option value="No aplica">
+                                            No aplica
+                                        </option>
+
+                                        <option value="otro">
+                                            Otro
+                                        </option>
+
+                                    </select>
+
+                                    <input
+                                        type="text"
+                                        id="dpi_encargado_otro"
+                                        name="dpi_encargado_otro"
+                                        placeholder="Especifique"
+                                        style="display: none; margin-top: 8px;"
+                                    >
+
+                                </div>
+
+
+                                <!-- CERTIFICADO DE NACIMIENTO -->
+
+                                <div class="form-group">
+
+                                    <label for="certificado_nacimiento">
+                                        Certificado de nacimiento
+                                    </label>
+
+                                    <select
+                                        id="certificado_nacimiento"
+                                        name="certificado_nacimiento"
+                                    >
+
+                                        <option value="">
+                                            Seleccione una opción
+                                        </option>
+
+                                        <option value="Sí">
+                                            Sí
+                                        </option>
+
+                                        <option value="Falta">
+                                            Falta
+                                        </option>
+
+                                        <option value="No aplica">
+                                            No aplica
+                                        </option>
+
+                                        <option value="otro">
+                                            Otro
+                                        </option>
+
+                                    </select>
+
+                                    <input
+                                        type="text"
+                                        id="certificado_nacimiento_otro"
+                                        name="certificado_nacimiento_otro"
+                                        placeholder="Especifique"
+                                        style="display: none; margin-top: 8px;"
+                                    >
+
+                                </div>
+
+
+                                <!-- CARTA DE COMPROMISO -->
+
+                                <div class="form-group">
+
+                                    <label for="carta_compromiso">
+                                        Carta de compromiso
+                                    </label>
+
+                                    <select
+                                        id="carta_compromiso"
+                                        name="carta_compromiso"
+                                    >
+
+                                        <option value="">
+                                            Seleccione una opción
+                                        </option>
+
+                                        <option value="Sí">
+                                            Sí
+                                        </option>
+
+                                        <option value="Falta">
+                                            Falta
+                                        </option>
+
+                                        <option value="Entregó la incorrecta">
+                                            Entregó la incorrecta
+                                        </option>
+
+                                        <option value="otro">
+                                            Otro
+                                        </option>
+
+                                    </select>
+
+                                    <input
+                                        type="text"
+                                        id="carta_compromiso_otro"
+                                        name="carta_compromiso_otro"
+                                        placeholder="Especifique"
+                                        style="display: none; margin-top: 8px;"
+                                    >
+
+                                </div>
+
+
+                                <!-- CARTA DE MEDIOS -->
+
+                                <div class="form-group">
+
+                                    <label for="carta_medios_comunicacion">
+                                        Carta de medios de comunicación
+                                    </label>
+
+                                    <select
+                                        id="carta_medios_comunicacion"
+                                        name="carta_medios_comunicacion"
+                                    >
+
+                                        <option value="">
+                                            Seleccione una opción
+                                        </option>
+
+                                        <option value="Sí">
+                                            Sí
+                                        </option>
+
+                                        <option value="Falta">
+                                            Falta
+                                        </option>
+
+                                        <option value="No aplica">
+                                            No aplica
+                                        </option>
+
+                                        <option value="otro">
+                                            Otro
+                                        </option>
+
+                                    </select>
+
+                                    <input
+                                        type="text"
+                                        id="carta_medios_comunicacion_otro"
+                                        name="carta_medios_comunicacion_otro"
+                                        placeholder="Especifique"
+                                        style="display: none; margin-top: 8px;"
+                                    >
+
+                                </div>
+
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- =================================
+                             INFORMACIÓN ADICIONAL
+                             ================================= -->
+
+                        <div class="form-section">
+
+
+                            <div class="form-section-header">
+
+                                <div class="form-section-icon blue">
+                                    📝
+                                </div>
+
+
+                                <div>
+
+                                    <h3>
+                                        Información adicional
+                                    </h3>
+
+                                    <p>
+                                        Biografía del voluntario.
+                                    </p>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="form-grid">
+
+
+                                <!-- BIOGRAFÍA -->
+
+                                <div class="form-group full-width">
+
+                                    <label for="biografia">
+                                        Biografía
+                                    </label>
+
+                                    <textarea
+                                        id="biografia"
+                                        name="biografia"
+                                        rows="4"
+                                        placeholder="Escriba una breve biografía"
+                                    ></textarea>
+
+                                </div>
+
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- =================================
+                             PROYECTOS (solo detalle)
+                             ================================= -->
+
+                        <div class="form-section" id="proyectosSection" style="display: none;">
+
+
+                            <div class="form-section-header">
+
+                                <div class="form-section-icon purple">
+                                    📁
+                                </div>
+
+
+                                <div>
+
+                                    <h3>
+                                        Proyectos asignados
+                                    </h3>
+
+                                    <p id="proyectosInfo">
+                                        Este voluntario aún no está asignado a ningún proyecto.
+                                    </p>
+
+                                </div>
+
+                            </div>
+
+
+                        </div>
+
+
+                        <!-- =================================
+                             BOTONES
+                             ================================= -->
+
+                        <div class="form-actions">
+
+
+                            <p
+                                id="formMessage"
+                                role="alert"
+                            ></p>
+
+
+                            <a href="voluntarios.html" class="cancel-button">
+                                Volver
+                            </a>
+
+
+                            <button
+                                type="button"
+                                class="save-button"
+                                id="editButton"
+                                style="display: none;"
+                            >
+                                ✏️ Editar
+                            </button>
+
+
+                            <button
+                                type="submit"
+                                class="save-button"
+                                id="submitButton"
+                            >
+                                ✓ Registrar voluntario
+                            </button>
+
+
+                        </div>
+
+
+                    </form>
+
+
+                </div>
+
+
+            </section>
+
+
+        </main>
+
+
+    </div>
+
+
+    <script src="menu.js"></script>
+    <script src="nuevoVoluntario.js"></script>
+
+</body>
+
+</html>

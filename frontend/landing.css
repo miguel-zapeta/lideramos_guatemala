@@ -1,0 +1,261 @@
+/* =====================================
+   LANDING
+   ===================================== */
+
+:root {
+
+    --orange: #edaa5c;
+
+    --pink: #d23c78;
+
+    --dark: #2d2430;
+
+    --gray: #777777;
+
+    --light-gray: #f5f5f7;
+
+    --border: #e7e7e7;
+
+    --white: #ffffff;
+
+}
+
+
+* {
+
+    margin: 0;
+
+    padding: 0;
+
+    box-sizing: border-box;
+
+}
+
+
+body {
+
+    font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+
+    background: var(--light-gray);
+
+    color: var(--dark);
+
+}
+
+
+/* =====================================
+   HEADER
+   ===================================== */
+
+.site-header {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    padding: 16px 32px;
+
+    background: var(--white);
+
+    border-bottom: 1px solid var(--border);
+
+    position: sticky;
+
+    top: 0;
+
+}
+
+
+.brand-logo {
+
+    height: 48px;
+
+}
+
+
+.site-nav {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 24px;
+
+}
+
+
+.nav-link {
+
+    color: var(--dark);
+
+    text-decoration: none;
+
+}
+
+
+.nav-cta {
+
+    background: var(--pink);
+
+    color: var(--white);
+
+    text-decoration: none;
+
+    padding: 10px 20px;
+
+    border-radius: 6px;
+
+}
+
+
+.nav-ghost {
+
+    border: 1px solid var(--border);
+
+    color: var(--dark);
+
+    text-decoration: none;
+
+    padding: 10px 20px;
+
+    border-radius: 6px;
+
+    background: var(--white);
+
+}
+
+
+/* =====================================
+   CONTENIDO
+   ===================================== */
+
+.hero {
+
+    text-align: center;
+
+    padding: 64px 24px;
+
+    background: var(--white);
+
+}
+
+
+.hero p {
+
+    color: var(--gray);
+
+    margin: 16px 0 24px;
+
+}
+
+
+.hero-actions {
+
+    display: flex;
+
+    gap: 16px;
+
+    justify-content: center;
+
+}
+
+
+.cards {
+
+    display: flex;
+
+    gap: 24px;
+
+    justify-content: center;
+
+    flex-wrap: wrap;
+
+    padding: 48px 24px;
+
+}
+
+
+.card {
+
+    background: var(--white);
+
+    border: 1px solid var(--border);
+
+    border-radius: 8px;
+
+    padding: 24px;
+
+    max-width: 320px;
+
+}
+
+
+.card p {
+
+    color: var(--gray);
+
+    margin: 12px 0 16px;
+
+}
+
+
+.card a {
+
+    color: var(--pink);
+
+    text-decoration: none;
+
+}
+
+
+.page {
+
+    max-width: 720px;
+
+    margin: 48px auto;
+
+    background: var(--white);
+
+    border: 1px solid var(--border);
+
+    border-radius: 8px;
+
+    padding: 32px;
+
+}
+
+
+.page p {
+
+    color: var(--gray);
+
+    margin-top: 16px;
+
+}
+
+
+.contact-list {
+
+    list-style: none;
+
+    margin-top: 16px;
+
+    color: var(--gray);
+
+}
+
+
+.site-footer {
+
+    text-align: center;
+
+    padding: 24px;
+
+    color: var(--gray);
+
+}

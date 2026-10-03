@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Panel Administrativo - Finanzas</title>
+
+    <link rel="stylesheet" href="finanzas.css">
+
+</head>
+
+
+<body>
+
+
+    <!-- =================================
+         DASHBOARD
+         ================================= -->
+
+    <div class="dashboard">
+
+
+        <!-- =================================
+             MENÚ LATERAL
+             ================================= -->
+
+        <aside class="sidebar">
+
+
+            <!-- LOGO -->
+
+            <div class="sidebar-header">
+
+                <img src="Lideramos.png" alt="Logo de la organización" class="sidebar-logo" >
+
+            </div>
+
+
+            <!-- MENÚ PRINCIPAL -->
+
+            <nav class="menu">
+
+
+                <a href="usuarios.html" class="menu-item" data-modulo="usuarios">
+
+                    <span class="icon">
+                        👥
+                    </span>
+
+                    <span>
+                        Usuarios
+                    </span>
+
+                </a>
+
+
+                <a href="voluntarios.html" class="menu-item" data-modulo="voluntarios">
+
+                    <span class="icon">
+                        🤝
+                    </span>
+
+                    <span>
+                        Voluntarios
+                    </span>
+
+                </a>
+
+
+                <!-- FINANZAS ACTIVO -->
+
+                <a href="finanzas.html" class="menu-item active" data-modulo="finanzas">
+
+                    <span class="icon">
+                        💰
+                    </span>
+
+                    <span>
+                        Finanzas
+                    </span>
+
+                </a>
+
+
+                <a href="actividades.html" class="menu-item" data-modulo="actividades">
+
+                    <span class="icon">
+                        📅
+                    </span>
+
+                    <span>
+                        Actividades
+                    </span>
+
+                </a>
+
+
+                <a href="#" class="menu-item" data-modulo="reportes">
+
+                    <span class="icon">
+                        📊
+                    </span>
+
+                    <span>
+                        Reportes
+                    </span>
+
+                </a>
+
+            </nav>
+
+
+            <!-- =================================
+                 PARTE INFERIOR
+                 ================================= -->
+
+            <div class="sidebar-bottom">
+
+
+                <a href="#" class="menu-item" data-modulo="configuracion">
+
+                    <span class="icon">
+                        ⚙️
+                    </span>
+
+                    <span>
+                        Configuración
+                    </span>
+
+                </a>
+
+
+                <a href="#" class="menu-item logout">
+
+                    <span class="icon">
+                        ↪
+                    </span>
+
+                    <span>
+                        Cerrar sesión
+                    </span>
+
+                </a>
+
+
+            </div>
+
+
+        </aside>
+
+
+        <!-- =================================
+             CONTENIDO PRINCIPAL
+             ================================= -->
+
+        <main class="main-content">
+
+
+            <!-- =================================
+                 BARRA SUPERIOR
+                 ================================= -->
+
+            <header class="topbar">
+
+
+                <div class="page-title">
+
+                    <h1>
+                        Finanzas
+                    </h1>
+
+                    <p>
+                        Administración y control financiero
+                    </p>
+
+                </div>
+
+
+                <!-- ADMINISTRADOR -->
+
+                <div class="admin-profile">
+
+
+                    <div class="admin-avatar">
+                        AD
+                    </div>
+
+
+                    <div class="admin-info">
+
+                        <strong>
+                            Administrador
+                        </strong>
+
+                        <span>
+                            Administrador
+                        </span>
+
+                    </div>
+
+
+                </div>
+
+
+            </header>
+
+
+            <!-- =================================
+                 CONTENIDO
+                 ================================= -->
+
+            <section class="content">
+
+
+                <!-- ENCABEZADO -->
+
+                <div class="section-header">
+
+
+                    <div>
+
+                        <h2>
+                            Gestión financiera
+                        </h2>
+
+                        <p>
+                            Administra los gastos y genera reportes financieros.
+                        </p>
+
+                    </div>
+
+
+                </div>
+
+
+                <!-- =================================
+                     OPCIONES DE FINANZAS
+                     ================================= -->
+
+                <div class="finance-options">
+
+
+                    <!-- PROYECTOS -->
+
+                    <div class="finance-card">
+
+                        <div class="finance-icon purple">
+                            📁
+                        </div>
+
+
+                        <div class="finance-card-content">
+
+                            <h3>
+                                Proyectos
+                            </h3>
+
+                            <p>
+                                Administra los proyectos
+                                de la organización.
+                            </p>
+
+                            <a href="proyectos.html" class="finance-button">
+                                Ver proyectos
+                            </a>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- GASTOS -->
+
+                    <div class="finance-card">
+
+                        <div class="finance-icon pink">
+                            🧾
+                        </div>
+
+
+                        <div class="finance-card-content">
+
+                            <h3>
+                                Gastos
+                            </h3>
+
+                            <p>
+                                Registra y consulta los
+                                gastos realizados.
+                            </p>
+
+                            <a href="gastos.html" class="finance-button">
+                                Ver gastos
+                            </a>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- REPORTE MENSUAL -->
+
+                    <div class="finance-card">
+
+                        <div class="finance-icon pink">
+                            📅
+                        </div>
+
+
+                        <div class="finance-card-content">
+
+                            <h3>
+                                Generar reporte mensual
+                            </h3>
+
+                            <p>
+                                Consulta y genera un reporte
+                                financiero de un mes específico.
+                            </p>
+
+                            <button class="finance-button">
+                                Generar reporte
+                            </button>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- REPORTE ACUMULATIVO -->
+
+                    <div class="finance-card">
+
+                        <div class="finance-icon purple">
+                            📈
+                        </div>
+
+
+                        <div class="finance-card-content">
+
+                            <h3>
+                                Generar reporte acumulativo
+                            </h3>
+
+                            <p>
+                                Consulta el comportamiento de
+                                los gastos acumulados.
+                            </p>
+
+                            <button class="finance-button">
+                                Generar reporte
+                            </button>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- REPORTE COMPARATIVO -->
+
+                    <div class="finance-card">
+
+                        <div class="finance-icon blue">
+                            📊
+                        </div>
+
+
+                        <div class="finance-card-content">
+
+                            <h3>
+                                Crear reporte comparativo
+                            </h3>
+
+                            <p>
+                                Compara los gastos entre
+                                diferentes períodos.
+                            </p>
+
+                            <button class="finance-button">
+                                Crear reporte
+                            </button>
+
+                        </div>
+
+                    </div>
+
+
+                </div>
+
+
+                            </section>
+
+
+        </main>
+
+
+    </div>
+
+
+<script src="menu.js"></script>
+
+</body>
+
+</html>

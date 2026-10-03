@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Nuevo Gasto - Panel Administrativo</title>
+
+    <link rel="stylesheet" href="nuevoUsuario.css">
+
+</head>
+
+
+<body>
+
+
+    <div class="dashboard">
+
+
+        <aside class="sidebar">
+
+
+            <div class="sidebar-header">
+
+                <img src="Lideramos.png" alt="Logo de la organización" class="sidebar-logo" >
+
+            </div>
+
+
+            <nav class="menu">
+
+                <a href="usuarios.html" class="menu-item" data-modulo="usuarios">
+
+                    <span class="icon">
+                        👥
+                    </span>
+
+                    <span>
+                        Usuarios
+                    </span>
+
+                </a>
+
+
+                <a href="voluntarios.html" class="menu-item" data-modulo="voluntarios">
+
+                    <span class="icon">
+                        🤝
+                    </span>
+
+                    <span>
+                        Voluntarios
+                    </span>
+
+                </a>
+
+
+                <a href="finanzas.html" class="menu-item active" data-modulo="finanzas">
+
+                    <span class="icon">
+                        💰
+                    </span>
+
+                    <span>
+                        Finanzas
+                    </span>
+
+                </a>
+
+
+                <a href="actividades.html" class="menu-item" data-modulo="actividades">
+
+                    <span class="icon">
+                        📅
+                    </span>
+
+                    <span>
+                        Actividades
+                    </span>
+
+                </a>
+
+
+                <a href="#" class="menu-item" data-modulo="reportes">
+
+                    <span class="icon">
+                        📊
+                    </span>
+
+                    <span>
+                        Reportes
+                    </span>
+
+                </a>
+
+            </nav>
+
+
+            <div class="sidebar-bottom">
+
+
+                <a href="#" class="menu-item" data-modulo="configuracion">
+
+                    <span class="icon">
+                        ⚙️
+                    </span>
+
+                    <span>
+                        Configuración
+                    </span>
+
+                </a>
+
+
+                <a href="#" class="menu-item logout">
+
+                    <span class="icon">
+                        ↪
+                    </span>
+
+                    <span>
+                        Cerrar sesión
+                    </span>
+
+                </a>
+
+
+            </div>
+
+
+        </aside>
+
+
+        <main class="main-content">
+
+
+            <header class="topbar">
+
+
+                <div class="page-title">
+
+                    <h1>
+                        Gastos
+                    </h1>
+
+                    <p>
+                        Administración de gastos
+                    </p>
+
+                </div>
+
+
+                <div class="admin-profile">
+
+
+                    <div class="admin-avatar" id="currentUserAvatar">
+                        AD
+                    </div>
+
+
+                    <div class="admin-info">
+
+                        <strong id="currentUserName">
+                            Administrador
+                        </strong>
+
+                        <span id="currentUserRole">
+                            Administrador
+                        </span>
+
+                    </div>
+
+
+                </div>
+
+
+            </header>
+
+
+            <section class="content">
+
+
+                <div class="section-header">
+
+
+                    <div>
+
+                        <h2 id="formTitle">
+                            Registrar nuevo gasto
+                        </h2>
+
+                        <p id="formSubtitle">
+                            Completa la información para registrar un nuevo gasto.
+                        </p>
+
+                    </div>
+
+
+                </div>
+
+
+                <div class="form-container">
+
+
+                    <form class="user-form" id="gastoForm">
+
+
+                        <!-- GENERAL -->
+
+                        <div class="form-section">
+
+
+                            <div class="form-section-header">
+
+                                <div class="form-section-icon orange">
+                                    🧾
+                                </div>
+
+
+                                <div>
+
+                                    <h3>
+                                        Información general
+                                    </h3>
+
+                                    <p>
+                                        Proyecto, categoría y fecha del gasto.
+                                    </p>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="form-grid">
+
+
+                                <div class="form-group">
+
+                                    <label for="id_proyecto">
+                                        Proyecto
+                                        <span>*</span>
+                                    </label>
+
+                                    <select
+                                        id="id_proyecto"
+                                        name="id_proyecto"
+                                        required
+                                    >
+
+                                        <option value="">
+                                            Seleccione un proyecto
+                                        </option>
+
+                                    </select>
+
+                                </div>
+
+
+                                <div class="form-group">
+
+                                    <label for="id_categoria">
+                                        Categoría
+                                        <span>*</span>
+                                    </label>
+
+                                    <select
+                                        id="id_categoria"
+                                        name="id_categoria"
+                                        required
+                                    >
+
+                                        <option value="">
+                                            Seleccione una categoría
+                                        </option>
+
+                                    </select>
+
+                                    <small>
+                                        <a href="nuevaCategoriaGasto.html?origen=nuevoGasto">
+                                            + Nueva categoría
+                                        </a>
+                                    </small>
+
+                                </div>
+
+
+                                <div class="form-group">
+
+                                    <label for="numero">
+                                        Número
+                                        <span>*</span>
+                                    </label>
+
+                                    <input
+                                        type="number"
+                                        id="numero"
+                                        name="numero"
+                                        min="0"
+                                        step="0.01"
+                                        placeholder="Ej. 1"
+                                        required
+                                    >
+
+                                </div>
+
+
+                                <div class="form-group">
+
+                                    <label for="fecha">
+                                        Fecha
+                                        <span>*</span>
+                                    </label>
+
+                                    <input
+                                        type="date"
+                                        id="fecha"
+                                        name="fecha"
+                                        required
+                                    >
+
+                                </div>
+
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- DOCUMENTO -->
+
+                        <div class="form-section">
+
+
+                            <div class="form-section-header">
+
+                                <div class="form-section-icon pink">
+                                    📄
+                                </div>
+
+
+                                <div>
+
+                                    <h3>
+                                        Documento
+                                    </h3>
+
+                                    <p>
+                                        Datos del documento de respaldo.
+                                    </p>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="form-grid">
+
+
+                                <div class="form-group">
+
+                                    <label for="numero_documento">
+                                        Número de documento
+                                        <span>*</span>
+                                    </label>
+
+                                    <input
+                                        type="number"
+                                        id="numero_documento"
+                                        name="numero_documento"
+                                        min="0"
+                                        step="0.01"
+                                        placeholder="Ej. 12345"
+                                        required
+                                    >
+
+                                </div>
+
+
+                                <div class="form-group">
+
+                                    <label for="serie">
+                                        Serie
+                                        <span>*</span>
+                                    </label>
+
+                                    <input
+                                        type="text"
+                                        id="serie"
+                                        name="serie"
+                                        placeholder="Ej. A"
+                                        required
+                                    >
+
+                                </div>
+
+
+                                <div class="form-group">
+
+                                    <label for="tipo_documento">
+                                        Tipo de documento
+                                    </label>
+
+                                    <input
+                                        type="text"
+                                        id="tipo_documento"
+                                        name="tipo_documento"
+                                        placeholder="Ej. Factura"
+                                    >
+
+                                </div>
+
+
+                                <div class="form-group">
+
+                                    <label for="numero_comprobante">
+                                        Número de comprobante
+                                    </label>
+
+                                    <input
+                                        type="number"
+                                        id="numero_comprobante"
+                                        name="numero_comprobante"
+                                        min="0"
+                                        step="0.01"
+                                        placeholder="Ej. 987"
+                                    >
+
+                                </div>
+
+
+                                <div class="form-group">
+
+                                    <label for="proveedor">
+                                        Proveedor
+                                    </label>
+
+                                    <input
+                                        type="text"
+                                        id="proveedor"
+                                        name="proveedor"
+                                        placeholder="Nombre del proveedor"
+                                    >
+
+                                </div>
+
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- DETALLE -->
+
+                        <div class="form-section">
+
+
+                            <div class="form-section-header">
+
+                                <div class="form-section-icon purple">
+                                    📝
+                                </div>
+
+
+                                <div>
+
+                                    <h3>
+                                        Detalle
+                                    </h3>
+
+                                    <p>
+                                        Descripción y referencias del gasto.
+                                    </p>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="form-grid">
+
+
+                                <div class="form-group full-width">
+
+                                    <label for="descripcion">
+                                        Descripción
+                                    </label>
+
+                                    <input
+                                        type="text"
+                                        id="descripcion"
+                                        name="descripcion"
+                                        placeholder="Descripción del gasto"
+                                    >
+
+                                </div>
+
+
+                                <div class="form-group full-width">
+
+                                    <label for="razon_denominacion_social">
+                                        Razón / denominación social
+                                    </label>
+
+                                    <input
+                                        type="text"
+                                        id="razon_denominacion_social"
+                                        name="razon_denominacion_social"
+                                        placeholder="Razón social del emisor"
+                                    >
+
+                                </div>
+
+
+                                <div class="form-group full-width">
+
+                                    <label for="trayecto">
+                                        Trayecto
+                                    </label>
+
+                                    <input
+                                        type="text"
+                                        id="trayecto"
+                                        name="trayecto"
+                                        placeholder="Trayecto (si aplica)"
+                                    >
+
+                                </div>
+
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- MONTOS -->
+
+                        <div class="form-section">
+
+
+                            <div class="form-section-header">
+
+                                <div class="form-section-icon blue">
+                                    💰
+                                </div>
+
+
+                                <div>
+
+                                    <h3>
+                                        Montos
+                                    </h3>
+
+                                    <p>
+                                        Valores e impuestos del gasto.
+                                    </p>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="form-grid">
+
+
+                                <div class="form-group">
+
+                                    <label for="monto">
+                                        Monto
+                                        <span>*</span>
+                                    </label>
+
+                                    <input
+                                        type="number"
+                                        id="monto"
+                                        name="monto"
+                                        min="0"
+                                        step="0.01"
+                                        placeholder="Ej. 1500.00"
+                                        required
+                                    >
+
+                                </div>
+
+
+                                <div class="form-group">
+
+                                    <label for="valor_base">
+                                        Valor base
+                                    </label>
+
+                                    <input
+                                        type="number"
+                                        id="valor_base"
+                                        name="valor_base"
+                                        min="0"
+                                        step="0.01"
+                                        placeholder="Ej. 1000.00"
+                                    >
+
+                                </div>
+
+
+                                <div class="form-group">
+
+                                    <label for="iva">
+                                        IVA
+                                    </label>
+
+                                    <input
+                                        type="number"
+                                        id="iva"
+                                        name="iva"
+                                        min="0"
+                                        step="0.01"
+                                        placeholder="Ej. 120.00"
+                                    >
+
+                                </div>
+
+
+                                <div class="form-group">
+
+                                    <label for="otros_impuestos">
+                                        Otros impuestos
+                                    </label>
+
+                                    <input
+                                        type="number"
+                                        id="otros_impuestos"
+                                        name="otros_impuestos"
+                                        min="0"
+                                        step="0.01"
+                                        placeholder="Ej. 0.00"
+                                    >
+
+                                </div>
+
+
+                                <div class="form-group">
+
+                                    <label for="total_valor_base">
+                                        Total valor base
+                                    </label>
+
+                                    <input
+                                        type="number"
+                                        id="total_valor_base"
+                                        name="total_valor_base"
+                                        min="0"
+                                        step="0.01"
+                                        placeholder="Ej. 1000.00"
+                                    >
+
+                                </div>
+
+
+                                <div class="form-group">
+
+                                    <label for="total_del_gasto">
+                                        Total del gasto
+                                    </label>
+
+                                    <input
+                                        type="number"
+                                        id="total_del_gasto"
+                                        name="total_del_gasto"
+                                        min="0"
+                                        step="0.01"
+                                        placeholder="Ej. 1120.00"
+                                    >
+
+                                </div>
+
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="form-actions">
+
+
+                            <p
+                                id="formMessage"
+                                role="alert"
+                            ></p>
+
+
+                            <a href="gastos.html" class="cancel-button">
+                                Volver
+                            </a>
+
+
+                            <button
+                                type="button"
+                                class="save-button"
+                                id="editButton"
+                                style="display: none;"
+                            >
+                                ✏️ Editar
+                            </button>
+
+
+                            <button
+                                type="submit"
+                                class="save-button"
+                                id="submitButton"
+                            >
+                                ✓ Registrar gasto
+                            </button>
+
+
+                        </div>
+
+
+                    </form>
+
+
+                </div>
+
+
+            </section>
+
+
+        </main>
+
+
+    </div>
+
+
+    <script src="menu.js"></script>
+    <script src="nuevoGasto.js"></script>
+
+</body>
+
+</html>

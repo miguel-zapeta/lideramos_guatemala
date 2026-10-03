@@ -1,0 +1,1118 @@
+/* =====================================
+   VARIABLES
+   ===================================== */
+
+:root {
+
+    --orange: #edaa5c;
+
+    --pink: #d23c78;
+
+    --dark: #2d2430;
+
+    --gray: #777777;
+
+    --light-gray: #f5f5f7;
+
+    --border: #e7e7e7;
+
+    --white: #ffffff;
+
+}
+
+
+/* =====================================
+   RESET
+   ===================================== */
+
+* {
+
+    margin: 0;
+
+    padding: 0;
+
+    box-sizing: border-box;
+
+}
+
+
+body {
+
+    font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+
+    background: var(--light-gray);
+
+    color: var(--dark);
+
+}
+
+
+/* =====================================
+   DASHBOARD
+   ===================================== */
+
+.dashboard {
+
+    display: flex;
+
+    min-height: 100vh;
+
+}
+
+
+/* =====================================
+   SIDEBAR
+   ===================================== */
+
+.sidebar {
+
+    width: 260px;
+
+    min-height: 100vh;
+
+    display: flex;
+
+    flex-direction: column;
+
+    background: var(--white);
+
+    border-right: 1px solid var(--border);
+
+    position: fixed;
+
+    left: 0;
+
+    top: 0;
+
+    bottom: 0;
+
+}
+
+
+/* =====================================
+   HEADER SIDEBAR
+   ===================================== */
+
+.sidebar-header { 
+    
+    width: 100%; 
+    
+    height: 110px; 
+    
+    display: flex; 
+    
+    align-items: 
+    
+    center; justify-content: 
+    
+    center; padding: 0; overflow: 
+    
+    hidden; border-bottom: 1px 
+    
+    solid var(--border); 
+
+} 
+
+/* IMAGEN DEL LOGO */ 
+
+.sidebar-logo { 
+    
+    width: 100%; 
+    
+    height: 100%; 
+    
+    display: block; 
+    
+    object-fit: contain; 
+
+}
+
+
+/* =====================================
+   MENÚ
+   ===================================== */
+
+.menu {
+
+    padding: 25px 15px;
+
+}
+
+
+.menu-item {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 13px;
+
+    padding: 13px 15px;
+
+    margin-bottom: 6px;
+
+    border-radius: 10px;
+
+    color: #666666;
+
+    text-decoration: none;
+
+    font-size: 14px;
+
+    font-weight: 600;
+
+    transition: all 0.25s ease;
+
+}
+
+
+.menu-item .icon {
+
+    width: 24px;
+
+    text-align: center;
+
+    font-size: 17px;
+
+}
+
+
+.menu-item:hover {
+
+    color: var(--pink);
+
+    background: #fff1f6;
+
+}
+
+
+/* =====================================
+   OPCIÓN ACTIVIDADES ACTIVA
+   ===================================== */
+
+.menu-item.active {
+
+    color: white;
+
+    background:
+        linear-gradient(
+            90deg,
+            var(--orange),
+            var(--pink)
+        );
+
+    box-shadow:
+        0 5px 15px
+        rgba(210, 60, 120, 0.20);
+
+}
+
+
+.menu-item.active:hover {
+
+    color: white;
+
+}
+
+
+/* =====================================
+   PARTE INFERIOR SIDEBAR
+   ===================================== */
+
+.sidebar-bottom {
+
+    margin-top: auto;
+
+    padding: 15px;
+
+    border-top: 1px solid var(--border);
+
+}
+
+
+.logout {
+
+    color: var(--pink);
+
+}
+
+
+/* =====================================
+   CONTENIDO PRINCIPAL
+   ===================================== */
+
+.main-content {
+
+    width: calc(100% - 260px);
+
+    margin-left: 260px;
+
+    min-height: 100vh;
+
+}
+
+
+/* =====================================
+   TOPBAR
+   ===================================== */
+
+.topbar {
+
+    height: 90px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    padding: 0 35px;
+
+    background: white;
+
+    border-bottom: 1px solid var(--border);
+
+}
+
+
+.page-title h1 {
+
+    font-size: 25px;
+
+    color: var(--dark);
+
+}
+
+
+.page-title p {
+
+    margin-top: 5px;
+
+    color: var(--gray);
+
+    font-size: 13px;
+
+}
+
+
+/* =====================================
+   PERFIL ADMINISTRADOR
+   ===================================== */
+
+.admin-profile {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+}
+
+
+.admin-avatar {
+
+    width: 42px;
+
+    height: 42px;
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    border-radius: 50%;
+
+    color: white;
+
+    font-size: 13px;
+
+    font-weight: bold;
+
+    background:
+        linear-gradient(
+            135deg,
+            var(--orange),
+            var(--pink)
+        );
+
+}
+
+
+.admin-info strong {
+
+    display: block;
+
+    font-size: 13px;
+
+}
+
+
+.admin-info span {
+
+    display: block;
+
+    margin-top: 3px;
+
+    color: var(--gray);
+
+    font-size: 11px;
+
+}
+
+
+/* =====================================
+   CONTENIDO
+   ===================================== */
+
+.content {
+
+    padding: 35px;
+
+}
+
+
+.section-header {
+
+    margin-bottom: 25px;
+
+}
+
+
+.section-header h2 {
+
+    font-size: 21px;
+
+}
+
+
+.section-header p {
+
+    margin-top: 5px;
+
+    color: var(--gray);
+
+    font-size: 13px;
+
+}
+
+
+/* =====================================
+   OPCIONES DE ACTIVIDADES
+   ===================================== */
+
+.activity-options {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(4, 1fr);
+
+    gap: 18px;
+
+    margin-bottom: 25px;
+
+}
+
+
+.activity-card {
+
+    padding: 22px;
+
+    background: white;
+
+    border: 1px solid var(--border);
+
+    border-radius: 14px;
+
+    transition: all 0.25s ease;
+
+}
+
+
+.activity-card:hover {
+
+    transform: translateY(-4px);
+
+    box-shadow:
+        0 10px 25px
+        rgba(0, 0, 0, 0.08);
+
+}
+
+
+.activity-icon {
+
+    width: 48px;
+
+    height: 48px;
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    margin-bottom: 18px;
+
+    border-radius: 12px;
+
+    font-size: 21px;
+
+}
+
+
+.activity-icon.orange {
+
+    background: #fff1e2;
+
+}
+
+
+.activity-icon.pink {
+
+    background: #fff0f5;
+
+}
+
+
+.activity-icon.purple {
+
+    background: #f3edff;
+
+}
+
+
+.activity-icon.blue {
+
+    background: #eaf4ff;
+
+}
+
+
+.activity-card-content h3 {
+
+    margin-bottom: 8px;
+
+    color: var(--dark);
+
+    font-size: 15px;
+
+}
+
+
+.activity-card-content p {
+
+    min-height: 48px;
+
+    margin-bottom: 18px;
+
+    color: var(--gray);
+
+    font-size: 12px;
+
+    line-height: 1.5;
+
+}
+
+
+/* =====================================
+   BOTONES DE ACTIVIDADES
+   ===================================== */
+
+.activity-button {
+
+    width: 100%;
+
+    padding: 10px;
+
+    border: 1px solid var(--pink);
+
+    border-radius: 8px;
+
+    color: var(--pink);
+
+    background: white;
+
+    font-size: 12px;
+
+    font-weight: bold;
+
+    cursor: pointer;
+
+    transition: all 0.25s ease;
+
+}
+
+
+.activity-button:hover {
+
+    color: white;
+
+    border-color: var(--pink);
+
+    background:
+        linear-gradient(
+            90deg,
+            var(--orange),
+            var(--pink)
+        );
+
+}
+
+
+/* =====================================
+   RESUMEN DE ACTIVIDADES
+   ===================================== */
+
+.activity-summary {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, 1fr);
+
+    gap: 18px;
+
+    margin-bottom: 25px;
+
+}
+
+
+.summary-card {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 15px;
+
+    padding: 20px;
+
+    background: white;
+
+    border: 1px solid var(--border);
+
+    border-radius: 13px;
+
+}
+
+
+.summary-icon {
+
+    width: 50px;
+
+    height: 50px;
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    flex-shrink: 0;
+
+    border-radius: 12px;
+
+    font-size: 20px;
+
+}
+
+
+/* =====================================
+   COLORES RESUMEN
+   ===================================== */
+
+.summary-icon.activities {
+
+    background: #fff1e2;
+
+}
+
+
+.summary-icon.upcoming {
+
+    background: #fff0f5;
+
+}
+
+
+.summary-icon.participants {
+
+    background: #f3edff;
+
+}
+
+
+.summary-card span {
+
+    display: block;
+
+    margin-bottom: 5px;
+
+    color: var(--gray);
+
+    font-size: 11px;
+
+}
+
+
+.summary-card strong {
+
+    display: block;
+
+    font-size: 20px;
+
+    color: var(--dark);
+
+}
+
+
+.summary-card small {
+
+    display: block;
+
+    margin-top: 5px;
+
+    font-size: 10px;
+
+}
+
+
+.positive {
+
+    color: #31945a;
+
+}
+
+
+.negative {
+
+    color: var(--pink);
+
+}
+
+
+/* =====================================
+   TABLA
+   ===================================== */
+
+.table-container {
+
+    overflow: hidden;
+
+    background: white;
+
+    border: 1px solid var(--border);
+
+    border-radius: 14px;
+
+}
+
+
+.table-header {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    padding: 20px 25px;
+
+    border-bottom: 1px solid var(--border);
+
+}
+
+
+.table-header h3 {
+
+    font-size: 16px;
+
+}
+
+
+.table-header p {
+
+    margin-top: 4px;
+
+    color: var(--gray);
+
+    font-size: 11px;
+
+}
+
+
+/* =====================================
+   BOTÓN VER TODAS
+   ===================================== */
+
+.view-all {
+
+    padding: 9px 15px;
+
+    border: 1px solid var(--pink);
+
+    border-radius: 8px;
+
+    color: var(--pink);
+
+    background: white;
+
+    font-size: 11px;
+
+    font-weight: bold;
+
+    cursor: pointer;
+
+}
+
+
+.view-all:hover {
+
+    color: white;
+
+    background: var(--pink);
+
+}
+
+
+/* =====================================
+   TABLA RESPONSIVE
+   ===================================== */
+
+.table-responsive {
+
+    width: 100%;
+
+    overflow-x: auto;
+
+}
+
+
+table {
+
+    width: 100%;
+
+    min-width: 850px;
+
+    border-collapse: collapse;
+
+}
+
+
+thead {
+
+    background: #fafafa;
+
+}
+
+
+th {
+
+    padding: 14px 20px;
+
+    text-align: left;
+
+    color: #777;
+
+    font-size: 10px;
+
+    text-transform: uppercase;
+
+    letter-spacing: 0.4px;
+
+}
+
+
+td {
+
+    padding: 15px 20px;
+
+    border-top: 1px solid var(--border);
+
+    color: #555;
+
+    font-size: 12px;
+
+}
+
+
+tbody tr {
+
+    transition: 0.2s;
+
+}
+
+
+tbody tr:hover {
+
+    background: #fffafc;
+
+}
+
+
+/* =====================================
+   NOMBRE DE ACTIVIDAD
+   ===================================== */
+
+.activity-name {
+
+    color: var(--dark);
+
+    font-size: 12px;
+
+}
+
+
+/* =====================================
+   CATEGORÍA
+   ===================================== */
+
+.category {
+
+    display: inline-block;
+
+    padding: 5px 10px;
+
+    border-radius: 20px;
+
+    color: #8d4a6a;
+
+    background: #fff0f5;
+
+    font-size: 10px;
+
+    font-weight: bold;
+
+}
+
+
+/* =====================================
+   ESTADOS
+   ===================================== */
+
+.status {
+
+    display: inline-block;
+
+    padding: 5px 10px;
+
+    border-radius: 20px;
+
+    font-size: 10px;
+
+    font-weight: bold;
+
+}
+
+
+/* ACTIVIDAD COMPLETADA */
+
+.status.completed {
+
+    color: #287d4c;
+
+    background: #eaf8ef;
+
+}
+
+
+/* ACTIVIDAD PROGRAMADA */
+
+.status.scheduled {
+
+    color: #8d4a6a;
+
+    background: #fff0f5;
+
+}
+
+
+/* =====================================
+   RESPONSIVE - TABLET
+   ===================================== */
+
+@media (max-width: 1200px) {
+
+    .activity-options {
+
+        grid-template-columns:
+            repeat(2, 1fr);
+
+    }
+
+}
+
+
+/* =====================================
+   RESPONSIVE
+   ===================================== */
+
+@media (max-width: 1000px) {
+
+    .sidebar {
+
+        width: 220px;
+
+    }
+
+
+    .main-content {
+
+        width: calc(100% - 220px);
+
+        margin-left: 220px;
+
+    }
+
+
+    .activity-summary {
+
+        grid-template-columns: 1fr;
+
+    }
+
+}
+
+
+/* =====================================
+   TABLET PEQUEÑA
+   ===================================== */
+
+@media (max-width: 750px) {
+
+    .sidebar {
+
+        width: 70px;
+
+    }
+
+
+    .sidebar-header {
+
+        justify-content: center;
+
+        padding: 20px 10px;
+
+    }
+
+
+    .brand {
+
+        display: none;
+
+    }
+
+
+    .menu {
+
+        padding: 20px 10px;
+
+    }
+
+
+    .menu-item {
+
+        justify-content: center;
+
+        padding: 13px 5px;
+
+    }
+
+
+    .menu-item span:last-child {
+
+        display: none;
+
+    }
+
+
+    .sidebar-bottom {
+
+        padding: 10px;
+
+    }
+
+
+    .main-content {
+
+        width: calc(100% - 70px);
+
+        margin-left: 70px;
+
+    }
+
+
+    .content {
+
+        padding: 20px;
+
+    }
+
+
+    .topbar {
+
+        padding: 0 20px;
+
+    }
+
+
+    .admin-info {
+
+        display: none;
+
+    }
+
+
+    .activity-options {
+
+        grid-template-columns: 1fr;
+
+    }
+
+}
+
+
+/* =====================================
+   CELULARES
+   ===================================== */
+
+@media (max-width: 550px) {
+
+    .section-header {
+
+        margin-bottom: 20px;
+
+    }
+
+
+    .table-header {
+
+        flex-direction: column;
+
+        align-items: flex-start;
+
+        gap: 15px;
+
+    }
+
+
+    .view-all {
+
+        width: 100%;
+
+    }
+
+
+    .summary-card {
+
+        padding: 17px;
+
+    }
+
+}

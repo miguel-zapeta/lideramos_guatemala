@@ -1,0 +1,7 @@
+node_modules/
+backend/.env
+*.log
+.agents/
+AGENTS.md
+skills-lock.json
+migracion_*.sql

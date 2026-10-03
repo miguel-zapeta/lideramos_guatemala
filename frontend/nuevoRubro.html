@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Nuevo Rubro - Panel Administrativo</title>
+
+    <link rel="stylesheet" href="nuevoUsuario.css">
+
+</head>
+
+
+<body>
+
+
+    <div class="dashboard">
+
+
+        <aside class="sidebar">
+
+
+            <div class="sidebar-header">
+
+                <img src="Lideramos.png" alt="Logo de la organización" class="sidebar-logo" >
+
+            </div>
+
+
+            <nav class="menu">
+
+                <a href="usuarios.html" class="menu-item" data-modulo="usuarios">
+
+                    <span class="icon">
+                        👥
+                    </span>
+
+                    <span>
+                        Usuarios
+                    </span>
+
+                </a>
+
+
+                <a href="voluntarios.html" class="menu-item" data-modulo="voluntarios">
+
+                    <span class="icon">
+                        🤝
+                    </span>
+
+                    <span>
+                        Voluntarios
+                    </span>
+
+                </a>
+
+
+                <a href="finanzas.html" class="menu-item active" data-modulo="finanzas">
+
+                    <span class="icon">
+                        💰
+                    </span>
+
+                    <span>
+                        Finanzas
+                    </span>
+
+                </a>
+
+
+                <a href="actividades.html" class="menu-item" data-modulo="actividades">
+
+                    <span class="icon">
+                        📅
+                    </span>
+
+                    <span>
+                        Actividades
+                    </span>
+
+                </a>
+
+
+                <a href="#" class="menu-item" data-modulo="reportes">
+
+                    <span class="icon">
+                        📊
+                    </span>
+
+                    <span>
+                        Reportes
+                    </span>
+
+                </a>
+
+            </nav>
+
+
+            <div class="sidebar-bottom">
+
+
+                <a href="#" class="menu-item" data-modulo="configuracion">
+
+                    <span class="icon">
+                        ⚙️
+                    </span>
+
+                    <span>
+                        Configuración
+                    </span>
+
+                </a>
+
+
+                <a href="#" class="menu-item logout">
+
+                    <span class="icon">
+                        ↪
+                    </span>
+
+                    <span>
+                        Cerrar sesión
+                    </span>
+
+                </a>
+
+
+            </div>
+
+
+        </aside>
+
+
+        <main class="main-content">
+
+
+            <header class="topbar">
+
+
+                <div class="page-title">
+
+                    <h1>
+                        Rubros
+                    </h1>
+
+                    <p>
+                        Administración de rubros
+                    </p>
+
+                </div>
+
+
+                <div class="admin-profile">
+
+
+                    <div class="admin-avatar" id="currentUserAvatar">
+                        AD
+                    </div>
+
+
+                    <div class="admin-info">
+
+                        <strong id="currentUserName">
+                            Administrador
+                        </strong>
+
+                        <span id="currentUserRole">
+                            Administrador
+                        </span>
+
+                    </div>
+
+
+                </div>
+
+
+            </header>
+
+
+            <section class="content">
+
+
+                <div class="section-header">
+
+
+                    <div>
+
+                        <h2 id="formTitle">
+                            Crear nuevo rubro
+                        </h2>
+
+                        <p>
+                            Completa la información para registrar un nuevo rubro.
+                        </p>
+
+                    </div>
+
+
+                </div>
+
+
+                <div class="form-container">
+
+
+                    <form class="user-form" id="rubroForm">
+
+
+                        <div class="form-section">
+
+
+                            <div class="form-section-header">
+
+                                <div class="form-section-icon orange">
+                                    🗂️
+                                </div>
+
+
+                                <div>
+
+                                    <h3>
+                                        Información del rubro
+                                    </h3>
+
+                                    <p>
+                                        Datos básicos del rubro.
+                                    </p>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="form-grid">
+
+
+                                <!-- NOMBRE -->
+
+                                <div class="form-group">
+
+                                    <label for="nombre">
+                                        Nombre
+                                        <span>*</span>
+                                    </label>
+
+                                    <input
+                                        type="text"
+                                        id="nombre"
+                                        name="nombre"
+                                        placeholder="Ej. Operación"
+                                        required
+                                    >
+
+                                </div>
+
+
+                                <!-- DESCRIPCIÓN -->
+
+                                <div class="form-group full-width">
+
+                                    <label for="descripcion">
+                                        Descripción
+                                    </label>
+
+                                    <input
+                                        type="text"
+                                        id="descripcion"
+                                        name="descripcion"
+                                        placeholder="Descripción del rubro"
+                                    >
+
+                                </div>
+
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="form-actions">
+
+
+                            <p
+                                id="formMessage"
+                                role="alert"
+                            ></p>
+
+
+                            <a href="rubros.html" class="cancel-button">
+                                Cancelar
+                            </a>
+
+
+                            <button
+                                type="submit"
+                                class="save-button"
+                                id="submitButton"
+                            >
+                                ✓ Crear rubro
+                            </button>
+
+
+                        </div>
+
+
+                    </form>
+
+
+                </div>
+
+
+            </section>
+
+
+        </main>
+
+
+    </div>
+
+
+    <script src="menu.js"></script>
+    <script src="nuevoRubro.js"></script>
+
+</body>
+
+</html>

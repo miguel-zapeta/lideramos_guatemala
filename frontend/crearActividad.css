@@ -1,0 +1,1151 @@
+/* =====================================
+   VARIABLES
+   ===================================== */
+
+:root {
+
+    --orange: #edaa5c;
+
+    --pink: #d23c78;
+
+    --dark: #2d2430;
+
+    --gray: #777777;
+
+    --light-gray: #f5f5f7;
+
+    --border: #e7e7e7;
+
+    --white: #ffffff;
+
+}
+
+
+/* =====================================
+   RESET
+   ===================================== */
+
+* {
+
+    margin: 0;
+
+    padding: 0;
+
+    box-sizing: border-box;
+
+}
+
+
+body {
+
+    font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+
+    background: var(--light-gray);
+
+    color: var(--dark);
+
+}
+
+
+/* =====================================
+   DASHBOARD
+   ===================================== */
+
+.dashboard {
+
+    display: flex;
+
+    min-height: 100vh;
+
+}
+
+
+/* =====================================
+   SIDEBAR
+   ===================================== */
+
+.sidebar {
+
+    width: 260px;
+
+    min-height: 100vh;
+
+    display: flex;
+
+    flex-direction: column;
+
+    background: var(--white);
+
+    border-right: 1px solid var(--border);
+
+    position: fixed;
+
+    left: 0;
+
+    top: 0;
+
+    bottom: 0;
+
+}
+
+
+/* =====================================
+   HEADER SIDEBAR
+   ===================================== */
+
+.sidebar-header { 
+    
+    width: 100%; 
+    
+    height: 110px; 
+    
+    display: flex; 
+    
+    align-items: 
+    
+    center; justify-content: 
+    
+    center; padding: 0; overflow: 
+    
+    hidden; border-bottom: 1px 
+    
+    solid var(--border); 
+
+} 
+
+/* IMAGEN DEL LOGO */ 
+
+.sidebar-logo { 
+    
+    width: 100%; 
+    
+    height: 100%; 
+    
+    display: block; 
+    
+    object-fit: contain; 
+
+}
+
+
+/* =====================================
+   MENÚ
+   ===================================== */
+
+.menu {
+
+    padding: 25px 15px;
+
+}
+
+
+.menu-item {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 13px;
+
+    padding: 13px 15px;
+
+    margin-bottom: 6px;
+
+    border-radius: 10px;
+
+    color: #666666;
+
+    text-decoration: none;
+
+    font-size: 14px;
+
+    font-weight: 600;
+
+    transition: all 0.25s ease;
+
+}
+
+
+.menu-item .icon {
+
+    width: 24px;
+
+    text-align: center;
+
+    font-size: 17px;
+
+}
+
+
+.menu-item:hover {
+
+    color: var(--pink);
+
+    background: #fff1f6;
+
+}
+
+
+/* =====================================
+   ACTIVIDADES ACTIVA
+   ===================================== */
+
+.menu-item.active {
+
+    color: white;
+
+    background:
+        linear-gradient(
+            90deg,
+            var(--orange),
+            var(--pink)
+        );
+
+    box-shadow:
+        0 5px 15px
+        rgba(210, 60, 120, 0.20);
+
+}
+
+
+.menu-item.active:hover {
+
+    color: white;
+
+}
+
+
+/* =====================================
+   PARTE INFERIOR SIDEBAR
+   ===================================== */
+
+.sidebar-bottom {
+
+    margin-top: auto;
+
+    padding: 15px;
+
+    border-top: 1px solid var(--border);
+
+}
+
+
+.logout {
+
+    color: var(--pink);
+
+}
+
+
+/* =====================================
+   CONTENIDO PRINCIPAL
+   ===================================== */
+
+.main-content {
+
+    width: calc(100% - 260px);
+
+    margin-left: 260px;
+
+    min-height: 100vh;
+
+}
+
+
+/* =====================================
+   TOPBAR
+   ===================================== */
+
+.topbar {
+
+    height: 90px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    padding: 0 35px;
+
+    background: white;
+
+    border-bottom: 1px solid var(--border);
+
+}
+
+
+.page-title h1 {
+
+    font-size: 25px;
+
+    color: var(--dark);
+
+}
+
+
+.page-title p {
+
+    margin-top: 5px;
+
+    color: var(--gray);
+
+    font-size: 13px;
+
+}
+
+
+/* =====================================
+   PERFIL ADMINISTRADOR
+   ===================================== */
+
+.admin-profile {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+}
+
+
+.admin-avatar {
+
+    width: 42px;
+
+    height: 42px;
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    border-radius: 50%;
+
+    color: white;
+
+    font-size: 13px;
+
+    font-weight: bold;
+
+    background:
+        linear-gradient(
+            135deg,
+            var(--orange),
+            var(--pink)
+        );
+
+}
+
+
+.admin-info strong {
+
+    display: block;
+
+    font-size: 13px;
+
+}
+
+
+.admin-info span {
+
+    display: block;
+
+    margin-top: 3px;
+
+    color: var(--gray);
+
+    font-size: 11px;
+
+}
+
+
+/* =====================================
+   CONTENIDO
+   ===================================== */
+
+.content {
+
+    padding: 35px;
+
+}
+
+
+.section-header {
+
+    margin-bottom: 25px;
+
+}
+
+
+.section-header h2 {
+
+    font-size: 21px;
+
+}
+
+
+.section-header p {
+
+    margin-top: 5px;
+
+    color: var(--gray);
+
+    font-size: 13px;
+
+}
+
+
+/* =====================================
+   CONTENEDOR DEL FORMULARIO
+   ===================================== */
+
+.form-container {
+
+    max-width: 1100px;
+
+    margin: 0 auto;
+
+    background: white;
+
+    border: 1px solid var(--border);
+
+    border-radius: 14px;
+
+    overflow: hidden;
+
+}
+
+
+/* =====================================
+   FORMULARIO
+   ===================================== */
+
+.activity-form {
+
+    width: 100%;
+
+}
+
+
+/* =====================================
+   SECCIONES
+   ===================================== */
+
+.form-section {
+
+    padding: 28px 30px;
+
+    border-bottom: 1px solid var(--border);
+
+}
+
+
+.form-section-header {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 13px;
+
+    margin-bottom: 25px;
+
+}
+
+
+.form-section-header h3 {
+
+    font-size: 16px;
+
+    color: var(--dark);
+
+}
+
+
+.form-section-header p {
+
+    margin-top: 4px;
+
+    color: var(--gray);
+
+    font-size: 11px;
+
+}
+
+
+/* =====================================
+   ICONOS
+   ===================================== */
+
+.form-section-icon {
+
+    width: 45px;
+
+    height: 45px;
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    flex-shrink: 0;
+
+    border-radius: 11px;
+
+    font-size: 19px;
+
+}
+
+
+.form-section-icon.orange {
+
+    background: #fff1e2;
+
+}
+
+
+.form-section-icon.pink {
+
+    background: #fff0f5;
+
+}
+
+
+.form-section-icon.purple {
+
+    background: #f3edff;
+
+}
+
+
+.form-section-icon.blue {
+
+    background: #eaf4ff;
+
+}
+
+
+/* =====================================
+   GRID
+   ===================================== */
+
+.form-grid {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, 1fr);
+
+    gap: 20px;
+
+}
+
+
+/* =====================================
+   GRUPOS
+   ===================================== */
+
+.form-group {
+
+    display: flex;
+
+    flex-direction: column;
+
+}
+
+
+.form-group.full-width {
+
+    grid-column: 1 / -1;
+
+}
+
+
+/* =====================================
+   LABEL
+   ===================================== */
+
+.form-group label {
+
+    margin-bottom: 8px;
+
+    color: var(--dark);
+
+    font-size: 12px;
+
+    font-weight: bold;
+
+}
+
+
+.form-group label span {
+
+    color: var(--pink);
+
+}
+
+
+/* =====================================
+   INPUTS Y SELECT
+   ===================================== */
+
+.form-group input,
+.form-group select {
+
+    width: 100%;
+
+    height: 42px;
+
+    padding: 0 13px;
+
+    border: 1px solid #dddddd;
+
+    border-radius: 8px;
+
+    outline: none;
+
+    color: var(--dark);
+
+    background: white;
+
+    font-family: inherit;
+
+    font-size: 12px;
+
+    transition: all 0.25s ease;
+
+}
+
+
+.form-group input::placeholder {
+
+    color: #aaaaaa;
+
+}
+
+
+.form-group input:focus,
+.form-group select:focus {
+
+    border-color: var(--pink);
+
+    box-shadow:
+        0 0 0 3px
+        rgba(210, 60, 120, 0.08);
+
+}
+
+
+.form-group select {
+
+    cursor: pointer;
+
+}
+
+
+/* =====================================
+   TEXTAREA
+   ===================================== */
+
+.form-group textarea {
+
+    width: 100%;
+
+    min-height: 100px;
+
+    padding: 12px 13px;
+
+    border: 1px solid #dddddd;
+
+    border-radius: 8px;
+
+    outline: none;
+
+    color: var(--dark);
+
+    background: white;
+
+    font-family: inherit;
+
+    font-size: 12px;
+
+    resize: vertical;
+
+    transition: all 0.25s ease;
+
+}
+
+
+.form-group textarea::placeholder {
+
+    color: #aaaaaa;
+
+}
+
+
+.form-group textarea:focus {
+
+    border-color: var(--pink);
+
+    box-shadow:
+        0 0 0 3px
+        rgba(210, 60, 120, 0.08);
+
+}
+
+
+/* =====================================
+   TEXTO DE AYUDA
+   ===================================== */
+
+.form-group small {
+
+    margin-top: 6px;
+
+    color: var(--gray);
+
+    font-size: 10px;
+
+}
+
+
+/* =====================================
+   ESTADO DE LA ACTIVIDAD
+   ===================================== */
+
+.status-options {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, 1fr);
+
+    gap: 15px;
+
+}
+
+
+.status-option {
+
+    position: relative;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+
+    padding: 15px;
+
+    border: 1px solid var(--border);
+
+    border-radius: 10px;
+
+    cursor: pointer;
+
+    transition: all 0.25s ease;
+
+}
+
+
+.status-option:hover {
+
+    border-color: var(--pink);
+
+    background: #fffafc;
+
+}
+
+
+.status-option input {
+
+    position: absolute;
+
+    opacity: 0;
+
+}
+
+
+.radio-custom {
+
+    width: 18px;
+
+    height: 18px;
+
+    flex-shrink: 0;
+
+    border: 2px solid #cccccc;
+
+    border-radius: 50%;
+
+    position: relative;
+
+}
+
+
+.status-option input:checked + .radio-custom {
+
+    border-color: var(--pink);
+
+}
+
+
+.status-option input:checked + .radio-custom::after {
+
+    content: "";
+
+    position: absolute;
+
+    width: 8px;
+
+    height: 8px;
+
+    top: 3px;
+
+    left: 3px;
+
+    border-radius: 50%;
+
+    background: var(--pink);
+
+}
+
+
+.status-text strong {
+
+    display: block;
+
+    color: var(--dark);
+
+    font-size: 12px;
+
+}
+
+
+.status-text small {
+
+    display: block;
+
+    margin-top: 4px;
+
+    color: var(--gray);
+
+    font-size: 10px;
+
+}
+
+
+/* =====================================
+   BOTONES
+   ===================================== */
+
+.form-actions {
+
+    display: flex;
+
+    justify-content: flex-end;
+
+    align-items: center;
+
+    gap: 12px;
+
+    padding: 22px 30px;
+
+    background: #fafafa;
+
+}
+
+
+/* =====================================
+   BOTÓN CANCELAR
+   ===================================== */
+
+.cancel-button {
+
+    padding: 11px 22px;
+
+    border: 1px solid #dddddd;
+
+    border-radius: 8px;
+
+    color: #666666;
+
+    background: white;
+
+    font-size: 12px;
+
+    font-weight: bold;
+
+    cursor: pointer;
+
+    transition: all 0.25s ease;
+
+}
+
+
+.cancel-button:hover {
+
+    color: var(--dark);
+
+    border-color: #bbbbbb;
+
+    background: #f5f5f5;
+
+}
+
+
+/* =====================================
+   BOTÓN CREAR ACTIVIDAD
+   ===================================== */
+
+.save-button {
+
+    padding: 11px 24px;
+
+    border: 1px solid var(--pink);
+
+    border-radius: 8px;
+
+    color: white;
+
+    background:
+        linear-gradient(
+            90deg,
+            var(--orange),
+            var(--pink)
+        );
+
+    font-size: 12px;
+
+    font-weight: bold;
+
+    cursor: pointer;
+
+    box-shadow:
+        0 5px 15px
+        rgba(210, 60, 120, 0.18);
+
+    transition: all 0.25s ease;
+
+}
+
+
+.save-button:hover {
+
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 8px 20px
+        rgba(210, 60, 120, 0.25);
+
+}
+
+
+/* =====================================
+   RESPONSIVE
+   ===================================== */
+
+@media (max-width: 1000px) {
+
+    .sidebar {
+
+        width: 220px;
+
+    }
+
+
+    .main-content {
+
+        width: calc(100% - 220px);
+
+        margin-left: 220px;
+
+    }
+
+
+    .form-container {
+
+        max-width: 100%;
+
+    }
+
+}
+
+
+/* =====================================
+   TABLET PEQUEÑA
+   ===================================== */
+
+@media (max-width: 750px) {
+
+    .sidebar {
+
+        width: 70px;
+
+    }
+
+
+    .sidebar-header {
+
+        justify-content: center;
+
+        padding: 20px 10px;
+
+    }
+
+
+    .brand {
+
+        display: none;
+
+    }
+
+
+    .menu {
+
+        padding: 20px 10px;
+
+    }
+
+
+    .menu-item {
+
+        justify-content: center;
+
+        padding: 13px 5px;
+
+    }
+
+
+    .menu-item span:last-child {
+
+        display: none;
+
+    }
+
+
+    .sidebar-bottom {
+
+        padding: 10px;
+
+    }
+
+
+    .main-content {
+
+        width: calc(100% - 70px);
+
+        margin-left: 70px;
+
+    }
+
+
+    .content {
+
+        padding: 20px;
+
+    }
+
+
+    .topbar {
+
+        padding: 0 20px;
+
+    }
+
+
+    .admin-info {
+
+        display: none;
+
+    }
+
+
+    .form-section {
+
+        padding: 22px;
+
+    }
+
+
+    .form-grid {
+
+        grid-template-columns: 1fr;
+
+    }
+
+
+    .form-group.full-width {
+
+        grid-column: auto;
+
+    }
+
+
+    .status-options {
+
+        grid-template-columns: 1fr;
+
+    }
+
+}
+
+
+/* =====================================
+   CELULARES
+   ===================================== */
+
+@media (max-width: 550px) {
+
+    .section-header {
+
+        margin-bottom: 20px;
+
+    }
+
+
+    .form-container {
+
+        border-radius: 10px;
+
+    }
+
+
+    .form-section {
+
+        padding: 20px 17px;
+
+    }
+
+
+    .form-section-header {
+
+        align-items: flex-start;
+
+    }
+
+
+    .form-actions {
+
+        flex-direction: column-reverse;
+
+        padding: 18px;
+
+    }
+
+
+    .cancel-button,
+    .save-button {
+
+        width: 100%;
+
+    }
+
+}

@@ -1,0 +1,336 @@
+/* =========================
+   Variables de colores
+   ========================= */
+
+:root {
+    --color-orange: #edaa5c;
+    --color-pink: #d23c78;
+    --color-dark: #2d2430;
+    --color-gray: #777;
+    --color-light: #f8f8f8;
+    --color-white: #ffffff;
+}
+
+
+/* =========================
+   Reset básico
+   ========================= */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    min-height: 100vh;
+}
+
+
+/* =========================
+   Contenedor principal
+   ========================= */
+
+.login-container {
+    min-height: 100vh;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    padding: 30px;
+
+    /* Colores principales */
+    background: linear-gradient(
+        135deg,
+        #edaa5c 0%,
+        #d23c78 100%
+    );
+}
+
+
+/* =========================
+   Tarjeta de login
+   ========================= */
+
+.login-card {
+    width: 100%;
+    max-width: 430px;
+
+    padding: 45px 40px;
+
+    background-color: var(--color-white);
+
+    border-radius: 20px;
+
+    box-shadow:
+        0 20px 50px rgba(0, 0, 0, 0.18);
+}
+
+
+/* =========================
+   Encabezado
+   ========================= */
+
+.login-header {
+    text-align: center;
+    margin-bottom: 35px;
+}
+
+.logo {
+    width: 60px;
+    height: 60px;
+
+    margin: 0 auto 20px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    border-radius: 50%;
+
+    color: white;
+    font-size: 28px;
+
+    background: linear-gradient(
+        135deg,
+        var(--color-orange),
+        var(--color-pink)
+    );
+}
+
+.login-header h1 {
+    color: var(--color-dark);
+    font-size: 30px;
+    margin-bottom: 8px;
+}
+
+.login-header p {
+    color: var(--color-gray);
+    font-size: 15px;
+}
+
+
+/* =========================
+   Formulario
+   ========================= */
+
+.login-form {
+    width: 100%;
+}
+
+.input-group {
+    margin-bottom: 20px;
+}
+
+.input-group label {
+    display: block;
+
+    margin-bottom: 8px;
+
+    color: var(--color-dark);
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.input-group input {
+    width: 100%;
+
+    padding: 14px 16px;
+
+    border: 1.5px solid #ddd;
+    border-radius: 10px;
+
+    outline: none;
+
+    font-size: 15px;
+
+    transition: all 0.25s ease;
+}
+
+.input-group input::placeholder {
+    color: #aaa;
+}
+
+.input-group input:focus {
+    border-color: var(--color-pink);
+
+    box-shadow:
+        0 0 0 3px rgba(210, 60, 120, 0.12);
+}
+
+
+/* =========================
+   Opciones del formulario
+   ========================= */
+
+.form-options {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    margin-bottom: 25px;
+
+    font-size: 13px;
+}
+
+.remember {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+
+    color: var(--color-gray);
+
+    cursor: pointer;
+}
+
+.remember input {
+    accent-color: var(--color-pink);
+
+    width: 15px;
+    height: 15px;
+}
+
+.forgot-password {
+    color: var(--color-pink);
+    text-decoration: none;
+
+    transition: color 0.2s ease;
+}
+
+.forgot-password:hover {
+    color: #a92d60;
+    text-decoration: underline;
+}
+
+
+/* =========================
+   Botón
+   ========================= */
+
+.login-button {
+    width: 100%;
+
+    padding: 15px;
+
+    border: none;
+    border-radius: 10px;
+
+    color: white;
+
+    font-size: 16px;
+    font-weight: bold;
+
+    cursor: pointer;
+
+    background: linear-gradient(
+        90deg,
+        var(--color-orange),
+        var(--color-pink)
+    );
+
+    box-shadow:
+        0 8px 18px rgba(210, 60, 120, 0.25);
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.login-button:hover {
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 12px 25px rgba(210, 60, 120, 0.35);
+}
+
+.login-button:active {
+    transform: translateY(0);
+}
+
+
+/* =========================
+   Separador
+   ========================= */
+
+.divider {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+
+    margin: 30px 0;
+
+    color: #aaa;
+    font-size: 13px;
+}
+
+.divider::before,
+.divider::after {
+    content: "";
+
+    flex: 1;
+
+    height: 1px;
+
+    background-color: #e5e5e5;
+}
+
+.divider span {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+
+/* =========================
+   Registro
+   ========================= */
+
+.register-text {
+    text-align: center;
+
+    color: var(--color-gray);
+
+    font-size: 14px;
+}
+
+.register-text a {
+    color: var(--color-pink);
+
+    font-weight: bold;
+
+    text-decoration: none;
+}
+
+.register-text a:hover {
+    text-decoration: underline;
+}
+
+
+/* =========================
+   Diseño responsive
+   ========================= */
+
+@media (max-width: 480px) {
+
+    .login-container {
+        padding: 20px;
+    }
+
+    .login-card {
+        padding: 35px 25px;
+        border-radius: 16px;
+    }
+
+    .login-header h1 {
+        font-size: 26px;
+    }
+
+    .form-options {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+}

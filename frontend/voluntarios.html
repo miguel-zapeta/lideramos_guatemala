@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Panel Administrativo - Voluntarios</title>
+
+    <link rel="stylesheet" href="Voluntarios.css">
+</head>
+
+<body>
+
+    <div class="dashboard">
+
+        <!-- =========================
+             MENÚ LATERAL
+             ========================= -->
+
+        <aside class="sidebar">
+
+            <div class="sidebar-header">
+
+                <img src="Lideramos.png" alt="Logo de la organización" class="sidebar-logo" >
+
+            </div>
+
+
+            <nav class="menu">
+
+                <a href="usuarios.html" class="menu-item" data-modulo="usuarios">
+
+                    <span class="icon">👥</span>
+                    <span>Usuarios</span>
+
+                </a>
+
+
+                <!-- OPCIÓN ACTIVA -->
+
+                <a href="voluntarios.html" class="menu-item active" data-modulo="voluntarios">
+
+                    <span class="icon">🤝</span>
+                    <span>Voluntarios</span>
+
+                </a>
+
+
+                <a href="finanzas.html" class="menu-item" data-modulo="finanzas">
+
+                    <span class="icon">💰</span>
+                    <span>Finanzas</span>
+
+                </a>
+
+
+                <a href="actividades.html" class="menu-item" data-modulo="actividades">
+
+                    <span class="icon">📅</span>
+                    <span>Actividades</span>
+
+                </a>
+
+
+                <a href="#" class="menu-item" data-modulo="reportes">
+
+                    <span class="icon">📊</span>
+                    <span>Reportes</span>
+
+                </a>
+
+            </nav>
+
+
+            <!-- PARTE INFERIOR -->
+
+            <div class="sidebar-bottom">
+
+                <a href="#" class="menu-item" data-modulo="configuracion">
+
+                    <span class="icon">⚙️</span>
+                    <span>Configuración</span>
+
+                </a>
+
+
+                <a href="#" class="menu-item logout">
+
+                    <span class="icon">↪</span>
+                    <span>Cerrar sesión</span>
+
+                </a>
+
+            </div>
+
+        </aside>
+
+
+        <!-- =========================
+             CONTENIDO PRINCIPAL
+             ========================= -->
+
+        <main class="main-content">
+
+
+            <!-- BARRA SUPERIOR -->
+
+            <header class="topbar">
+
+                <div class="page-title">
+
+                    <h1>Voluntarios</h1>
+
+                    <p>
+                        Administra los voluntarios de la organización
+                    </p>
+
+                </div>
+
+
+                <div class="admin-profile">
+
+                    <div class="admin-avatar" id="currentUserAvatar">
+                        AD
+                    </div>
+
+                    <div class="admin-info">
+
+                        <strong id="currentUserName">
+                        Administrador
+                    </strong>
+
+                        <span id="currentUserRole">
+                        Administrador
+                    </span>
+
+                    </div>
+
+                </div>
+
+            </header>
+
+
+            <!-- =========================
+                 CONTENIDO
+                 ========================= -->
+
+            <section class="content">
+
+
+                <!-- ENCABEZADO -->
+
+                <div class="section-header">
+
+                    <div>
+
+                        <h2>Lista de voluntarios</h2>
+
+                        <p>
+                            Consulta, edita o elimina los voluntarios registrados.
+                        </p>
+
+                    </div>
+
+
+                    <div class="header-actions">
+
+                        <button
+                            type="button"
+                            id="exportButton"
+                            class="new-volunteer-button"
+                            title="Exportar a Excel lo mostrado en la tabla"
+                        >
+                            📥 Exportar Excel
+                        </button>
+
+                        <a href="nuevoVoluntario.html" class="new-volunteer-button">
+                            + Nuevo voluntario
+                        </a>
+
+                    </div>
+
+
+                </div>
+
+
+                <!-- =========================
+                     ESTADÍSTICAS
+                     ========================= -->
+
+                <div class="statistics">
+
+
+                    <div class="stat-card">
+
+                        <div class="stat-icon volunteers-icon">
+                            🤝
+                        </div>
+
+                        <div>
+
+                            <span>Total de voluntarios</span>
+
+                            <strong id="statTotal">—</strong>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="stat-card">
+
+                        <div class="stat-icon active-icon">
+                            📁
+                        </div>
+
+                        <div>
+
+                            <span>En proyectos</span>
+
+                            <strong id="statEnProyectos">—</strong>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="stat-card">
+
+                        <div class="stat-icon inactive-icon">
+                            ○
+                        </div>
+
+                        <div>
+
+                            <span>Sin asignar</span>
+
+                            <strong id="statSinAsignar">—</strong>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- =========================
+                     TABLA
+                     ========================= -->
+
+                <div class="table-container">
+
+
+                    <div class="table-header">
+
+                        <h3>Voluntarios registrados</h3>
+
+
+                        <div class="search-box">
+
+                            <span>🔍</span>
+
+                            <select id="searchField" title="Buscar por">
+                                <option value="todos">Todos</option>
+                                <option value="nombre">Nombre</option>
+                                <option value="apellido">Apellido</option>
+                                <option value="municipio">Municipio</option>
+                                <option value="centro">Centro educativo</option>
+                                <option value="jornada">Jornada</option>
+                                <option value="edad">Edad</option>
+                            </select>
+
+                            <input
+                                type="text"
+                                id="searchInput"
+                                placeholder="Buscar voluntario..."
+                            >
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="table-responsive">
+
+                        <table>
+
+                            <thead>
+
+                                <tr>
+
+                                    <th>Voluntario</th>
+
+                                    <th>Nombre</th>
+
+                                    <th>Apellido</th>
+
+                                    <th>Municipio</th>
+
+                                    <th>Centro educativo</th>
+
+                                    <th>Jornada</th>
+
+                                    <th>Edad</th>
+
+                                    <th>Acciones</th>
+
+                                </tr>
+
+                            </thead>
+
+
+                            <tbody id="volunteersTbody">
+
+                                <tr>
+
+                                    <td colspan="8">
+                                        Cargando voluntarios...
+                                    </td>
+
+                                </tr>
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+
+                    <!-- =========================
+                         PAGINACIÓN
+                         ========================= -->
+
+                    <div class="pagination">
+
+                        <span id="paginationInfo">
+                            Cargando voluntarios...
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+        </main>
+
+    </div>
+
+<script src="vendor/xlsx.full.min.js"></script>
+<script src="menu.js"></script>
+<script src="voluntarios.js"></script>
+
+</body>
+
+</html>

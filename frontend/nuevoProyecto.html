@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Nuevo Proyecto - Panel Administrativo</title>
+
+    <link rel="stylesheet" href="nuevoUsuario.css">
+
+</head>
+
+
+<body>
+
+
+    <div class="dashboard">
+
+
+        <aside class="sidebar">
+
+
+            <div class="sidebar-header">
+
+                <img src="Lideramos.png" alt="Logo de la organización" class="sidebar-logo" >
+
+            </div>
+
+
+            <nav class="menu">
+
+                <a href="usuarios.html" class="menu-item" data-modulo="usuarios">
+
+                    <span class="icon">
+                        👥
+                    </span>
+
+                    <span>
+                        Usuarios
+                    </span>
+
+                </a>
+
+
+                <a href="voluntarios.html" class="menu-item" data-modulo="voluntarios">
+
+                    <span class="icon">
+                        🤝
+                    </span>
+
+                    <span>
+                        Voluntarios
+                    </span>
+
+                </a>
+
+
+                <a href="finanzas.html" class="menu-item active" data-modulo="finanzas">
+
+                    <span class="icon">
+                        💰
+                    </span>
+
+                    <span>
+                        Finanzas
+                    </span>
+
+                </a>
+
+
+                <a href="actividades.html" class="menu-item" data-modulo="actividades">
+
+                    <span class="icon">
+                        📅
+                    </span>
+
+                    <span>
+                        Actividades
+                    </span>
+
+                </a>
+
+
+                <a href="#" class="menu-item" data-modulo="reportes">
+
+                    <span class="icon">
+                        📊
+                    </span>
+
+                    <span>
+                        Reportes
+                    </span>
+
+                </a>
+
+            </nav>
+
+
+            <div class="sidebar-bottom">
+
+
+                <a href="#" class="menu-item" data-modulo="configuracion">
+
+                    <span class="icon">
+                        ⚙️
+                    </span>
+
+                    <span>
+                        Configuración
+                    </span>
+
+                </a>
+
+
+                <a href="#" class="menu-item logout">
+
+                    <span class="icon">
+                        ↪
+                    </span>
+
+                    <span>
+                        Cerrar sesión
+                    </span>
+
+                </a>
+
+
+            </div>
+
+
+        </aside>
+
+
+        <main class="main-content">
+
+
+            <header class="topbar">
+
+
+                <div class="page-title">
+
+                    <h1>
+                        Proyectos
+                    </h1>
+
+                    <p>
+                        Administración de proyectos
+                    </p>
+
+                </div>
+
+
+                <div class="admin-profile">
+
+
+                    <div class="admin-avatar" id="currentUserAvatar">
+                        AD
+                    </div>
+
+
+                    <div class="admin-info">
+
+                        <strong id="currentUserName">
+                            Administrador
+                        </strong>
+
+                        <span id="currentUserRole">
+                            Administrador
+                        </span>
+
+                    </div>
+
+
+                </div>
+
+
+            </header>
+
+
+            <section class="content">
+
+
+                <div class="section-header">
+
+
+                    <div>
+
+                        <h2 id="formTitle">
+                            Crear nuevo proyecto
+                        </h2>
+
+                        <p id="formSubtitle">
+                            Completa la información para registrar un nuevo proyecto.
+                        </p>
+
+                    </div>
+
+
+                </div>
+
+
+                <div class="form-container">
+
+
+                    <form class="user-form" id="proyectoForm">
+
+
+                        <!-- GENERAL -->
+
+                        <div class="form-section">
+
+
+                            <div class="form-section-header">
+
+                                <div class="form-section-icon orange">
+                                    📁
+                                </div>
+
+
+                                <div>
+
+                                    <h3>
+                                        Información general
+                                    </h3>
+
+                                    <p>
+                                        Nombre, fechas y estado del proyecto.
+                                    </p>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="form-grid">
+
+
+                                <div class="form-group full-width">
+
+                                    <label for="nombre">
+                                        Nombre
+                                        <span>*</span>
+                                    </label>
+
+                                    <input
+                                        type="text"
+                                        id="nombre"
+                                        name="nombre"
+                                        placeholder="Nombre del proyecto"
+                                        required
+                                    >
+
+                                </div>
+
+
+                                <div class="form-group">
+
+                                    <label for="fecha_inicio">
+                                        Fecha de inicio
+                                    </label>
+
+                                    <input
+                                        type="date"
+                                        id="fecha_inicio"
+                                        name="fecha_inicio"
+                                    >
+
+                                </div>
+
+
+                                <div class="form-group">
+
+                                    <label for="fecha_finalizacion">
+                                        Fecha de finalización
+                                    </label>
+
+                                    <input
+                                        type="date"
+                                        id="fecha_finalizacion"
+                                        name="fecha_finalizacion"
+                                    >
+
+                                </div>
+
+
+                                <div class="form-group" id="estadoGroup" style="display: none;">
+
+                                    <label for="estado">
+                                        Estado
+                                    </label>
+
+                                    <select
+                                        id="estado"
+                                        name="estado"
+                                    >
+
+                                        <option value="planeado">Planeado</option>
+                                        <option value="en proceso">En proceso</option>
+                                        <option value="finalizado">Finalizado</option>
+
+                                    </select>
+
+                                </div>
+
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- FINANCIERO -->
+
+                        <div class="form-section">
+
+
+                            <div class="form-section-header">
+
+                                <div class="form-section-icon pink">
+                                    💰
+                                </div>
+
+
+                                <div>
+
+                                    <h3>
+                                        Información financiera
+                                    </h3>
+
+                                    <p>
+                                        Montos y tipo de cambio del proyecto.
+                                    </p>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="form-grid">
+
+
+                                <div class="form-group">
+
+                                    <label for="subvencion">
+                                        Subvención
+                                    </label>
+
+                                    <input
+                                        type="number"
+                                        id="subvencion"
+                                        name="subvencion"
+                                        min="0"
+                                        step="0.01"
+                                        placeholder="Ej. 50000.00"
+                                    >
+
+                                </div>
+
+
+                                <div class="form-group">
+
+                                    <label for="tipo_cambio">
+                                        Tipo de cambio
+                                    </label>
+
+                                    <input
+                                        type="number"
+                                        id="tipo_cambio"
+                                        name="tipo_cambio"
+                                        min="0"
+                                        step="0.01"
+                                        placeholder="Ej. 7.85"
+                                    >
+
+                                </div>
+
+
+                                <div class="form-group">
+
+                                    <label for="fecha_tipo_cambio">
+                                        Fecha tipo de cambio
+                                    </label>
+
+                                    <input
+                                        type="date"
+                                        id="fecha_tipo_cambio"
+                                        name="fecha_tipo_cambio"
+                                    >
+
+                                </div>
+
+
+                                <div class="form-group">
+
+                                    <label for="fuente_tipo_cambio">
+                                        Fuente tipo de cambio
+                                    </label>
+
+                                    <input
+                                        type="text"
+                                        id="fuente_tipo_cambio"
+                                        name="fuente_tipo_cambio"
+                                        placeholder="Ej. Banco Central"
+                                    >
+
+                                </div>
+
+
+                                <div class="form-group">
+
+                                    <label for="total_gastos_ejecutados">
+                                        Gastos ejecutados
+                                    </label>
+
+                                    <input
+                                        type="number"
+                                        id="total_gastos_ejecutados"
+                                        name="total_gastos_ejecutados"
+                                        min="0"
+                                        step="0.01"
+                                        placeholder="Ej. 12000.00"
+                                    >
+
+                                </div>
+
+
+                                <div class="form-group">
+
+                                    <label for="monto_total_solicitado_rise_up">
+                                        Solicitado Rise Up
+                                    </label>
+
+                                    <input
+                                        type="number"
+                                        id="monto_total_solicitado_rise_up"
+                                        name="monto_total_solicitado_rise_up"
+                                        min="0"
+                                        step="0.01"
+                                        placeholder="Ej. 60000.00"
+                                    >
+
+                                </div>
+
+
+                                <div class="form-group">
+
+                                    <label for="monto_total_subvencion">
+                                        Subvención total
+                                    </label>
+
+                                    <input
+                                        type="number"
+                                        id="monto_total_subvencion"
+                                        name="monto_total_subvencion"
+                                        min="0"
+                                        step="0.01"
+                                        placeholder="Ej. 55000.00"
+                                    >
+
+                                </div>
+
+
+                                <div class="form-group">
+
+                                    <label for="diferencia_entre_solicitado_y_subvencion">
+                                        Diferencia solicitado/subvención
+                                    </label>
+
+                                    <input
+                                        type="number"
+                                        id="diferencia_entre_solicitado_y_subvencion"
+                                        name="diferencia_entre_solicitado_y_subvencion"
+                                        min="0"
+                                        step="0.01"
+                                        placeholder="Ej. 5000.00"
+                                    >
+
+                                </div>
+
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="form-actions">
+
+
+                            <p
+                                id="formMessage"
+                                role="alert"
+                            ></p>
+
+
+                            <a href="proyectos.html" class="cancel-button">
+                                Volver
+                            </a>
+
+
+                            <button
+                                type="button"
+                                class="save-button"
+                                id="editButton"
+                                style="display: none;"
+                            >
+                                ✏️ Editar
+                            </button>
+
+
+                            <button
+                                type="submit"
+                                class="save-button"
+                                id="submitButton"
+                            >
+                                ✓ Crear proyecto
+                            </button>
+
+
+                        </div>
+
+
+                    </form>
+
+
+                    <!-- =================================
+                         GASTOS ESPERADOS DEL PROYECTO
+                         ================================= -->
+
+                    <div class="form-section" id="gastosEsperadosSection" style="display: none;">
+
+
+                        <div class="form-section-header">
+
+                            <div class="form-section-icon pink">
+                                🧾
+                            </div>
+
+
+                            <div>
+
+                                <h3>
+                                    Gastos esperados
+                                </h3>
+
+                                <p id="gastosEsperadosInfo">
+                                    Gastos esperados asignados a este proyecto.
+                                </p>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="mini-tabla">
+
+                            <table>
+
+                                <thead>
+
+                                    <tr>
+
+                                        <th>Categoría</th>
+
+                                        <th>Costo/u local</th>
+
+                                        <th>N.º unidades</th>
+
+                                        <th>Solicitado local</th>
+
+                                        <th>Solicitado USD</th>
+
+                                        <th>Estado</th>
+
+                                        <th>Acciones</th>
+
+                                    </tr>
+
+                                </thead>
+
+
+                                <tbody id="gastosEsperadosTbody">
+
+                                    <tr>
+
+                                        <td colspan="7">
+                                            Cargando gastos esperados...
+                                        </td>
+
+                                    </tr>
+
+                                </tbody>
+
+                            </table>
+
+                        </div>
+
+
+                        <div class="form-actions" id="gastosEsperadosActions">
+
+                            <p
+                                id="gastoEsperadoMessage"
+                                role="alert"
+                            ></p>
+
+                            <button
+                                type="button"
+                                class="save-button"
+                                id="exportProyectoButton"
+                                title="Exportar proyecto con sus gastos esperados"
+                            >
+                                📥 Exportar proyecto
+                            </button>
+
+                            <button
+                                type="button"
+                                class="save-button"
+                                id="agregarGastoButton"
+                            >
+                                + Agregar gasto esperado
+                            </button>
+
+                        </div>
+
+
+                        <!-- SUBFORMULARIO GASTO ESPERADO -->
+
+                        <div id="gastoEsperadoForm" style="display: none; margin-top: 16px;">
+
+                            <div class="form-grid">
+
+
+                                <div class="form-group">
+
+                                    <label for="ge_categoria">
+                                        Categoría
+                                        <span>*</span>
+                                    </label>
+
+                                    <select
+                                        id="ge_categoria"
+                                        name="ge_categoria"
+                                    >
+
+                                        <option value="">
+                                            Seleccione una categoría
+                                        </option>
+
+                                    </select>
+
+                                </div>
+
+
+                                <div class="form-group">
+
+                                    <label for="ge_costo">
+                                        Costo por unidad (local)
+                                    </label>
+
+                                    <input
+                                        type="number"
+                                        id="ge_costo"
+                                        name="ge_costo"
+                                        min="0"
+                                        step="0.01"
+                                        placeholder="Ej. 100.00"
+                                    >
+
+                                </div>
+
+
+                                <div class="form-group">
+
+                                    <label for="ge_unidades">
+                                        Número de unidades
+                                    </label>
+
+                                    <input
+                                        type="number"
+                                        id="ge_unidades"
+                                        name="ge_unidades"
+                                        min="0"
+                                        step="0.01"
+                                        placeholder="Ej. 10"
+                                    >
+
+                                </div>
+
+
+                                <div class="form-group">
+
+                                    <label for="ge_local">
+                                        Solicitado local
+                                    </label>
+
+                                    <input
+                                        type="number"
+                                        id="ge_local"
+                                        name="ge_local"
+                                        min="0"
+                                        step="0.01"
+                                        placeholder="Ej. 1000.00"
+                                    >
+
+                                </div>
+
+
+                                <div class="form-group">
+
+                                    <label for="ge_usd">
+                                        Solicitado USD
+                                    </label>
+
+                                    <input
+                                        type="number"
+                                        id="ge_usd"
+                                        name="ge_usd"
+                                        min="0"
+                                        step="0.01"
+                                        placeholder="Ej. 130.00"
+                                    >
+
+                                </div>
+
+
+                            </div>
+
+
+                            <div class="form-actions">
+
+                                <button
+                                    type="button"
+                                    class="cancel-button"
+                                    id="cancelarGastoButton"
+                                >
+                                    Cancelar
+                                </button>
+
+                                <button
+                                    type="button"
+                                    class="save-button"
+                                    id="guardarGastoButton"
+                                >
+                                    ✓ Guardar gasto
+                                </button>
+
+                            </div>
+
+                        </div>
+
+
+                    </div>
+
+
+                </div>
+
+
+            </section>
+
+
+        </main>
+
+
+    </div>
+
+
+    <script src="vendor/xlsx.full.min.js"></script>
+    <script src="menu.js"></script>
+    <script src="nuevoProyecto.js"></script>
+
+</body>
+
+</html>
