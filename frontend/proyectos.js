@@ -273,16 +273,16 @@ function renderProyectos(proyectos) {
             <tr>
                 <td>
                     <div class="user">
-                        <div class="user-avatar ${avatarClass}">${iniciales}</div>
+                        <div class="user-avatar ${avatarClass}">${escapeHtml(iniciales)}</div>
                         <div>
-                            <strong>${p.nombre}</strong>
-                            <span>ID: ${p.id_proyecto} · ${p.estado}</span>
+                            <strong>${escapeHtml(p.nombre)}</strong>
+                            <span>ID: ${p.id_proyecto} · ${escapeHtml(p.estado)}</span>
                         </div>
                     </div>
                 </td>
-                <td>${p.nombre}</td>
-                <td>${formatoFecha(p.fecha_inicio)}</td>
-                <td>${formatoFecha(p.fecha_finalizacion)}</td>
+                <td>${escapeHtml(p.nombre)}</td>
+                <td>${escapeHtml(formatoFecha(p.fecha_inicio))}</td>
+                <td>${escapeHtml(formatoFecha(p.fecha_finalizacion))}</td>
                 <td>
                     <div class="actions">
                         <button class="action edit" title="Ver detalles" data-ver="${p.id_proyecto}">

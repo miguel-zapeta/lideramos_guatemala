@@ -59,6 +59,9 @@ CREATE TABLE proyecto (
     monto_total_solicitado_rise_up           NUMERIC(14,2) NOT NULL DEFAULT 0,
 	monto_total_subvencion                   NUMERIC(14,2) NOT NULL DEFAULT 0,
 	diferencia_entre_solicitado_y_subvencion NUMERIC(14,2) NOT NULL DEFAULT 0,
+	gestora_del_proyecto                     VARCHAR(255),
+	ente_patrocinador                        VARCHAR(255),
+	asociacion_gestora                       VARCHAR(255),
 
 	CONSTRAINT chk_proyecto_subvencion 
 		CHECK (subvencion >= 0), 
@@ -441,3 +444,17 @@ JOIN permiso p
     )
 WHERE r.nombre = 'Tecnico'
 ON CONFLICT DO NOTHING;
+
+CREATE TABLE password_reset_token (
+    id_token   SERIAL PRIMARY KEY,
+    id_usuario INTEGER NOT NULL,
+    token_hash VARCHAR(64) NOT NULL UNIQUE,
+    expira_en  TIMESTAMPTZ NOT NULL,
+    usado      BOOLEAN NOT NULL DEFAULT FALSE,
+    creado_en  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+
+    CONSTRAINT fk_password_reset_usuario
+        FOREIGN KEY (id_usuario)
+        REFERENCES usuario(id_usuario)
+        ON DELETE CASCADE
+);

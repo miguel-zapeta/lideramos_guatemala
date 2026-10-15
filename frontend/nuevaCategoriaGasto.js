@@ -107,7 +107,7 @@ async function cargarRubros() {
         select.innerHTML =
             `<option value="">Seleccione un rubro</option>` +
             rubros.map((r) =>
-                `<option value="${r.id_rubro}">${r.nombre}</option>`
+                `<option value="${r.id_rubro}">${escapeHtml(r.nombre)}</option>`
             ).join("");
 
     } catch (error) {

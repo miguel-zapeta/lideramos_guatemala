@@ -267,18 +267,18 @@ function renderUsuarios(usuarios) {
             <tr>
                 <td>
                     <div class="user">
-                        <div class="user-avatar ${avatarClass}">${iniciales}</div>
+                        <div class="user-avatar ${avatarClass}">${escapeHtml(iniciales)}</div>
                         <div>
-                            <strong>${nombreCompleto(usuario)}</strong>
+                            <strong>${escapeHtml(nombreCompleto(usuario))}</strong>
                             <span>ID: ${usuario.id_usuario}</span>
                         </div>
                     </div>
                 </td>
-                <td>${usuario.nombre || "—"}</td>
-                <td>${usuario.apellido || "—"}</td>
-                <td>${usuario.nombre_usuario}</td>
-                <td>${usuario.correo}</td>
-                <td>${usuario.rol}</td>
+                <td>${escapeHtml(usuario.nombre) || "—"}</td>
+                <td>${escapeHtml(usuario.apellido) || "—"}</td>
+                <td>${escapeHtml(usuario.nombre_usuario)}</td>
+                <td>${escapeHtml(usuario.correo)}</td>
+                <td>${escapeHtml(usuario.rol)}</td>
                 <td><span class="status ${estadoClass}">${estadoTexto}</span></td>
                 <td>
                     <div class="actions">

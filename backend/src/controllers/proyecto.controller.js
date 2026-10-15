@@ -22,7 +22,10 @@ const COLUMNAS = `
     total_gastos_ejecutados,
     monto_total_solicitado_rise_up,
     monto_total_subvencion,
-    diferencia_entre_solicitado_y_subvencion
+    diferencia_entre_solicitado_y_subvencion,
+    gestora_del_proyecto,
+    ente_patrocinador,
+    asociacion_gestora
 `;
 
 
@@ -89,7 +92,10 @@ function extraerCampos(body) {
         total_gastos_ejecutados,
         monto_total_solicitado_rise_up,
         monto_total_subvencion,
-        diferencia_entre_solicitado_y_subvencion
+        diferencia_entre_solicitado_y_subvencion,
+        gestora_del_proyecto,
+        ente_patrocinador,
+        asociacion_gestora
     } = body;
 
 
@@ -148,7 +154,10 @@ function extraerCampos(body) {
             numericos.total_gastos_ejecutados,
             numericos.monto_total_solicitado_rise_up,
             numericos.monto_total_subvencion,
-            numericos.diferencia_entre_solicitado_y_subvencion
+            numericos.diferencia_entre_solicitado_y_subvencion,
+            texto(gestora_del_proyecto),
+            texto(ente_patrocinador),
+            texto(asociacion_gestora)
         ]
     };
 }
@@ -322,10 +331,14 @@ async function crearProyecto(
                     total_gastos_ejecutados,
                     monto_total_solicitado_rise_up,
                     monto_total_subvencion,
-                    diferencia_entre_solicitado_y_subvencion
+                    diferencia_entre_solicitado_y_subvencion,
+                    gestora_del_proyecto,
+                    ente_patrocinador,
+                    asociacion_gestora
                 )
                 VALUES (
-                    $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11
+                    $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11,
+                    $12, $13, $14
                 )
                 RETURNING
                     ${COLUMNAS}
@@ -452,8 +465,11 @@ async function editarProyecto(
                     monto_total_solicitado_rise_up = $9,
                     monto_total_subvencion = $10,
                     diferencia_entre_solicitado_y_subvencion = $11,
-                    estado = COALESCE($12, estado)
-                WHERE id_proyecto = $13
+                    gestora_del_proyecto = $12,
+                    ente_patrocinador = $13,
+                    asociacion_gestora = $14,
+                    estado = COALESCE($15, estado)
+                WHERE id_proyecto = $16
                 RETURNING
                     ${COLUMNAS}
                 `,

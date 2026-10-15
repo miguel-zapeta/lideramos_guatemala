@@ -335,18 +335,18 @@ function renderVoluntarios(voluntarios) {
             <tr>
                 <td>
                     <div class="user">
-                        <div class="user-avatar ${avatarClass}">${iniciales}</div>
+                        <div class="user-avatar ${avatarClass}">${escapeHtml(iniciales)}</div>
                         <div>
-                            <strong>${nombreCompleto(v)}</strong>
+                            <strong>${escapeHtml(nombreCompleto(v))}</strong>
                             <span>ID: ${v.id_persona}</span>
                         </div>
                     </div>
                 </td>
-                <td>${v.nombres || "—"}</td>
-                <td>${v.apellidos || "—"}</td>
-                <td>${v.municipio || "—"}</td>
-                <td>${v.centro_educativo || "—"}</td>
-                <td>${v.jornada || "—"}</td>
+                <td>${escapeHtml(v.nombres) || "—"}</td>
+                <td>${escapeHtml(v.apellidos) || "—"}</td>
+                <td>${escapeHtml(v.municipio) || "—"}</td>
+                <td>${escapeHtml(v.centro_educativo) || "—"}</td>
+                <td>${escapeHtml(v.jornada) || "—"}</td>
                 <td>${v.edad === null || v.edad === undefined ? "—" : v.edad}</td>
                 <td>
                     <div class="actions">
@@ -356,7 +356,7 @@ function renderVoluntarios(voluntarios) {
                         <button class="action edit" title="Editar voluntario" data-editar="${v.id_persona}" ${editar ? "" : "disabled"}>
                             ✏️
                         </button>
-                        <button class="action delete" title="Eliminar voluntario" data-eliminar="${v.id_persona}" data-nombre="${nombreCompleto(v)}" ${eliminar ? "" : "disabled"}>
+                        <button class="action delete" title="Eliminar voluntario" data-eliminar="${v.id_persona}" data-nombre="${escapeHtml(nombreCompleto(v))}" ${eliminar ? "" : "disabled"}>
                             🗑️
                         </button>
                     </div>

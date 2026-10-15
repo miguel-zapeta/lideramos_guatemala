@@ -167,7 +167,7 @@ async function cargarProyectos() {
         select.innerHTML =
             `<option value="">Seleccione un proyecto</option>` +
             lista.map((p) =>
-                `<option value="${p.id_proyecto}">${p.nombre} (${p.estado})</option>`
+                `<option value="${p.id_proyecto}">${escapeHtml(p.nombre)} (${escapeHtml(p.estado)})</option>`
             ).join("");
 
     } catch (error) {
@@ -693,7 +693,7 @@ async function cargarPersonas() {
         select.innerHTML =
             `<option value="">Seleccione una persona</option>` +
             personas.map((p) =>
-                `<option value="${p.id_persona}">${p.nombres} ${p.apellidos}</option>`
+                `<option value="${p.id_persona}">${escapeHtml(p.nombres)} ${escapeHtml(p.apellidos)}</option>`
             ).join("");
 
     } catch (error) {
@@ -774,15 +774,15 @@ async function cargarAsistencia() {
                 <tr>
                     <td>
                         <div class="user">
-                            <div class="user-avatar avatar-pink">${iniciales}</div>
+                            <div class="user-avatar avatar-pink">${escapeHtml(iniciales)}</div>
                             <div>
-                                <strong>${p.nombres} ${p.apellidos}</strong>
+                                <strong>${escapeHtml(p.nombres)} ${escapeHtml(p.apellidos)}</strong>
                                 <span>ID: ${p.id_persona}</span>
                             </div>
                         </div>
                     </td>
-                    <td>${p.nombres || "—"}</td>
-                    <td>${p.apellidos || "—"}</td>
+                    <td>${escapeHtml(p.nombres) || "—"}</td>
+                    <td>${escapeHtml(p.apellidos) || "—"}</td>
                     <td>
                         <div class="actions">
                             ${gestionar ? `

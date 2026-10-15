@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recuperar acceso</title>
+    <link rel="stylesheet" href="login.css">
+</head>
+<body>
+
+    <main class="login-container">
+        <section class="login-card">
+
+            <div class="login-header">
+                <div class="logo"></div>
+                <h1>Recuperar acceso</h1>
+                <p>Elige cómo quieres recuperar tu cuenta</p>
+            </div>
+
+            <form class="login-form" id="recoverPasswordForm">
+
+                <div class="input-group">
+                    <label for="recoverUser">Usuario</label>
+                    <input
+                        type="text"
+                        id="recoverUser"
+                        name="recoverUser"
+                        placeholder="miUsuario"
+                        required
+                    >
+                </div>
+
+                <button type="submit" class="login-button">
+                    Enviar enlace al correo
+                </button>
+
+                <p>
+                    Te enviaremos un enlace válido por 15 minutos
+                    al correo asociado a ese usuario.
+                </p>
+
+            </form>
+
+            <div class="divider">
+                <span>o</span>
+            </div>
+
+            <form class="login-form" id="recoverUserForm">
+
+                <div class="login-header">
+                    <p>¿Olvidaste tu usuario? Escríbenos tu correo</p>
+                </div>
+
+                <div class="input-group">
+                    <label for="recoverEmail">Correo electrónico</label>
+                    <input
+                        type="email"
+                        id="recoverEmail"
+                        name="recoverEmail"
+                        placeholder="ejemplo@correo.com"
+                        required
+                    >
+                </div>
+
+                <button type="submit" class="login-button">
+                    Enviar mi usuario al correo
+                </button>
+
+            </form>
+
+            <p
+                id="recoverMessage"
+                role="alert"
+            ></p>
+
+            <div class="divider">
+                <span>o</span>
+            </div>
+
+            <p class="register-text">
+                <a href="login.html">Volver al inicio de sesión</a>
+            </p>
+
+        </section>
+    </main>
+
+    <script src="recuperar.js"></script>
+
+</body>
+</html>

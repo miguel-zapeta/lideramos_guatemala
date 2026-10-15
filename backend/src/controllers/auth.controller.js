@@ -1,11 +1,22 @@
+const crypto = require("crypto");
+
 const jwt = require("jsonwebtoken");
 
 const pool =
     require("../config/database");
 
 const {
-    comparePassword
+    comparePassword,
+    hashPassword,
+    validarPassword
 } = require("../utils/password");
+
+const {
+    sendMail
+} = require("../utils/mailer");
+
+
+const RESET_TOKEN_MINUTES = 15;
 
 
 function createToken(usuario) {
@@ -326,5 +337,434 @@ async function logout(req, res) {
 module.exports = {
     login,
     me,
-    logout
+    logout,
+    solicitarRecuperacionPassword,
+    solicitarRecuperacionUsuario,
+    restablecerPassword
 };
+
+
+function hashToken(token) {
+
+    return crypto
+        .createHash("sha256")
+        .update(token)
+        .digest("hex");
+
+}
+
+
+function baseUrl() {
+
+    return (
+        process.env.FRONTEND_URL ||
+        "http://localhost:3000"
+    );
+
+}
+
+
+async function solicitarRecuperacionPassword(req, res) {
+
+    try {
+
+        const { user } = req.body;
+
+
+        if (!user || typeof user !== "string") {
+
+            return res.status(400).json({
+                message:
+                    "El usuario es obligatorio."
+            });
+
+        }
+
+
+        const result =
+            await pool.query(
+                `
+                SELECT
+                    id_usuario,
+                    nombre_usuario,
+                    correo
+                FROM usuario
+                WHERE nombre_usuario = $1
+                    AND estado = TRUE
+                LIMIT 1
+                `,
+                [user.trim()]
+            );
+
+
+        /*
+        Respuesta genérica siempre
+        para no revelar si el
+        usuario existe.
+        */
+
+        if (result.rows.length === 0) {
+
+            return res.json({
+                message:
+                    "Si el usuario existe, se envió un correo con instrucciones."
+            });
+
+        }
+
+
+        const usuario =
+            result.rows[0];
+
+
+        const token =
+            crypto.randomBytes(32).toString("hex");
+
+        const tokenHash =
+            hashToken(token);
+
+        const expiraEn =
+            new Date(Date.now() + RESET_TOKEN_MINUTES * 60 * 1000);
+
+
+        await pool.query(
+            `
+            INSERT INTO password_reset_token
+                (id_usuario, token_hash, expira_en)
+            VALUES ($1, $2, $3)
+            `,
+            [usuario.id_usuario, tokenHash, expiraEn]
+        );
+
+
+        const enlace =
+            `${baseUrl()}/restablecer.html?token=${token}`;
+
+
+        try {
+
+            await sendMail({
+                to: usuario.correo,
+                subject: "Restablece tu contraseña — Lideramos",
+                text:
+                    `Hola ${usuario.nombre_usuario}.\n\n` +
+                    `Solicitaste restablecer tu contraseña. Usa este enlace (válido por 15 minutos):\n` +
+                    `${enlace}\n\n` +
+                    `Si no fuiste tú, ignora este correo.`,
+                html:
+                    `<p>Hola <strong>${usuario.nombre_usuario}</strong>.</p>` +
+                    `<p>Solicitaste restablecer tu contraseña. Haz clic en el enlace (válido por 15 minutos):</p>` +
+                    `<p><a href="${enlace}">Restablecer contraseña</a></p>` +
+                    `<p>Si no fuiste tú, ignora este correo.</p>`
+            });
+
+        } catch (error) {
+
+            console.error(
+                "Error enviando correo de recuperación:",
+                error
+            );
+
+            if (
+                error.message ===
+                "Servicio de correo no configurado."
+            ) {
+
+                return res.status(500).json({
+                    message:
+                        "Servicio de correo no configurado. Contacta al administrador."
+                });
+
+            }
+
+            return res.status(502).json({
+                message:
+                    "No se pudo enviar el correo. Intenta más tarde."
+            });
+
+        }
+
+
+        return res.json({
+            message:
+                "Si el usuario existe, se envió un correo con instrucciones."
+        });
+
+    } catch (error) {
+
+        console.error(
+            "Error recuperar-password:",
+            error
+        );
+
+        return res.status(500).json({
+            message:
+                "Error interno del servidor."
+        });
+
+    }
+
+}
+
+
+async function solicitarRecuperacionUsuario(req, res) {
+
+    try {
+
+        const { correo } = req.body;
+
+
+        if (!correo || typeof correo !== "string") {
+
+            return res.status(400).json({
+                message:
+                    "El correo es obligatorio."
+            });
+
+        }
+
+
+        const result =
+            await pool.query(
+                `
+                SELECT
+                    nombre_usuario,
+                    correo
+                FROM usuario
+                WHERE LOWER(correo) = LOWER($1)
+                    AND estado = TRUE
+                LIMIT 1
+                `,
+                [correo.trim()]
+            );
+
+
+        if (result.rows.length === 0) {
+
+            try {
+
+                await sendMail({
+                    to: correo.trim(),
+                    subject: "Recuperación de usuario — Lideramos",
+                    text:
+                        "No existe un usuario asociado a este correo.\n\n" +
+                        "Si crees que es un error, contacta al administrador.",
+                    html:
+                        "<p>No existe un usuario asociado a este correo.</p>" +
+                        "<p>Si crees que es un error, contacta al administrador.</p>"
+                });
+
+            } catch (error) {
+
+                console.error(
+                    "Error enviando correo de usuario inexistente:",
+                    error
+                );
+
+            }
+
+
+            return res.json({
+                message:
+                    "Si el correo existe, se envió la información."
+            });
+
+        }
+
+
+        const usuario =
+            result.rows[0];
+
+
+        try {
+
+            await sendMail({
+                to: usuario.correo,
+                subject: "Tu usuario — Lideramos",
+                text:
+                    `Tu nombre de usuario es: ${usuario.nombre_usuario}\n\n` +
+                    `Úsalo para iniciar sesión.`,
+                html:
+                    `<p>Tu nombre de usuario es: <strong>${usuario.nombre_usuario}</strong></p>` +
+                    `<p>Úsalo para iniciar sesión.</p>`
+            });
+
+        } catch (error) {
+
+            console.error(
+                "Error enviando correo de recuperación de usuario:",
+                error
+            );
+
+            if (
+                error.message ===
+                "Servicio de correo no configurado."
+            ) {
+
+                return res.status(500).json({
+                    message:
+                        "Servicio de correo no configurado. Contacta al administrador."
+                });
+
+            }
+
+            return res.status(502).json({
+                message:
+                    "No se pudo enviar el correo. Intenta más tarde."
+            });
+
+        }
+
+
+        return res.json({
+            message:
+                "Si el correo existe, se envió la información."
+        });
+
+    } catch (error) {
+
+        console.error(
+            "Error recuperar-usuario:",
+            error
+        );
+
+        return res.status(500).json({
+            message:
+                "Error interno del servidor."
+        });
+
+    }
+
+}
+
+
+async function restablecerPassword(req, res) {
+
+    try {
+
+        const { token, password } = req.body;
+
+
+        if (!token || typeof token !== "string") {
+
+            return res.status(400).json({
+                message:
+                    "El token es obligatorio."
+            });
+
+        }
+
+
+        if (!password || typeof password !== "string") {
+
+            return res.status(400).json({
+                message:
+                    "La contraseña es obligatoria."
+            });
+
+        }
+
+
+        const claveValida =
+            validarPassword(password);
+
+
+        if (!claveValida.valida) {
+
+            return res.status(400).json({
+                message:
+                    claveValida.message
+            });
+
+        }
+
+
+        const tokenHash =
+            hashToken(token);
+
+
+        const result =
+            await pool.query(
+                `
+                SELECT
+                    id_token,
+                    id_usuario,
+                    expira_en,
+                    usado
+                FROM password_reset_token
+                WHERE token_hash = $1
+                LIMIT 1
+                `,
+                [tokenHash]
+            );
+
+
+        if (result.rows.length === 0) {
+
+            return res.status(400).json({
+                message:
+                    "El enlace es inválido o expiró."
+            });
+
+        }
+
+
+        const registro =
+            result.rows[0];
+
+
+        if (registro.usado || new Date(registro.expira_en) < new Date()) {
+
+            return res.status(400).json({
+                message:
+                    "El enlace es inválido o expiró."
+            });
+
+        }
+
+
+        const nuevaHash =
+            await hashPassword(password);
+
+
+        await pool.query(
+            `
+            UPDATE usuario
+            SET contrasena = $1
+            WHERE id_usuario = $2
+                AND estado = TRUE
+            `,
+            [nuevaHash, registro.id_usuario]
+        );
+
+
+        await pool.query(
+            `
+            UPDATE password_reset_token
+            SET usado = TRUE
+            WHERE id_usuario = $1
+            `,
+            [registro.id_usuario]
+        );
+
+
+        return res.json({
+            message:
+                "Contraseña restablecida correctamente."
+        });
+
+    } catch (error) {
+
+        console.error(
+            "Error restablecer-password:",
+            error
+        );
+
+        return res.status(500).json({
+            message:
+                "Error interno del servidor."
+        });
+
+    }
+
+}

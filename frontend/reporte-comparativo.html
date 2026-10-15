@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Reporte comparativo - Panel Administrativo</title>
+
+    <link rel="stylesheet" href="nuevoUsuario.css">
+
+</head>
+
+
+<body>
+
+
+    <div class="dashboard">
+
+
+        <aside class="sidebar">
+
+
+            <div class="sidebar-header">
+
+                <img src="Lideramos.png" alt="Logo de la organización" class="sidebar-logo" >
+
+            </div>
+
+
+            <nav class="menu">
+
+                <a href="usuarios.html" class="menu-item" data-modulo="usuarios">
+
+                    <span class="icon">
+                        👥
+                    </span>
+
+                    <span>
+                        Usuarios
+                    </span>
+
+                </a>
+
+
+                <a href="voluntarios.html" class="menu-item" data-modulo="voluntarios">
+
+                    <span class="icon">
+                        🤝
+                    </span>
+
+                    <span>
+                        Voluntarios
+                    </span>
+
+                </a>
+
+
+                <a href="finanzas.html" class="menu-item active" data-modulo="finanzas">
+
+                    <span class="icon">
+                        💰
+                    </span>
+
+                    <span>
+                        Finanzas
+                    </span>
+
+                </a>
+
+
+                <a href="actividades.html" class="menu-item" data-modulo="actividades">
+
+                    <span class="icon">
+                        📅
+                    </span>
+
+                    <span>
+                        Actividades
+                    </span>
+
+                </a>
+
+
+                <a href="#" class="menu-item" data-modulo="reportes">
+
+                    <span class="icon">
+                        📊
+                    </span>
+
+                    <span>
+                        Reportes
+                    </span>
+
+                </a>
+
+            </nav>
+
+
+            <div class="sidebar-bottom">
+
+
+                <a href="#" class="menu-item" data-modulo="configuracion">
+
+                    <span class="icon">
+                        ⚙️
+                    </span>
+
+                    <span>
+                        Configuración
+                    </span>
+
+                </a>
+
+
+                <a href="#" class="menu-item logout">
+
+                    <span class="icon">
+                        ↪
+                    </span>
+
+                    <span>
+                        Cerrar sesión
+                    </span>
+
+                </a>
+
+
+            </div>
+
+
+        </aside>
+
+
+        <main class="main-content">
+
+
+            <header class="topbar">
+
+
+                <div class="page-title">
+
+                    <h1>
+                        Reporte comparativo
+                    </h1>
+
+                    <p>
+                        Finanzas · Planificado vs ejecutado
+                    </p>
+
+                </div>
+
+
+                <div class="admin-profile">
+
+
+                    <div class="admin-avatar" id="currentUserAvatar">
+                        US
+                    </div>
+
+
+                    <div class="admin-info">
+
+                        <strong id="currentUserName">
+                            Usuario
+                        </strong>
+
+                        <span id="currentUserRole">
+                            Rol
+                        </span>
+
+                    </div>
+
+
+                </div>
+
+
+            </header>
+
+
+            <section class="content">
+
+
+                <div class="section-header">
+
+
+                    <div>
+
+                        <h2>
+                            Crear reporte comparativo
+                        </h2>
+
+                        <p>
+                            Compara lo solicitado con lo ejecutado por categoría.
+                        </p>
+
+                    </div>
+
+
+                </div>
+
+
+                <div class="form-container">
+
+
+                    <form class="user-form" id="reporteForm">
+
+
+                        <div class="form-section">
+
+
+                            <div class="form-section-header">
+
+                                <div class="form-section-icon blue">
+                                    📊
+                                </div>
+
+                                <div>
+                                    <h3>
+                                        Parámetros del reporte
+                                    </h3>
+
+                                    <p>
+                                        Proyecto y tipo de cambio para la conversión a USD.
+                                    </p>
+                                </div>
+
+                            </div>
+
+
+                            <div class="form-grid">
+
+
+                                <div class="form-group full-width">
+
+                                    <label for="proyecto">
+                                        Proyecto
+                                        <span>*</span>
+                                    </label>
+
+                                    <select
+                                        id="proyecto"
+                                        name="proyecto"
+                                    >
+                                        <option value="">
+                                            Seleccione un proyecto
+                                        </option>
+                                    </select>
+
+                                </div>
+
+
+                                <div class="form-group">
+
+                                    <label for="fecha_tipo_cambio">
+                                        Fecha tipo de cambio
+                                    </label>
+
+                                    <input
+                                        type="date"
+                                        id="fecha_tipo_cambio"
+                                        name="fecha_tipo_cambio"
+                                    >
+
+                                </div>
+
+
+                                <div class="form-group">
+
+                                    <label for="tipo_cambio">
+                                        Tipo de cambio
+                                        <span>*</span>
+                                    </label>
+
+                                    <input
+                                        type="number"
+                                        id="tipo_cambio"
+                                        name="tipo_cambio"
+                                        min="0.01"
+                                        step="0.01"
+                                        placeholder="Ej. 7.85"
+                                    >
+
+                                </div>
+
+
+                                <div class="form-group">
+
+                                    <label for="fuente_tipo_cambio">
+                                        Fuente tipo de cambio
+                                    </label>
+
+                                    <input
+                                        type="text"
+                                        id="fuente_tipo_cambio"
+                                        name="fuente_tipo_cambio"
+                                        placeholder="Ej. Banco Central"
+                                    >
+
+                                </div>
+
+
+                            </div>
+
+
+                            <div class="form-actions">
+
+                                <p
+                                    id="formMessage"
+                                    role="alert"
+                                ></p>
+
+                                <button
+                                    type="submit"
+                                    class="save-button"
+                                    id="generarButton"
+                                >
+                                    ✓ Generar reporte
+                                </button>
+
+                            </div>
+
+
+                        </div>
+
+
+                    </form>
+
+
+                    <!-- =================================
+                         REPORTE GENERADO
+                         ================================= -->
+
+                    <div class="form-section" id="reporteSection" style="display: none;">
+
+
+                        <div class="form-section-header">
+
+                            <div class="form-section-icon blue">
+                                📊
+                            </div>
+
+                            <div>
+                                <h3 id="reporteTitulo">
+                                    Proyecto
+                                </h3>
+
+                                <p id="repTipoCambio">
+                                    —
+                                </p>
+                            </div>
+
+                        </div>
+
+
+                        <div class="form-grid">
+
+                            <div class="form-group">
+                                <label>Subvención</label>
+                                <p id="repSubvencion">—</p>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Fecha tipo de cambio</label>
+                                <p id="repFechaTc">—</p>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Tipo de cambio</label>
+                                <p id="repTc">—</p>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Fuente tipo de cambio</label>
+                                <p id="repFuenteTc">—</p>
+                            </div>
+
+                        </div>
+
+
+                        <div class="table-responsive">
+
+                            <table class="table-container">
+
+                                <thead>
+                                    <tr>
+                                        <th>Categoría gasto</th>
+                                        <th>Costo por unidad (local)</th>
+                                        <th>N.º unidades</th>
+                                        <th>Solicitado Rise Up (local)</th>
+                                        <th>Solicitado Rise Up (USD)</th>
+                                        <th>Ejecutado (nacional)</th>
+                                        <th>Ejecutado (USD)</th>
+                                    </tr>
+                                </thead>
+
+                                <tbody id="reporteTbody">
+
+                                    <tr>
+                                        <td colspan="7">
+                                            Genera un reporte para ver los resultados.
+                                        </td>
+                                    </tr>
+
+                                </tbody>
+
+                            </table>
+
+                        </div>
+
+
+                        <div class="form-actions">
+
+                            <p
+                                id="reporteMensaje"
+                                role="alert"
+                            ></p>
+
+                            <button
+                                type="button"
+                                class="save-button"
+                                id="exportButton"
+                            >
+                                📥 Exportar a Excel
+                            </button>
+
+                        </div>
+
+
+                    </div>
+
+
+                </div>
+
+
+            </section>
+
+
+        </main>
+
+
+    </div>
+
+
+    <script src="vendor/xlsx.full.min.js"></script>
+    <script src="menu.js"></script>
+    <script src="reporte-comparativo.js"></script>
+
+</body>
+
+</html>

@@ -40,6 +40,15 @@ const actividadRoutes =
 const asistenciaRoutes =
     require("./routes/asistencia.routes");
 
+const reporteRoutes =
+    require("./routes/reporte.routes");
+
+const reporteAcumulativoRoutes =
+    require("./routes/reporte-acumulativo.routes");
+
+const comparativoRoutes =
+    require("./routes/comparativo.routes");
+
 const requirePagePermission =
     require("./middleware/page-permission.middleware");
 
@@ -59,7 +68,10 @@ const PAGINAS = [
     ["proyectos.html", "proyectos.ver"],
     ["nuevoProyecto.html", "proyectos.ver"],
     ["actividades.html", "actividades.ver"],
-    ["crearActividad.html", "actividades.ver"]
+    ["crearActividad.html", "actividades.ver"],
+    ["reporte-mensual.html", "finanzas.ver"],
+    ["reporte-acumulativo.html", "finanzas.ver"],
+    ["reporte-comparativo.html", "finanzas.ver"]
 ];
 
 
@@ -215,6 +227,24 @@ app.use(
 );
 
 
+app.use(
+    "/api/reportes-mensuales",
+    reporteRoutes
+);
+
+
+app.use(
+    "/api/reportes-acumulativo",
+    reporteAcumulativoRoutes
+);
+
+
+app.use(
+    "/api/reportes-comparativo",
+    comparativoRoutes
+);
+
+
 /*
 =========================================
 FRONTEND
@@ -230,7 +260,7 @@ const frontendPath =
 
 /*
 =========================================
-LANDING
+INDEX
 =========================================
 */
 
@@ -241,22 +271,7 @@ app.get(
         res.sendFile(
             path.join(
                 frontendPath,
-                "landing.html"
-            )
-        );
-
-    }
-);
-
-
-app.get(
-    "/landing.html",
-    (req, res) => {
-
-        res.sendFile(
-            path.join(
-                frontendPath,
-                "landing.html"
+                "index.html"
             )
         );
 
@@ -272,6 +287,36 @@ app.get(
             path.join(
                 frontendPath,
                 "login.html"
+            )
+        );
+
+    }
+);
+
+
+app.get(
+    "/recuperar.html",
+    (req, res) => {
+
+        res.sendFile(
+            path.join(
+                frontendPath,
+                "recuperar.html"
+            )
+        );
+
+    }
+);
+
+
+app.get(
+    "/restablecer.html",
+    (req, res) => {
+
+        res.sendFile(
+            path.join(
+                frontendPath,
+                "restablecer.html"
             )
         );
 

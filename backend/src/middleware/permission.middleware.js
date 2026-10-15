@@ -28,16 +28,22 @@ function requirePermission(
                     INNER JOIN rol r
                         ON r.id_rol = rp.id_rol
 
+                    INNER JOIN usuario u
+                        ON u.id_usuario = $3
+
                     WHERE r.id_rol = $1
                     AND p.nombre = $2
                     AND p.estado = TRUE
                     AND r.estado = TRUE
+                    AND u.estado = TRUE
+                    AND u.id_rol = r.id_rol
 
                     LIMIT 1
                     `,
                     [
                         req.user.id_rol,
-                        permisoRequerido
+                        permisoRequerido,
+                        req.user.id_usuario
                     ]
                 );
 

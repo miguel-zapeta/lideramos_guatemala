@@ -28,7 +28,10 @@ const CAMPOS = [
     "total_gastos_ejecutados",
     "monto_total_solicitado_rise_up",
     "monto_total_subvencion",
-    "diferencia_entre_solicitado_y_subvencion"
+    "diferencia_entre_solicitado_y_subvencion",
+    "gestora_del_proyecto",
+    "ente_patrocinador",
+    "asociacion_gestora"
 ];
 
 const CAMPOS_NUMERO = [
@@ -44,6 +47,12 @@ const CAMPOS_FECHA = [
     "fecha_inicio",
     "fecha_finalizacion",
     "fecha_tipo_cambio"
+];
+
+const CAMPOS_TEXTO = [
+    "gestora_del_proyecto",
+    "ente_patrocinador",
+    "asociacion_gestora"
 ];
 
 
@@ -350,6 +359,15 @@ async function guardarProyecto(event) {
     body.fuente_tipo_cambio = fuente === "" ? null : fuente;
 
 
+    for (const id of CAMPOS_TEXTO) {
+
+        const texto =
+            document.getElementById(id).value.trim();
+
+        body[id] = texto === "" ? null : texto;
+    }
+
+
     if (editId !== null) {
 
         body.estado = document.getElementById("estado").value;
@@ -639,7 +657,7 @@ async function cargarCategoriasGe() {
         select.innerHTML =
             `<option value="">Seleccione una categoría</option>` +
             lista.map((c) =>
-                `<option value="${c.id_categoria}">${c.nombre} (${c.rubro || "Sin rubro"})</option>`
+                `<option value="${c.id_categoria}">${escapeHtml(c.nombre)} (${escapeHtml(c.rubro) || "Sin rubro"})</option>`
             ).join("");
 
     } catch (error) {
@@ -734,7 +752,7 @@ function renderGastosEsperados() {
 
         return `
             <tr>
-                <td>${g.categoria || "—"}</td>
+                <td>${escapeHtml(g.categoria) || "—"}</td>
                 <td>Q ${Number(g.costo_por_unidad_moneda_local).toFixed(2)}</td>
                 <td>${g.numero_de_unidades}</td>
                 <td>Q ${Number(g.monto_solicitado_rise_up_moneda_local).toFixed(2)}</td>
@@ -839,6 +857,34 @@ function leerMontoGasto(id) {
     }
 
     return n;
+}
+
+
+function autoRellenarSolicitadoLocal() {
+
+    const costoRaw =
+        document.getElementById("ge_costo").value.trim();
+
+    const unidadesRaw =
+        document.getElementById("ge_unidades").value.trim();
+
+
+    // Solo calcular cuando ambos tengan contenido válido.
+    if (costoRaw === "" || unidadesRaw === "") {
+        return;
+    }
+
+
+    const costo = leerMontoGasto("ge_costo");
+    const unidades = leerMontoGasto("ge_unidades");
+
+    if (costo === false || unidades === false) {
+        return;
+    }
+
+
+    document.getElementById("ge_local").value =
+        (costo * unidades).toFixed(2);
 }
 
 
@@ -1040,6 +1086,14 @@ function initGastosEsperados(gestionar) {
         document
             .getElementById("exportProyectoButton")
             .addEventListener("click", exportarProyecto);
+
+        document
+            .getElementById("ge_costo")
+            .addEventListener("input", autoRellenarSolicitadoLocal);
+
+        document
+            .getElementById("ge_unidades")
+            .addEventListener("input", autoRellenarSolicitadoLocal);
     }
 
 
@@ -1108,6 +1162,9 @@ async function exportarProyecto() {
             ["Solicitado Rise Up", p.monto_total_solicitado_rise_up],
             ["Subvención total", p.monto_total_subvencion],
             ["Diferencia", p.diferencia_entre_solicitado_y_subvencion],
+            ["Gestora del proyecto", p.gestora_del_proyecto],
+            ["Ente patrocinador", p.ente_patrocinador],
+            ["Asociación gestora", p.asociacion_gestora],
             [],
             ["GASTOS ESPERADOS"],
             ["ID", "Categoría", "Costo/u local", "N.º unidades", "Solicitado local", "Solicitado USD", "Estado"]

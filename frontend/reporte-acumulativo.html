@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Reporte acumulativo - Panel Administrativo</title>
+
+    <link rel="stylesheet" href="nuevoUsuario.css">
+
+</head>
+
+
+<body>
+
+
+    <div class="dashboard">
+
+
+        <aside class="sidebar">
+
+
+            <div class="sidebar-header">
+
+                <img src="Lideramos.png" alt="Logo de la organización" class="sidebar-logo" >
+
+            </div>
+
+
+            <nav class="menu">
+
+                <a href="usuarios.html" class="menu-item" data-modulo="usuarios">
+
+                    <span class="icon">
+                        👥
+                    </span>
+
+                    <span>
+                        Usuarios
+                    </span>
+
+                </a>
+
+
+                <a href="voluntarios.html" class="menu-item" data-modulo="voluntarios">
+
+                    <span class="icon">
+                        🤝
+                    </span>
+
+                    <span>
+                        Voluntarios
+                    </span>
+
+                </a>
+
+
+                <a href="finanzas.html" class="menu-item active" data-modulo="finanzas">
+
+                    <span class="icon">
+                        💰
+                    </span>
+
+                    <span>
+                        Finanzas
+                    </span>
+
+                </a>
+
+
+                <a href="actividades.html" class="menu-item" data-modulo="actividades">
+
+                    <span class="icon">
+                        📅
+                    </span>
+
+                    <span>
+                        Actividades
+                    </span>
+
+                </a>
+
+
+                <a href="#" class="menu-item" data-modulo="reportes">
+
+                    <span class="icon">
+                        📊
+                    </span>
+
+                    <span>
+                        Reportes
+                    </span>
+
+                </a>
+
+            </nav>
+
+
+            <div class="sidebar-bottom">
+
+
+                <a href="#" class="menu-item" data-modulo="configuracion">
+
+                    <span class="icon">
+                        ⚙️
+                    </span>
+
+                    <span>
+                        Configuración
+                    </span>
+
+                </a>
+
+
+                <a href="#" class="menu-item logout">
+
+                    <span class="icon">
+                        ↪
+                    </span>
+
+                    <span>
+                        Cerrar sesión
+                    </span>
+
+                </a>
+
+
+            </div>
+
+
+        </aside>
+
+
+        <main class="main-content">
+
+
+            <header class="topbar">
+
+
+                <div class="page-title">
+
+                    <h1>
+                        Reporte acumulativo
+                    </h1>
+
+                    <p>
+                        Finanzas · Reporte de gastos por periodo
+                    </p>
+
+                </div>
+
+
+                <div class="admin-profile">
+
+
+                    <div class="admin-avatar" id="currentUserAvatar">
+                        US
+                    </div>
+
+
+                    <div class="admin-info">
+
+                        <strong id="currentUserName">
+                            Usuario
+                        </strong>
+
+                        <span id="currentUserRole">
+                            Rol
+                        </span>
+
+                    </div>
+
+
+                </div>
+
+
+            </header>
+
+
+            <section class="content">
+
+
+                <div class="section-header">
+
+
+                    <div>
+
+                        <h2>
+                            Generar reporte acumulativo
+                        </h2>
+
+                        <p>
+                            Elige un proyecto y el rango de meses a consultar.
+                        </p>
+
+                    </div>
+
+
+                </div>
+
+
+                <div class="form-container">
+
+
+                    <form class="user-form" id="reporteForm">
+
+
+                        <div class="form-section">
+
+
+                            <div class="form-section-header">
+
+                                <div class="form-section-icon purple">
+                                    📈
+                                </div>
+
+                                <div>
+                                    <h3>
+                                        Parámetros del reporte
+                                    </h3>
+
+                                    <p>
+                                        Proyecto y periodo (mes de inicio a mes de fin).
+                                    </p>
+                                </div>
+
+                            </div>
+
+
+                            <div class="form-grid">
+
+
+                                <div class="form-group full-width">
+
+                                    <label for="proyecto">
+                                        Proyecto
+                                        <span>*</span>
+                                    </label>
+
+                                    <select
+                                        id="proyecto"
+                                        name="proyecto"
+                                    >
+                                        <option value="">
+                                            Seleccione un proyecto
+                                        </option>
+                                    </select>
+
+                                </div>
+
+
+                                <div class="form-group">
+
+                                    <label for="inicio">
+                                        Mes de inicio
+                                        <span>*</span>
+                                    </label>
+
+                                    <input
+                                        type="month"
+                                        id="inicio"
+                                        name="inicio"
+                                    >
+
+                                </div>
+
+
+                                <div class="form-group">
+
+                                    <label for="fin">
+                                        Mes de fin
+                                        <span>*</span>
+                                    </label>
+
+                                    <input
+                                        type="month"
+                                        id="fin"
+                                        name="fin"
+                                    >
+
+                                </div>
+
+
+                            </div>
+
+
+                            <div class="form-actions">
+
+                                <p
+                                    id="formMessage"
+                                    role="alert"
+                                ></p>
+
+                                <button
+                                    type="submit"
+                                    class="save-button"
+                                    id="generarButton"
+                                >
+                                    ✓ Generar reporte
+                                </button>
+
+                            </div>
+
+
+                        </div>
+
+
+                    </form>
+
+
+                    <!-- =================================
+                         REPORTE GENERADO
+                         ================================= -->
+
+                    <div class="form-section" id="reporteSection" style="display: none;">
+
+
+                        <div class="form-section-header">
+
+                            <div class="form-section-icon purple">
+                                📊
+                            </div>
+
+                            <div>
+                                <h3 id="reporteTitulo">
+                                    Proyecto
+                                </h3>
+
+                                <p id="repPeriodo">
+                                    —
+                                </p>
+                            </div>
+
+                        </div>
+
+
+                        <div class="form-grid">
+
+                            <div class="form-group">
+                                <label>Fecha de inicio</label>
+                                <p id="repFechaInicio">—</p>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Fecha de finalización</label>
+                                <p id="repFechaFin">—</p>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Ente patrocinador</label>
+                                <p id="repEnte">—</p>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Asociación gestora</label>
+                                <p id="repAsociacion">—</p>
+                            </div>
+
+                        </div>
+
+
+                        <div class="mini-tabla">
+
+                            <table>
+
+                                <thead>
+                                    <tr id="reporteHeadRow"></tr>
+                                </thead>
+
+                                <tbody id="reporteTbody">
+
+                                    <tr>
+                                        <td colspan="4">
+                                            Genera un reporte para ver los resultados.
+                                        </td>
+                                    </tr>
+
+                                </tbody>
+
+                            </table>
+
+                        </div>
+
+
+                        <div class="form-actions">
+
+                            <p
+                                id="reporteMensaje"
+                                role="alert"
+                            ></p>
+
+                            <button
+                                type="button"
+                                class="save-button"
+                                id="exportButton"
+                            >
+                                📥 Exportar a Excel
+                            </button>
+
+                        </div>
+
+
+                    </div>
+
+
+                </div>
+
+
+            </section>
+
+
+        </main>
+
+
+    </div>
+
+
+    <script src="vendor/xlsx.full.min.js"></script>
+    <script src="menu.js"></script>
+    <script src="reporte-acumulativo.js"></script>
+
+</body>
+
+</html>

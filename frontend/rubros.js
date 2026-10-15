@@ -259,15 +259,15 @@ function renderRubros(rubros) {
             <tr>
                 <td>
                     <div class="user">
-                        <div class="user-avatar ${avatarClass}">${iniciales}</div>
+                        <div class="user-avatar ${avatarClass}">${escapeHtml(iniciales)}</div>
                         <div>
-                            <strong>${rubro.nombre}</strong>
+                            <strong>${escapeHtml(rubro.nombre)}</strong>
                             <span>ID: ${rubro.id_rubro}</span>
                         </div>
                     </div>
                 </td>
-                <td>${rubro.nombre}</td>
-                <td>${rubro.descripcion || "—"}</td>
+                <td>${escapeHtml(rubro.nombre)}</td>
+                <td>${escapeHtml(rubro.descripcion) || "—"}</td>
                 <td><span class="status ${estadoClass}">${estadoTexto}</span></td>
                 <td>
                     <div class="actions">

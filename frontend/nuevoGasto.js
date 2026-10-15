@@ -148,7 +148,7 @@ async function cargarCategorias() {
         select.innerHTML =
             `<option value="">Seleccione una categoría</option>` +
             lista.map((c) =>
-                `<option value="${c.id_categoria}">${c.nombre} (${c.rubro || "Sin rubro"})</option>`
+                `<option value="${c.id_categoria}">${escapeHtml(c.nombre)} (${escapeHtml(c.rubro) || "Sin rubro"})</option>`
             ).join("");
 
     } catch (error) {
@@ -194,7 +194,7 @@ async function cargarProyectos() {
         select.innerHTML =
             `<option value="">Seleccione un proyecto</option>` +
             lista.map((p) =>
-                `<option value="${p.id_proyecto}">${p.nombre}</option>`
+                `<option value="${p.id_proyecto}">${escapeHtml(p.nombre)}</option>`
             ).join("");
 
     } catch (error) {
@@ -388,6 +388,22 @@ function leerNumero(id) {
 }
 
 
+function autoRellenarMontos() {
+
+    const monto = leerNumero("monto");
+
+    if (typeof monto !== "number" || monto <= 0) {
+        return;
+    }
+
+    const valorBase = monto / 1.12;
+    const iva = valorBase * 0.12;
+
+    document.getElementById("valor_base").value = valorBase.toFixed(2);
+    document.getElementById("iva").value = iva.toFixed(2);
+}
+
+
 async function guardarGasto(event) {
 
     event.preventDefault();
@@ -465,6 +481,7 @@ async function guardarGasto(event) {
         id_proyecto,
         id_categoria,
         numero,
+        monto,
         fecha,
         numero_documento,
         serie,
@@ -693,6 +710,11 @@ async function init() {
     document
         .getElementById("gastoForm")
         .addEventListener("submit", guardarGasto);
+
+
+    document
+        .getElementById("monto")
+        .addEventListener("input", autoRellenarMontos);
 
 
     const logoutButton =

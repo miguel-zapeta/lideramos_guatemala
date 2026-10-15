@@ -257,14 +257,14 @@ function renderGastos(gastos) {
                         <div class="user-avatar avatar-pink">🧾</div>
                         <div>
                             <strong>Gasto #${g.id_gasto}</strong>
-                            <span>${g.categoria || ""}</span>
+                            <span>${escapeHtml(g.categoria) || ""}</span>
                         </div>
                     </div>
                 </td>
-                <td>${g.descripcion || "—"}</td>
-                <td>${g.categoria || "—"}</td>
-                <td>${formatoFecha(g.fecha)}</td>
-                <td>${g.razon_denominacion_social || "—"}</td>
+                <td>${escapeHtml(g.descripcion) || "—"}</td>
+                <td>${escapeHtml(g.categoria) || "—"}</td>
+                <td>${escapeHtml(formatoFecha(g.fecha))}</td>
+                <td>${escapeHtml(g.razon_denominacion_social) || "—"}</td>
                 <td>${formatoMonto(g.monto)}</td>
                 <td><span class="status ${estadoClass}">${estadoTexto}</span></td>
                 <td>

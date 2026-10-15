@@ -2,7 +2,8 @@ const pool =
     require("../config/database");
 
 const {
-    hashPassword
+    hashPassword,
+    validarPassword
 } = require("../utils/password");
 
 
@@ -165,11 +166,15 @@ async function crearUsuario(
         }
 
 
-        if (password.length < 8) {
+        const claveValida =
+            validarPassword(password);
+
+
+        if (!claveValida.valida) {
 
             return res.status(400).json({
                 message:
-                    "La contraseña debe tener al menos 8 caracteres."
+                    claveValida.message
             });
 
         }
@@ -321,11 +326,15 @@ async function editarUsuario(
             password !== ""
         ) {
 
-            if (password.length < 8) {
+            const claveValida =
+                validarPassword(password);
+
+
+            if (!claveValida.valida) {
 
                 return res.status(400).json({
                     message:
-                        "La contraseña debe tener al menos 8 caracteres."
+                        claveValida.message
                 });
 
             }

@@ -93,7 +93,7 @@ async function cargarRoles() {
         select.innerHTML =
             `<option value="">Seleccione un rol</option>` +
             roles.map((r) =>
-                `<option value="${r.id_rol}">${r.nombre}</option>`
+                `<option value="${r.id_rol}">${escapeHtml(r.nombre)}</option>`
             ).join("");
 
     } catch (error) {

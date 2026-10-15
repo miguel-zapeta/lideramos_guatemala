@@ -259,16 +259,16 @@ function renderCategorias(categorias) {
             <tr>
                 <td>
                     <div class="user">
-                        <div class="user-avatar ${avatarClass}">${iniciales}</div>
+                        <div class="user-avatar ${avatarClass}">${escapeHtml(iniciales)}</div>
                         <div>
-                            <strong>${categoria.nombre}</strong>
+                            <strong>${escapeHtml(categoria.nombre)}</strong>
                             <span>ID: ${categoria.id_categoria}</span>
                         </div>
                     </div>
                 </td>
-                <td>${categoria.nombre}</td>
-                <td>${categoria.descripcion || "—"}</td>
-                <td>${categoria.rubro || "—"}</td>
+                <td>${escapeHtml(categoria.nombre)}</td>
+                <td>${escapeHtml(categoria.descripcion) || "—"}</td>
+                <td>${escapeHtml(categoria.rubro) || "—"}</td>
                 <td><span class="status ${estadoClass}">${estadoTexto}</span></td>
                 <td>
                     <div class="actions">

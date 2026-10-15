@@ -267,18 +267,18 @@ function renderActividades(actividades) {
             <tr>
                 <td>
                     <div class="user">
-                        <div class="user-avatar ${avatarClass}">${iniciales}</div>
+                        <div class="user-avatar ${avatarClass}">${escapeHtml(iniciales)}</div>
                         <div>
-                            <strong>${a.nombre}</strong>
+                            <strong>${escapeHtml(a.nombre)}</strong>
                             <span>ID: ${a.id_actividad}</span>
                         </div>
                     </div>
                 </td>
-                <td>${a.nombre}</td>
-                <td>${a.tema}</td>
-                <td>${formatoFecha(a.fecha)}</td>
-                <td>${a.realizado_por}</td>
-                <td>${a.eje}</td>
+                <td>${escapeHtml(a.nombre)}</td>
+                <td>${escapeHtml(a.tema)}</td>
+                <td>${escapeHtml(formatoFecha(a.fecha))}</td>
+                <td>${escapeHtml(a.realizado_por)}</td>
+                <td>${escapeHtml(a.eje)}</td>
                 <td><span class="status ${estadoClass}">${estadoTexto}</span></td>
                 <td>
                     <div class="actions">
