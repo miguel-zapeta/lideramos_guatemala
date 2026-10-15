@@ -3,6 +3,25 @@ let permisosActuales = [];
 let todosLosGastos = [];
 let ultimosResultados = [];
 
+let paginaActual = 1;
+
+const LIMITE_PAGINA = 20;
+
+let debounceBusqueda = null;
+
+let metaPaginacionActual = {
+    total: 0,
+    pagina: 1,
+    limite: 20,
+    totalPaginas: 1
+};
+
+let resumenActual = {
+    total: 0,
+    activos: 0,
+    inactivos: 0
+};
+
 
 /*
 =========================================
@@ -136,9 +155,33 @@ async function cargarGastos() {
 
     try {
 
+        const verInactivos =
+            document.getElementById("verInactivos")?.checked;
+
+        const buscar =
+            document.getElementById("searchInput")?.value.trim() || "";
+
+        const campo =
+            document.getElementById("searchField")?.value || "todos";
+
+        const params =
+            new URLSearchParams({
+                pagina: String(paginaActual),
+                limite: String(LIMITE_PAGINA)
+            });
+
+        if (verInactivos) {
+            params.set("ver_inactivos", "1");
+        }
+
+        if (buscar) {
+            params.set("buscar", buscar);
+            params.set("campo", campo);
+        }
+
         const response =
             await fetch(
-                "/api/gastos",
+                `/api/gastos?${params.toString()}`,
                 {
                     method: "GET",
                     credentials: "include"
@@ -182,6 +225,20 @@ async function cargarGastos() {
         todosLosGastos =
             data.gastos || [];
 
+        metaPaginacionActual = {
+            total: data.total || 0,
+            pagina: data.pagina || 1,
+            limite: data.limite || LIMITE_PAGINA,
+            totalPaginas: data.totalPaginas || 1
+        };
+
+        resumenActual =
+            data.resumen || {
+                total: todosLosGastos.length,
+                activos: todosLosGastos.filter((g) => g.estado).length,
+                inactivos: 0
+            };
+
 
         renderGastos(todosLosGastos);
 
@@ -217,24 +274,58 @@ function renderGastos(gastos) {
         document.getElementById("paginationInfo");
 
 
-    const total = gastos.length;
+    const total = metaPaginacionActual.total;
 
-    const activos =
-        gastos.filter((g) => g.estado).length;
+    const activos = resumenActual.activos;
+
+    const inactivos = resumenActual.inactivos;
 
 
     document.getElementById("statTotal").textContent = total;
     document.getElementById("statActivos").textContent = activos;
-    document.getElementById("statInactivos").textContent = total - activos;
+    document.getElementById("statInactivos").textContent = inactivos;
 
-    paginationInfo.textContent =
-        `Mostrando ${total} gasto(s).`;
+    if (total === 0) {
+
+        paginationInfo.textContent =
+            "Sin resultados.";
+
+        renderPaginacion({
+            contenedorId: "paginationButtons",
+            pagina: 1,
+            totalPaginas: 1,
+            onCambiar: () => {}
+        });
+
+    } else {
+
+        const desde =
+            (metaPaginacionActual.pagina - 1) *
+                metaPaginacionActual.limite + 1;
+
+        const hasta =
+            desde + gastos.length - 1;
+
+        paginationInfo.textContent =
+            `Mostrando ${desde}–${hasta} de ${total}.`;
+
+        renderPaginacion({
+            contenedorId: "paginationButtons",
+            pagina: metaPaginacionActual.pagina,
+            totalPaginas: metaPaginacionActual.totalPaginas,
+            onCambiar: (nuevaPagina) => {
+                paginaActual = nuevaPagina;
+                cargarGastos();
+            }
+        });
+
+    }
 
 
     ultimosResultados = gastos;
 
 
-    if (total === 0) {
+    if (gastos.length === 0) {
 
         tbody.innerHTML =
             `<tr><td colspan="8">No hay gastos registrados.</td></tr>`;
@@ -395,15 +486,44 @@ function exportarExcel() {
     }
 
 
-    if (ultimosResultados.length === 0) {
+    const buscar =
+        document.getElementById("searchInput")?.value.trim() || "";
 
-        alert("No hay resultados para exportar.");
+    const campo =
+        document.getElementById("searchField")?.value || "todos";
 
-        return;
+    const verInactivos =
+        document.getElementById("verInactivos")?.checked;
+
+    const params =
+        new URLSearchParams({ exportar: "1" });
+
+    if (verInactivos) {
+        params.set("ver_inactivos", "1");
+    }
+
+    if (buscar) {
+        params.set("buscar", buscar);
+        params.set("campo", campo);
     }
 
 
-    const filas = ultimosResultados.map((g) => ({
+    fetch(
+        `/api/gastos?${params.toString()}`,
+        {
+            method: "GET",
+            credentials: "include"
+        }
+    ).then(async (response) => {
+
+        if (!response.ok) {
+            throw new Error("No se pudo obtener los datos.");
+        }
+
+        const data =
+            await response.json();
+
+        const filas = (data.gastos || []).map((g) => ({
         "ID": g.id_gasto,
         "Proyecto": g.id_proyecto,
         "Categoría": g.categoria,
@@ -427,22 +547,40 @@ function exportarExcel() {
     }));
 
 
-    const hoja =
-        XLSX.utils.json_to_sheet(filas);
+        if (filas.length === 0) {
 
-    hoja["!cols"] = [
-        { wch: 8 }, { wch: 10 }, { wch: 22 }, { wch: 10 },
-        { wch: 12 }, { wch: 16 }, { wch: 12 }, { wch: 16 },
-        { wch: 28 }, { wch: 30 }, { wch: 12 }, { wch: 12 },
-        { wch: 16 }, { wch: 14 }, { wch: 18 }, { wch: 16 },
-        { wch: 22 }, { wch: 16 }, { wch: 16 }, { wch: 10 }
-    ];
+            alert("No hay resultados para exportar.");
 
-    const libro = XLSX.utils.book_new();
+            return;
+        }
 
-    XLSX.utils.book_append_sheet(libro, hoja, "Gastos");
 
-    XLSX.writeFile(libro, "gastos.xlsx");
+        const hoja =
+            XLSX.utils.json_to_sheet(filas);
+
+        hoja["!cols"] = [
+            { wch: 8 }, { wch: 10 }, { wch: 22 }, { wch: 10 },
+            { wch: 12 }, { wch: 16 }, { wch: 12 }, { wch: 16 },
+            { wch: 28 }, { wch: 30 }, { wch: 12 }, { wch: 12 },
+            { wch: 16 }, { wch: 14 }, { wch: 18 }, { wch: 16 },
+            { wch: 22 }, { wch: 16 }, { wch: 16 }, { wch: 10 }
+        ];
+
+        const libro = XLSX.utils.book_new();
+
+        XLSX.utils.book_append_sheet(libro, hoja, "Gastos");
+
+        XLSX.writeFile(libro, "gastos.xlsx");
+
+    }).catch((error) => {
+
+        console.error(
+            "Error exportando gastos:",
+            error
+        );
+
+        alert("No se pudo exportar el archivo.");
+    });
 }
 
 
@@ -461,65 +599,14 @@ BUSCADOR
 =========================================
 */
 
-function valorCampo(gasto, campo) {
-
-    switch (campo) {
-
-        case "descripcion":
-            return gasto.descripcion || "";
-
-        case "categoria":
-            return gasto.categoria || "";
-
-        case "fecha":
-            return formatoFecha(gasto.fecha);
-
-        case "razon":
-            return gasto.razon_denominacion_social || "";
-
-        case "monto":
-            return gasto.monto === null || gasto.monto === undefined
-                ? ""
-                : String(gasto.monto);
-
-        case "estado":
-            return gasto.estado ? "activo" : "inactivo";
-
-        default:
-            return [
-                gasto.descripcion,
-                gasto.categoria,
-                formatoFecha(gasto.fecha),
-                gasto.razon_denominacion_social,
-                gasto.monto,
-                gasto.estado ? "activo" : "inactivo"
-            ].filter(
-                (x) => x !== null && x !== undefined && x !== ""
-            ).join(" ");
-    }
-}
-
-
 function aplicarFiltro() {
 
-    const q =
-        searchInput.value.trim().toLowerCase();
+    clearTimeout(debounceBusqueda);
 
-    const campo =
-        searchField ? searchField.value : "todos";
-
-    if (!q) {
-
-        renderGastos(todosLosGastos);
-
-        return;
-    }
-
-    renderGastos(
-        todosLosGastos.filter((g) =>
-            valorCampo(g, campo).toLowerCase().includes(q)
-        )
-    );
+    debounceBusqueda = setTimeout(() => {
+        paginaActual = 1;
+        cargarGastos();
+    }, 300);
 }
 
 
@@ -588,6 +675,29 @@ async function iniciarPanel() {
 
 
     await cargarGastos();
+}
+
+
+/*
+=========================================
+MOSTRAR INACTIVOS
+=========================================
+*/
+
+const verInactivosCheckbox =
+    document.getElementById("verInactivos");
+
+
+if (verInactivosCheckbox) {
+
+    verInactivosCheckbox.addEventListener(
+        "change",
+        () => {
+            paginaActual = 1;
+            cargarGastos();
+        }
+    );
+
 }
 
 

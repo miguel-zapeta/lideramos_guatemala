@@ -1,6 +1,11 @@
 const pool =
     require("../config/database");
 
+const {
+    leerPaginacion,
+    metaPaginacion
+} = require("../utils/paginacion");
+
 
 const COLUMNAS = `
     ge.id_gasto_esperado,
@@ -152,6 +157,47 @@ async function listarGastosEsperados(
         }
 
 
+        const paginacion = leerPaginacion(req);
+
+        if (paginacion.error) {
+
+            return res.status(400).json({
+                message:
+                    paginacion.error
+            });
+
+        }
+
+
+        const exportar =
+            req.query.exportar === "1";
+
+        const verInactivos =
+            req.query.ver_inactivos === "1";
+
+
+        const filtroEstado =
+            verInactivos ? "" : "AND ge.estado = TRUE";
+
+
+        const totalResult =
+            await pool.query(
+                `
+                SELECT
+                    COUNT(*)::INTEGER AS total
+                FROM gasto_esperado ge
+                INNER JOIN categoria_gasto c
+                    ON c.id_categoria = ge.id_categoria
+                WHERE ge.id_proyecto = $1
+                ${filtroEstado}
+                `,
+                [idProyecto]
+            );
+
+
+        const total = totalResult.rows[0].total;
+
+
         const result =
             await pool.query(
                 `
@@ -161,15 +207,30 @@ async function listarGastosEsperados(
                 INNER JOIN categoria_gasto c
                     ON c.id_categoria = ge.id_categoria
                 WHERE ge.id_proyecto = $1
+                ${filtroEstado}
                 ORDER BY ge.id_gasto_esperado DESC
+
+                ${exportar ? "" : "LIMIT $2 OFFSET $3"}
                 `,
-                [idProyecto]
+                exportar
+                    ? [idProyecto]
+                    : [
+                        idProyecto,
+                        paginacion.limite,
+                        paginacion.offset
+                    ]
             );
 
 
         return res.json({
             gastos_esperados:
-                result.rows
+                result.rows,
+
+            ...metaPaginacion(
+                total,
+                exportar ? 1 : paginacion.pagina,
+                exportar ? total : paginacion.limite
+            )
         });
 
     } catch (error) {

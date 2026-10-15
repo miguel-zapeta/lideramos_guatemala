@@ -3,6 +3,25 @@ let permisosActuales = [];
 let todosLosVoluntarios = [];
 let ultimosResultados = [];
 
+let paginaActual = 1;
+
+const LIMITE_PAGINA = 20;
+
+let debounceBusqueda = null;
+
+let metaPaginacionActual = {
+    total: 0,
+    pagina: 1,
+    limite: 20,
+    totalPaginas: 1
+};
+
+let resumenActual = {
+    total: 0,
+    en_proyectos: 0,
+    sin_asignar: 0
+};
+
 
 const AVATAR_CLASSES = [
     "avatar-pink",
@@ -125,9 +144,33 @@ async function cargarVoluntarios() {
 
     try {
 
+        const verInactivos =
+            document.getElementById("verInactivos")?.checked;
+
+        const buscar =
+            document.getElementById("searchInput")?.value.trim() || "";
+
+        const campo =
+            document.getElementById("searchField")?.value || "todos";
+
+        const params =
+            new URLSearchParams({
+                pagina: String(paginaActual),
+                limite: String(LIMITE_PAGINA)
+            });
+
+        if (verInactivos) {
+            params.set("ver_inactivos", "1");
+        }
+
+        if (buscar) {
+            params.set("buscar", buscar);
+            params.set("campo", campo);
+        }
+
         const response =
             await fetch(
-                "/api/voluntarios",
+                `/api/voluntarios?${params.toString()}`,
                 {
                     method: "GET",
                     credentials: "include"
@@ -148,7 +191,7 @@ async function cargarVoluntarios() {
         if (response.status === 403) {
 
             tbody.innerHTML =
-                `<tr><td colspan="8">No tienes permiso para ver voluntarios.</td></tr>`;
+                `<tr><td colspan="9">No tienes permiso para ver voluntarios.</td></tr>`;
 
             paginationInfo.textContent =
                 "Sin acceso.";
@@ -171,6 +214,20 @@ async function cargarVoluntarios() {
         todosLosVoluntarios =
             data.voluntarios || [];
 
+        metaPaginacionActual = {
+            total: data.total || 0,
+            pagina: data.pagina || 1,
+            limite: data.limite || LIMITE_PAGINA,
+            totalPaginas: data.totalPaginas || 1
+        };
+
+        resumenActual =
+            data.resumen || {
+                total: todosLosVoluntarios.length,
+                en_proyectos: todosLosVoluntarios.filter((v) => Number(v.total_proyectos) > 0).length,
+                sin_asignar: 0
+            };
+
 
         renderVoluntarios(todosLosVoluntarios);
 
@@ -183,7 +240,7 @@ async function cargarVoluntarios() {
         );
 
         tbody.innerHTML =
-            `<tr><td colspan="8">Error al cargar voluntarios.</td></tr>`;
+            `<tr><td colspan="9">Error al cargar voluntarios.</td></tr>`;
 
         paginationInfo.textContent =
             "Error al cargar.";
@@ -226,14 +283,14 @@ function puedeEliminar() {
 
 /*
 =========================================
-ELIMINAR VOLUNTARIO (DELETE)
+DESACTIVAR VOLUNTARIO (DELETE lógico)
 =========================================
 */
 
 async function eliminarVoluntario(id, nombre) {
 
     const confirmar = confirm(
-        `¿Eliminar definitivamente a ${nombre}? Esta acción no se puede deshacer.`
+        `¿Desactivar a ${nombre}? Dejará de aparecer en la lista.`
     );
 
     if (!confirmar) {
@@ -268,7 +325,7 @@ async function eliminarVoluntario(id, nombre) {
                 await response.json().catch(() => ({}));
 
             throw new Error(
-                data.message || "No se pudo eliminar el voluntario."
+                data.message || "No se pudo desactivar el voluntario."
             );
         }
 
@@ -279,7 +336,71 @@ async function eliminarVoluntario(id, nombre) {
     } catch (error) {
 
         console.error(
-            "Error eliminando voluntario:",
+            "Error desactivando voluntario:",
+            error
+        );
+
+        alert(error.message);
+    }
+}
+
+
+/*
+=========================================
+CAMBIAR ESTADO (PATCH activar/desactivar)
+=========================================
+*/
+
+async function cambiarEstado(id, estado) {
+
+    try {
+
+        const response =
+            await fetch(
+                `/api/voluntarios/${id}/estado`,
+                {
+                    method: "PATCH",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    credentials: "include",
+
+                    body: JSON.stringify({ estado })
+                }
+            );
+
+
+        if (response.status === 401) {
+
+            window.location.replace(
+                "/login.html"
+            );
+
+            return;
+        }
+
+
+        if (!response.ok) {
+
+            const data =
+                await response.json().catch(() => ({}));
+
+            throw new Error(
+                data.message || "No se pudo actualizar el estado."
+            );
+        }
+
+
+        await cargarVoluntarios();
+
+
+    } catch (error) {
+
+        console.error(
+            "Error cambiando estado:",
             error
         );
 
@@ -297,27 +418,61 @@ function renderVoluntarios(voluntarios) {
         document.getElementById("paginationInfo");
 
 
-    const total = voluntarios.length;
+    const total = metaPaginacionActual.total;
 
-    const enProyectos =
-        voluntarios.filter((v) => Number(v.total_proyectos) > 0).length;
+    const enProyectos = resumenActual.en_proyectos;
+
+    const sinAsignar = resumenActual.sin_asignar;
 
 
     document.getElementById("statTotal").textContent = total;
     document.getElementById("statEnProyectos").textContent = enProyectos;
-    document.getElementById("statSinAsignar").textContent = total - enProyectos;
+    document.getElementById("statSinAsignar").textContent = sinAsignar;
 
-    paginationInfo.textContent =
-        `Mostrando ${total} voluntario(s).`;
+    if (total === 0) {
+
+        paginationInfo.textContent =
+            "Sin resultados.";
+
+        renderPaginacion({
+            contenedorId: "paginationButtons",
+            pagina: 1,
+            totalPaginas: 1,
+            onCambiar: () => {}
+        });
+
+    } else {
+
+        const desde =
+            (metaPaginacionActual.pagina - 1) *
+                metaPaginacionActual.limite + 1;
+
+        const hasta =
+            desde + voluntarios.length - 1;
+
+        paginationInfo.textContent =
+            `Mostrando ${desde}–${hasta} de ${total}.`;
+
+        renderPaginacion({
+            contenedorId: "paginationButtons",
+            pagina: metaPaginacionActual.pagina,
+            totalPaginas: metaPaginacionActual.totalPaginas,
+            onCambiar: (nuevaPagina) => {
+                paginaActual = nuevaPagina;
+                cargarVoluntarios();
+            }
+        });
+
+    }
 
 
     ultimosResultados = voluntarios;
 
 
-    if (total === 0) {
+    if (voluntarios.length === 0) {
 
         tbody.innerHTML =
-            `<tr><td colspan="8">No hay voluntarios registrados.</td></tr>`;
+            `<tr><td colspan="9">No hay voluntarios registrados.</td></tr>`;
 
         return;
     }
@@ -330,6 +485,8 @@ function renderVoluntarios(voluntarios) {
 
         const iniciales = inicialesDe(v);
         const avatarClass = AVATAR_CLASSES[index % AVATAR_CLASSES.length];
+        const estadoClass = v.estado ? "active" : "inactive";
+        const estadoTexto = v.estado ? "Activo" : "Inactivo";
 
         return `
             <tr>
@@ -348,6 +505,7 @@ function renderVoluntarios(voluntarios) {
                 <td>${escapeHtml(v.centro_educativo) || "—"}</td>
                 <td>${escapeHtml(v.jornada) || "—"}</td>
                 <td>${v.edad === null || v.edad === undefined ? "—" : v.edad}</td>
+                <td><span class="status ${estadoClass}">${estadoTexto}</span></td>
                 <td>
                     <div class="actions">
                         <button class="action edit" title="Ver detalles" data-ver="${v.id_persona}">
@@ -356,9 +514,19 @@ function renderVoluntarios(voluntarios) {
                         <button class="action edit" title="Editar voluntario" data-editar="${v.id_persona}" ${editar ? "" : "disabled"}>
                             ✏️
                         </button>
-                        <button class="action delete" title="Eliminar voluntario" data-eliminar="${v.id_persona}" data-nombre="${escapeHtml(nombreCompleto(v))}" ${eliminar ? "" : "disabled"}>
+                        ${v.estado ? `
+                        <button class="action delete" title="Desactivar voluntario" data-eliminar="${v.id_persona}" data-nombre="${escapeHtml(nombreCompleto(v))}" ${eliminar ? "" : "disabled"}>
                             🗑️
-                        </button>
+                        </button>` : `
+                        <button
+                            class="action edit"
+                            title="Activar voluntario"
+                            data-id="${v.id_persona}"
+                            data-estado="true"
+                            ${editar ? "" : "disabled"}
+                        >
+                            ✓
+                        </button>`}
                     </div>
                 </td>
             </tr>`;
@@ -395,6 +563,18 @@ function renderVoluntarios(voluntarios) {
             );
         });
     });
+
+
+    tbody.querySelectorAll("button[data-estado]").forEach((btn) => {
+
+        btn.addEventListener("click", () => {
+
+            cambiarEstado(
+                Number(btn.dataset.id),
+                btn.dataset.estado === "true"
+            );
+        });
+    });
 }
 
 
@@ -417,15 +597,44 @@ function exportarExcel() {
     }
 
 
-    if (ultimosResultados.length === 0) {
+    const buscar =
+        document.getElementById("searchInput")?.value.trim() || "";
 
-        alert("No hay resultados para exportar.");
+    const campo =
+        document.getElementById("searchField")?.value || "todos";
 
-        return;
+    const verInactivos =
+        document.getElementById("verInactivos")?.checked;
+
+    const params =
+        new URLSearchParams({ exportar: "1" });
+
+    if (verInactivos) {
+        params.set("ver_inactivos", "1");
+    }
+
+    if (buscar) {
+        params.set("buscar", buscar);
+        params.set("campo", campo);
     }
 
 
-    const filas = ultimosResultados.map((v) => ({
+    fetch(
+        `/api/voluntarios?${params.toString()}`,
+        {
+            method: "GET",
+            credentials: "include"
+        }
+    ).then(async (response) => {
+
+        if (!response.ok) {
+            throw new Error("No se pudo obtener los datos.");
+        }
+
+        const data =
+            await response.json();
+
+        const filas = (data.voluntarios || []).map((v) => ({
         "ID": v.id_persona,
         "Nombres": v.nombres,
         "Apellidos": v.apellidos,
@@ -444,26 +653,45 @@ function exportarExcel() {
         "Certificado nacimiento": v.certificado_nacimiento,
         "DPI encargado (respaldo)": v.dpi_encargado,
         "Biografía": v.biografia,
+        "Estado": v.estado ? "Activo" : "Inactivo",
         "Total proyectos": v.total_proyectos
     }));
 
 
-    const hoja =
-        XLSX.utils.json_to_sheet(filas);
+        if (filas.length === 0) {
 
-    hoja["!cols"] = [
-        { wch: 8 }, { wch: 20 }, { wch: 20 }, { wch: 8 },
-        { wch: 16 }, { wch: 18 }, { wch: 14 }, { wch: 24 },
-        { wch: 14 }, { wch: 20 }, { wch: 18 }, { wch: 18 },
-        { wch: 18 }, { wch: 16 }, { wch: 12 }, { wch: 22 },
-        { wch: 22 }, { wch: 30 }, { wch: 16 }
-    ];
+            alert("No hay resultados para exportar.");
 
-    const libro = XLSX.utils.book_new();
+            return;
+        }
 
-    XLSX.utils.book_append_sheet(libro, hoja, "Voluntarios");
 
-    XLSX.writeFile(libro, "voluntarios.xlsx");
+        const hoja =
+            XLSX.utils.json_to_sheet(filas);
+
+        hoja["!cols"] = [
+            { wch: 8 }, { wch: 20 }, { wch: 20 }, { wch: 8 },
+            { wch: 16 }, { wch: 18 }, { wch: 14 }, { wch: 24 },
+            { wch: 14 }, { wch: 20 }, { wch: 18 }, { wch: 18 },
+            { wch: 18 }, { wch: 16 }, { wch: 12 }, { wch: 22 },
+            { wch: 22 }, { wch: 30 }, { wch: 16 }
+        ];
+
+        const libro = XLSX.utils.book_new();
+
+        XLSX.utils.book_append_sheet(libro, hoja, "Voluntarios");
+
+        XLSX.writeFile(libro, "voluntarios.xlsx");
+
+    }).catch((error) => {
+
+        console.error(
+            "Error exportando voluntarios:",
+            error
+        );
+
+        alert("No se pudo exportar el archivo.");
+    });
 }
 
 
@@ -482,65 +710,14 @@ BUSCADOR POR PARÁMETRO
 =========================================
 */
 
-function valorCampo(v, campo) {
-
-    switch (campo) {
-
-        case "nombre":
-            return v.nombres || "";
-
-        case "apellido":
-            return v.apellidos || "";
-
-        case "municipio":
-            return v.municipio || "";
-
-        case "centro":
-            return v.centro_educativo || "";
-
-        case "jornada":
-            return v.jornada || "";
-
-        case "edad":
-            return v.edad === null || v.edad === undefined
-                ? ""
-                : String(v.edad);
-
-        default:
-            return [
-                v.nombres,
-                v.apellidos,
-                v.municipio,
-                v.centro_educativo,
-                v.jornada,
-                v.edad
-            ].filter(
-                (x) => x !== null && x !== undefined && x !== ""
-            ).join(" ");
-    }
-}
-
-
 function aplicarFiltro() {
 
-    const q =
-        searchInput.value.trim().toLowerCase();
+    clearTimeout(debounceBusqueda);
 
-    const campo =
-        searchField ? searchField.value : "todos";
-
-    if (!q) {
-
-        renderVoluntarios(todosLosVoluntarios);
-
-        return;
-    }
-
-    renderVoluntarios(
-        todosLosVoluntarios.filter((v) =>
-            valorCampo(v, campo).toLowerCase().includes(q)
-        )
-    );
+    debounceBusqueda = setTimeout(() => {
+        paginaActual = 1;
+        cargarVoluntarios();
+    }, 300);
 }
 
 
@@ -609,6 +786,29 @@ async function iniciarPanel() {
 
 
     await cargarVoluntarios();
+}
+
+
+/*
+=========================================
+MOSTRAR INACTIVOS
+=========================================
+*/
+
+const verInactivosCheckbox =
+    document.getElementById("verInactivos");
+
+
+if (verInactivosCheckbox) {
+
+    verInactivosCheckbox.addEventListener(
+        "change",
+        () => {
+            paginaActual = 1;
+            cargarVoluntarios();
+        }
+    );
+
 }
 
 

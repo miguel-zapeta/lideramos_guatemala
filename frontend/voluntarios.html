@@ -257,6 +257,15 @@
                         <h3>Voluntarios registrados</h3>
 
 
+                        <label class="ver-inactivos">
+                            <input
+                                type="checkbox"
+                                id="verInactivos"
+                            >
+                            <span>Ver inactivos</span>
+                        </label>
+
+
                         <div class="search-box">
 
                             <span>🔍</span>
@@ -269,6 +278,7 @@
                                 <option value="centro">Centro educativo</option>
                                 <option value="jornada">Jornada</option>
                                 <option value="edad">Edad</option>
+                                <option value="estado">Estado</option>
                             </select>
 
                             <input
@@ -304,6 +314,8 @@
 
                                     <th>Edad</th>
 
+                                    <th>Estado</th>
+
                                     <th>Acciones</th>
 
                                 </tr>
@@ -315,7 +327,7 @@
 
                                 <tr>
 
-                                    <td colspan="8">
+                                    <td colspan="9">
                                         Cargando voluntarios...
                                     </td>
 
@@ -338,6 +350,8 @@
                             Cargando voluntarios...
                         </span>
 
+                        <div class="pagination-buttons" id="paginationButtons"></div>
+
                     </div>
 
                 </div>
@@ -351,6 +365,7 @@
 <script src="vendor/xlsx.full.min.js"></script>
 <script src="menu.js"></script>
 <script src="escape.js"></script>
+<script src="paginacion.js"></script>
 <script src="voluntarios.js"></script>
 
 </body>

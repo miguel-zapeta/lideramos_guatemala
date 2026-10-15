@@ -16,6 +16,17 @@ let gastosEsperados = [];
 let gastoEditId = null;
 let gastosListenersOk = false;
 
+let paginaGastosActual = 1;
+
+const LIMITE_PAGINA = 20;
+
+let metaGastosActual = {
+    total: 0,
+    pagina: 1,
+    limite: 20,
+    totalPaginas: 1
+};
+
 
 const CAMPOS = [
     "nombre",
@@ -638,7 +649,7 @@ async function cargarCategoriasGe() {
 
         const response =
             await fetch(
-                "/api/categorias-gasto",
+                "/api/categorias-gasto/opciones",
                 {
                     method: "GET",
                     credentials: "include"
@@ -680,9 +691,26 @@ async function cargarGastosEsperados() {
 
     try {
 
+        const verInactivos =
+            document.getElementById("verInactivosGE")?.checked;
+
+        const params =
+            new URLSearchParams({
+                id_proyecto: String(editId),
+                pagina: String(paginaGastosActual),
+                limite: String(LIMITE_PAGINA)
+            });
+
+        if (verInactivos) {
+            params.set("ver_inactivos", "1");
+        }
+
+        const url =
+            `/api/gastos-esperados?${params.toString()}`;
+
         const response =
             await fetch(
-                `/api/gastos-esperados?id_proyecto=${editId}`,
+                url,
                 {
                     method: "GET",
                     credentials: "include"
@@ -711,6 +739,13 @@ async function cargarGastosEsperados() {
         gastosEsperados =
             data.gastos_esperados || [];
 
+        metaGastosActual = {
+            total: data.total || 0,
+            pagina: data.pagina || 1,
+            limite: data.limite || LIMITE_PAGINA,
+            totalPaginas: data.totalPaginas || 1
+        };
+
 
         renderGastosEsperados();
 
@@ -736,7 +771,27 @@ function renderGastosEsperados() {
     const gestionar = puedeGestionarGastos();
 
 
+    const total = metaGastosActual.total;
+
+
+    renderPaginacion({
+        contenedorId: "gastosEsperadosPagination",
+        pagina: metaGastosActual.pagina,
+        totalPaginas: metaGastosActual.totalPaginas,
+        onCambiar: (nuevaPagina) => {
+            paginaGastosActual = nuevaPagina;
+            cargarGastosEsperados();
+        }
+    });
+
+
     if (gastosEsperados.length === 0) {
+
+        if (metaGastosActual.total > 0 && metaGastosActual.pagina > 1) {
+            paginaGastosActual = metaGastosActual.pagina - 1;
+            cargarGastosEsperados();
+            return;
+        }
 
         tbody.innerHTML =
             `<tr><td colspan="7">Sin gastos esperados registrados.</td></tr>`;
@@ -818,13 +873,14 @@ function mostrarSubformGasto(id) {
             (x) => x.id_gasto_esperado === id
         );
 
-        if (!g) return;
+        if (!g) {
 
-        document.getElementById("ge_categoria").value = g.id_categoria;
-        document.getElementById("ge_costo").value = g.costo_por_unidad_moneda_local;
-        document.getElementById("ge_unidades").value = g.numero_de_unidades;
-        document.getElementById("ge_local").value = g.monto_solicitado_rise_up_moneda_local;
-        document.getElementById("ge_usd").value = g.monto_solicitado_rise_up_usd;
+            cargarGastoEsperadoPorId(id);
+
+            return;
+        }
+
+        rellenarSubformGasto(g);
 
     } else {
 
@@ -837,6 +893,62 @@ function mostrarSubformGasto(id) {
         ]) {
             document.getElementById(campo).value = "";
         }
+    }
+}
+
+
+function rellenarSubformGasto(g) {
+
+    document.getElementById("ge_categoria").value = g.id_categoria;
+    document.getElementById("ge_costo").value = g.costo_por_unidad_moneda_local;
+    document.getElementById("ge_unidades").value = g.numero_de_unidades;
+    document.getElementById("ge_local").value = g.monto_solicitado_rise_up_moneda_local;
+    document.getElementById("ge_usd").value = g.monto_solicitado_rise_up_usd;
+}
+
+
+async function cargarGastoEsperadoPorId(id) {
+
+    try {
+
+        const response =
+            await fetch(
+                `/api/gastos-esperados/${id}`,
+                {
+                    method: "GET",
+                    credentials: "include"
+                }
+            );
+
+        if (response.status === 401) {
+
+            window.location.replace("/login.html");
+
+            return;
+        }
+
+        if (!response.ok) {
+            throw new Error("carga");
+        }
+
+        const data =
+            await response.json();
+
+        if (data.gasto_esperado) {
+            rellenarSubformGasto(data.gasto_esperado);
+        }
+
+    } catch (error) {
+
+        console.error(
+            "Error cargando gasto esperado:",
+            error
+        );
+
+        mostrarMensajeGasto(
+            "No se pudo cargar el gasto esperado.",
+            true
+        );
     }
 }
 
@@ -996,6 +1108,10 @@ async function guardarGastoEsperado() {
             false
         );
 
+        if (eraNuevo) {
+            paginaGastosActual = 1;
+        }
+
         await cargarGastosEsperados();
 
 
@@ -1099,6 +1215,23 @@ function initGastosEsperados(gestionar) {
 
     cargarCategoriasGe();
     cargarGastosEsperados();
+
+
+    const verInactivosGE =
+        document.getElementById("verInactivosGE");
+
+
+    if (verInactivosGE) {
+
+        verInactivosGE.addEventListener(
+            "change",
+            () => {
+                paginaGastosActual = 1;
+                cargarGastosEsperados();
+            }
+        );
+
+    }
 }
 
 
@@ -1171,9 +1304,22 @@ async function exportarProyecto() {
         ];
 
 
+        const verInactivosExport =
+            document.getElementById("verInactivosGE")?.checked;
+
+        const paramsGe =
+            new URLSearchParams({
+                id_proyecto: String(editId),
+                exportar: "1"
+            });
+
+        if (verInactivosExport) {
+            paramsGe.set("ver_inactivos", "1");
+        }
+
         const respGe =
             await fetch(
-                `/api/gastos-esperados?id_proyecto=${editId}`,
+                `/api/gastos-esperados?${paramsGe.toString()}`,
                 {
                     method: "GET",
                     credentials: "include"

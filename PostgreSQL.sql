@@ -217,8 +217,9 @@ CREATE TABLE persona (
 	carta_medios_comunicacion VARCHAR(50),
 	dpi18                     VARCHAR(50),
 	certificado_nacimiento    VARCHAR(50),
-	dpi_encargado             VARCHAR(50),
+    dpi_encargado             VARCHAR(50),
     biografia                 VARCHAR(250),
+    estado                    BOOLEAN NOT NULL DEFAULT TRUE,
 
 
 	CONSTRAINT chk_persona_edad 

@@ -129,7 +129,7 @@ async function cargarCategorias() {
 
         const response =
             await fetch(
-                "/api/categorias-gasto",
+                "/api/categorias-gasto/opciones",
                 {
                     method: "GET",
                     credentials: "include"

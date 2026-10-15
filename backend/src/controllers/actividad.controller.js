@@ -1,6 +1,12 @@
 const pool =
     require("../config/database");
 
+const {
+    leerPaginacion,
+    construirBusqueda,
+    metaPaginacion
+} = require("../utils/paginacion");
+
 
 const COLUMNAS = `
     id_actividad,
@@ -233,6 +239,26 @@ async function proyectoFinalizado(idProyecto) {
 }
 
 
+const MAPA_BUSQUEDA_ACTIVIDADES = {
+    nombre: ["a.nombre"],
+    tema: ["a.tema"],
+    fecha: ["TO_CHAR(a.fecha, 'YYYY-MM-DD')"],
+    realizado: ["a.realizado_por"],
+    eje: ["a.eje"],
+    estado: [
+        "CASE WHEN a.estado THEN 'activo' ELSE 'inactivo' END"
+    ],
+    todos: [
+        "a.nombre",
+        "a.tema",
+        "TO_CHAR(a.fecha, 'YYYY-MM-DD')",
+        "a.realizado_por",
+        "a.eje",
+        "CASE WHEN a.estado THEN 'activo' ELSE 'inactivo' END"
+    ]
+};
+
+
 async function listarActividades(
     req,
     res
@@ -240,20 +266,115 @@ async function listarActividades(
 
     try {
 
+        const paginacion = leerPaginacion(req);
+
+        if (paginacion.error) {
+
+            return res.status(400).json({
+                message:
+                    paginacion.error
+            });
+
+        }
+
+
+        const exportar =
+            req.query.exportar === "1";
+
+        const verInactivos =
+            req.query.ver_inactivos === "1";
+
+
+        const filtros = [];
+
+        const paramsBase = [];
+
+
+        if (!verInactivos) {
+            filtros.push("a.estado = TRUE");
+        }
+
+
+        const { sql: filtroBusqueda, params: paramsBusqueda } =
+            construirBusqueda({
+                buscar: req.query.buscar,
+                campo: req.query.campo,
+                mapa: MAPA_BUSQUEDA_ACTIVIDADES,
+                inicioParam: 1
+            });
+
+        if (filtroBusqueda) {
+            filtros.push(filtroBusqueda);
+            paramsBase.push(...paramsBusqueda);
+        }
+
+
+        const where =
+            filtros.length > 0
+                ? `WHERE ${filtros.join(" AND ")}`
+                : "";
+
+
+        const totalResult =
+            await pool.query(
+                `
+                SELECT
+                    COUNT(*)::INTEGER AS total,
+                    COUNT(*) FILTER (WHERE a.estado = TRUE)::INTEGER AS activos
+                FROM actividad a
+                ${where}
+                `,
+                paramsBase
+            );
+
+
+        const total = totalResult.rows[0].total;
+
+        const activos = totalResult.rows[0].activos;
+
+
+        const limiteDatos =
+            paramsBase.length + 1;
+
+        const offsetDatos =
+            paramsBase.length + 2;
+
         const result =
             await pool.query(
                 `
                 SELECT
                     ${COLUMNAS}
-                FROM actividad
-                ORDER BY id_actividad DESC
-                `
+                FROM actividad a
+                ${where}
+                ORDER BY a.id_actividad DESC
+
+                ${exportar ? "" : `LIMIT $${limiteDatos} OFFSET $${offsetDatos}`}
+                `,
+                exportar
+                    ? paramsBase
+                    : [
+                        ...paramsBase,
+                        paginacion.limite,
+                        paginacion.offset
+                    ]
             );
 
 
         return res.json({
             actividades:
-                result.rows
+                result.rows,
+
+            ...metaPaginacion(
+                total,
+                exportar ? 1 : paginacion.pagina,
+                exportar ? total : paginacion.limite
+            ),
+
+            resumen: {
+                total,
+                activos,
+                inactivos: total - activos
+            }
         });
 
     } catch (error) {

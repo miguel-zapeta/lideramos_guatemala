@@ -88,7 +88,7 @@ async function cargarRubros() {
 
         const response =
             await fetch(
-                "/api/rubros",
+                "/api/rubros/opciones",
                 {
                     method: "GET",
                     credentials: "include"

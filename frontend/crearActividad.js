@@ -11,6 +11,10 @@ El estado se cambia desde la lista (PATCH).
 let editId = null;
 let modoVer = false;
 
+let paginaAsistenciaActual = 1;
+
+const LIMITE_PAGINA = 20;
+
 
 const CAMPOS = [
     "id_proyecto",
@@ -667,7 +671,7 @@ async function cargarPersonas() {
 
         const response =
             await fetch(
-                "/api/voluntarios",
+                "/api/voluntarios/opciones",
                 {
                     method: "GET",
                     credentials: "include"
@@ -719,9 +723,16 @@ async function cargarAsistencia() {
 
     try {
 
+        const params =
+            new URLSearchParams({
+                id_actividad: String(editId),
+                pagina: String(paginaAsistenciaActual),
+                limite: String(LIMITE_PAGINA)
+            });
+
         const response =
             await fetch(
-                `/api/asistencias?id_actividad=${editId}`,
+                `/api/asistencias?${params.toString()}`,
                 {
                     method: "GET",
                     credentials: "include"
@@ -747,13 +758,36 @@ async function cargarAsistencia() {
 
         const lista = data.asistencia || [];
 
+        const total = data.total || 0;
+
+        const totalPaginas = data.totalPaginas || 1;
+
+        const pagina = data.pagina || 1;
+
         info.textContent =
-            lista.length === 0
+            total === 0
                 ? "Aún no hay personas marcadas en esta actividad."
-                : `${lista.length} persona(s) asisten a esta actividad.`;
+                : `${total} persona(s) asisten a esta actividad.`;
+
+
+        renderPaginacion({
+            contenedorId: "asistenciaPagination",
+            pagina,
+            totalPaginas,
+            onCambiar: (nuevaPagina) => {
+                paginaAsistenciaActual = nuevaPagina;
+                cargarAsistencia();
+            }
+        });
 
 
         if (lista.length === 0) {
+
+            if (total > 0 && pagina > 1) {
+                paginaAsistenciaActual = pagina - 1;
+                cargarAsistencia();
+                return;
+            }
 
             tbody.innerHTML =
                 `<tr><td colspan="4">Sin asistencia registrada.</td></tr>`;
@@ -875,6 +909,8 @@ async function marcarAsistencia() {
         document.getElementById("asistenciaPersona").value = "";
 
         mostrarMensajeAsistencia(data.message, false);
+
+        paginaAsistenciaActual = 1;
 
         await cargarAsistencia();
 

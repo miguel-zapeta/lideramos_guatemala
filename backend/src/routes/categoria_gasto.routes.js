@@ -7,6 +7,7 @@ const requirePermission =
     require("../middleware/permission.middleware");
 
 const {
+    listarOpciones,
     listarCategorias,
     obtenerCategoria,
     crearCategoria,
@@ -19,6 +20,14 @@ const {
 
 const router =
     express.Router();
+
+
+router.get(
+    "/opciones",
+    authenticate,
+
+    listarOpciones
+);
 
 
 router.get(

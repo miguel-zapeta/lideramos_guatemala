@@ -1,6 +1,12 @@
 const pool =
     require("../config/database");
 
+const {
+    leerPaginacion,
+    construirBusqueda,
+    metaPaginacion
+} = require("../utils/paginacion");
+
 
 const COLUMNAS = `
     c.id_categoria,
@@ -32,7 +38,23 @@ function validarRubro(idRubro) {
 }
 
 
-async function listarCategorias(
+const MAPA_BUSQUEDA_CATEGORIAS = {
+    nombre: ["c.nombre"],
+    descripcion: ["c.descripcion"],
+    rubro: ["r.nombre"],
+    estado: [
+        "CASE WHEN c.estado THEN 'activo' ELSE 'inactivo' END"
+    ],
+    todos: [
+        "c.nombre",
+        "c.descripcion",
+        "r.nombre",
+        "CASE WHEN c.estado THEN 'activo' ELSE 'inactivo' END"
+    ]
+};
+
+
+async function listarOpciones(
     req,
     res
 ) {
@@ -43,11 +65,16 @@ async function listarCategorias(
             await pool.query(
                 `
                 SELECT
-                    ${COLUMNAS}
+                    c.id_categoria,
+                    c.id_rubro,
+                    c.nombre,
+                    c.estado,
+                    r.nombre AS rubro
                 FROM categoria_gasto c
                 INNER JOIN rubro r
                     ON r.id_rubro = c.id_rubro
-                ORDER BY c.id_categoria DESC
+                WHERE c.estado = TRUE
+                ORDER BY c.nombre
                 `
             );
 
@@ -55,6 +82,120 @@ async function listarCategorias(
         return res.json({
             categorias:
                 result.rows
+        });
+
+    } catch (error) {
+
+        console.error(error);
+
+        return res.status(500).json({
+            message:
+                "Error al obtener categorías."
+        });
+
+    }
+}
+
+
+async function listarCategorias(
+    req,
+    res
+) {
+
+    try {
+
+        const paginacion = leerPaginacion(req);
+
+        if (paginacion.error) {
+
+            return res.status(400).json({
+                message:
+                    paginacion.error
+            });
+
+        }
+
+
+        const exportar =
+            req.query.exportar === "1";
+
+
+        const { sql: filtroBusqueda, params: paramsBusqueda } =
+            construirBusqueda({
+                buscar: req.query.buscar,
+                campo: req.query.campo,
+                mapa: MAPA_BUSQUEDA_CATEGORIAS,
+                inicioParam: 1
+            });
+
+        const where =
+            filtroBusqueda ? `WHERE ${filtroBusqueda}` : "";
+
+
+        const totalResult =
+            await pool.query(
+                `
+                SELECT
+                    COUNT(*)::INTEGER AS total,
+                    COUNT(*) FILTER (WHERE c.estado = TRUE)::INTEGER AS activos
+                FROM categoria_gasto c
+                INNER JOIN rubro r
+                    ON r.id_rubro = c.id_rubro
+                ${where}
+                `,
+                paramsBusqueda
+            );
+
+
+        const total = totalResult.rows[0].total;
+
+        const activos = totalResult.rows[0].activos;
+
+
+        const limiteDatos =
+            paramsBusqueda.length + 1;
+
+        const offsetDatos =
+            paramsBusqueda.length + 2;
+
+        const result =
+            await pool.query(
+                `
+                SELECT
+                    ${COLUMNAS}
+                FROM categoria_gasto c
+                INNER JOIN rubro r
+                    ON r.id_rubro = c.id_rubro
+                ${where}
+                ORDER BY c.id_categoria DESC
+
+                ${exportar ? "" : `LIMIT $${limiteDatos} OFFSET $${offsetDatos}`}
+                `,
+                exportar
+                    ? paramsBusqueda
+                    : [
+                        ...paramsBusqueda,
+                        paginacion.limite,
+                        paginacion.offset
+                    ]
+            );
+
+
+        return res.json({
+            categorias:
+                result.rows,
+
+            ...metaPaginacion(
+                total,
+                exportar ? 1 : paginacion.pagina,
+                exportar ? total : paginacion.limite
+            ),
+
+            resumen: {
+                total,
+                activos,
+                inactivos: total - activos
+            }
         });
 
     } catch (error) {
@@ -472,6 +613,7 @@ async function cambiarEstadoCategoria(
 
 
 module.exports = {
+    listarOpciones,
     listarCategorias,
     obtenerCategoria,
     crearCategoria,

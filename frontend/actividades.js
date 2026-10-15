@@ -3,6 +3,25 @@ let permisosActuales = [];
 let todasLasActividades = [];
 let ultimosResultados = [];
 
+let paginaActual = 1;
+
+const LIMITE_PAGINA = 20;
+
+let debounceBusqueda = null;
+
+let metaPaginacionActual = {
+    total: 0,
+    pagina: 1,
+    limite: 20,
+    totalPaginas: 1
+};
+
+let resumenActual = {
+    total: 0,
+    activos: 0,
+    inactivos: 0
+};
+
 
 const AVATAR_CLASSES = [
     "avatar-pink",
@@ -133,9 +152,33 @@ async function cargarActividades() {
 
     try {
 
+        const verInactivos =
+            document.getElementById("verInactivos")?.checked;
+
+        const buscar =
+            document.getElementById("searchInput")?.value.trim() || "";
+
+        const campo =
+            document.getElementById("searchField")?.value || "todos";
+
+        const params =
+            new URLSearchParams({
+                pagina: String(paginaActual),
+                limite: String(LIMITE_PAGINA)
+            });
+
+        if (verInactivos) {
+            params.set("ver_inactivos", "1");
+        }
+
+        if (buscar) {
+            params.set("buscar", buscar);
+            params.set("campo", campo);
+        }
+
         const response =
             await fetch(
-                "/api/actividades",
+                `/api/actividades?${params.toString()}`,
                 {
                     method: "GET",
                     credentials: "include"
@@ -178,6 +221,20 @@ async function cargarActividades() {
 
         todasLasActividades =
             data.actividades || [];
+
+        metaPaginacionActual = {
+            total: data.total || 0,
+            pagina: data.pagina || 1,
+            limite: data.limite || LIMITE_PAGINA,
+            totalPaginas: data.totalPaginas || 1
+        };
+
+        resumenActual =
+            data.resumen || {
+                total: todasLasActividades.length,
+                activos: todasLasActividades.filter((a) => a.estado).length,
+                inactivos: 0
+            };
 
 
         renderActividades(todasLasActividades);
@@ -228,24 +285,58 @@ function renderActividades(actividades) {
         document.getElementById("paginationInfo");
 
 
-    const total = actividades.length;
+    const total = metaPaginacionActual.total;
 
-    const activos =
-        actividades.filter((a) => a.estado).length;
+    const activos = resumenActual.activos;
+
+    const inactivos = resumenActual.inactivos;
 
 
     document.getElementById("statTotal").textContent = total;
     document.getElementById("statActivos").textContent = activos;
-    document.getElementById("statInactivos").textContent = total - activos;
+    document.getElementById("statInactivos").textContent = inactivos;
 
-    paginationInfo.textContent =
-        `Mostrando ${total} actividad(es).`;
+    if (total === 0) {
+
+        paginationInfo.textContent =
+            "Sin resultados.";
+
+        renderPaginacion({
+            contenedorId: "paginationButtons",
+            pagina: 1,
+            totalPaginas: 1,
+            onCambiar: () => {}
+        });
+
+    } else {
+
+        const desde =
+            (metaPaginacionActual.pagina - 1) *
+                metaPaginacionActual.limite + 1;
+
+        const hasta =
+            desde + actividades.length - 1;
+
+        paginationInfo.textContent =
+            `Mostrando ${desde}–${hasta} de ${total}.`;
+
+        renderPaginacion({
+            contenedorId: "paginationButtons",
+            pagina: metaPaginacionActual.pagina,
+            totalPaginas: metaPaginacionActual.totalPaginas,
+            onCambiar: (nuevaPagina) => {
+                paginaActual = nuevaPagina;
+                cargarActividades();
+            }
+        });
+
+    }
 
 
     ultimosResultados = actividades;
 
 
-    if (total === 0) {
+    if (actividades.length === 0) {
 
         tbody.innerHTML =
             `<tr><td colspan="8">No hay actividades registradas.</td></tr>`;
@@ -408,15 +499,44 @@ function exportarExcel() {
     }
 
 
-    if (ultimosResultados.length === 0) {
+    const buscar =
+        document.getElementById("searchInput")?.value.trim() || "";
 
-        alert("No hay resultados para exportar.");
+    const campo =
+        document.getElementById("searchField")?.value || "todos";
 
-        return;
+    const verInactivos =
+        document.getElementById("verInactivos")?.checked;
+
+    const params =
+        new URLSearchParams({ exportar: "1" });
+
+    if (verInactivos) {
+        params.set("ver_inactivos", "1");
+    }
+
+    if (buscar) {
+        params.set("buscar", buscar);
+        params.set("campo", campo);
     }
 
 
-    const filas = ultimosResultados.map((a) => ({
+    fetch(
+        `/api/actividades?${params.toString()}`,
+        {
+            method: "GET",
+            credentials: "include"
+        }
+    ).then(async (response) => {
+
+        if (!response.ok) {
+            throw new Error("No se pudo obtener los datos.");
+        }
+
+        const data =
+            await response.json();
+
+        const filas = (data.actividades || []).map((a) => ({
         "ID": a.id_actividad,
         "Proyecto": a.id_proyecto,
         "Nombre": a.nombre,
@@ -447,14 +567,32 @@ function exportarExcel() {
     }));
 
 
-    const hoja =
-        XLSX.utils.json_to_sheet(filas);
+        if (filas.length === 0) {
 
-    const libro = XLSX.utils.book_new();
+            alert("No hay resultados para exportar.");
 
-    XLSX.utils.book_append_sheet(libro, hoja, "Actividades");
+            return;
+        }
 
-    XLSX.writeFile(libro, "actividades.xlsx");
+
+        const hoja =
+            XLSX.utils.json_to_sheet(filas);
+
+        const libro = XLSX.utils.book_new();
+
+        XLSX.utils.book_append_sheet(libro, hoja, "Actividades");
+
+        XLSX.writeFile(libro, "actividades.xlsx");
+
+    }).catch((error) => {
+
+        console.error(
+            "Error exportando actividades:",
+            error
+        );
+
+        alert("No se pudo exportar el archivo.");
+    });
 }
 
 
@@ -473,63 +611,14 @@ BUSCADOR
 =========================================
 */
 
-function valorCampo(actividad, campo) {
-
-    switch (campo) {
-
-        case "nombre":
-            return actividad.nombre || "";
-
-        case "tema":
-            return actividad.tema || "";
-
-        case "fecha":
-            return formatoFecha(actividad.fecha);
-
-        case "realizado":
-            return actividad.realizado_por || "";
-
-        case "eje":
-            return actividad.eje || "";
-
-        case "estado":
-            return actividad.estado ? "activo" : "inactivo";
-
-        default:
-            return [
-                actividad.nombre,
-                actividad.tema,
-                formatoFecha(actividad.fecha),
-                actividad.realizado_por,
-                actividad.eje,
-                actividad.estado ? "activo" : "inactivo"
-            ].filter(
-                (x) => x !== null && x !== undefined && x !== "" && x !== "—"
-            ).join(" ");
-    }
-}
-
-
 function aplicarFiltro() {
 
-    const q =
-        searchInput.value.trim().toLowerCase();
+    clearTimeout(debounceBusqueda);
 
-    const campo =
-        searchField ? searchField.value : "todos";
-
-    if (!q) {
-
-        renderActividades(todasLasActividades);
-
-        return;
-    }
-
-    renderActividades(
-        todasLasActividades.filter((a) =>
-            valorCampo(a, campo).toLowerCase().includes(q)
-        )
-    );
+    debounceBusqueda = setTimeout(() => {
+        paginaActual = 1;
+        cargarActividades();
+    }, 300);
 }
 
 
@@ -598,6 +687,29 @@ async function iniciarPanel() {
 
 
     await cargarActividades();
+}
+
+
+/*
+=========================================
+MOSTRAR INACTIVOS
+=========================================
+*/
+
+const verInactivosCheckbox =
+    document.getElementById("verInactivos");
+
+
+if (verInactivosCheckbox) {
+
+    verInactivosCheckbox.addEventListener(
+        "change",
+        () => {
+            paginaActual = 1;
+            cargarActividades();
+        }
+    );
+
 }
 
 

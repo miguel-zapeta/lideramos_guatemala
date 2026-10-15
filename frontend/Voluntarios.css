@@ -619,6 +619,36 @@ body {
 }
 
 
+.ver-inactivos {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 7px;
+
+    color: var(--gray);
+
+    font-size: 13px;
+
+    cursor: pointer;
+
+    white-space: nowrap;
+
+}
+
+
+.ver-inactivos input {
+
+    accent-color: var(--pink);
+
+    width: 15px;
+
+    height: 15px;
+
+}
+
+
 .table-header h3 {
 
     font-size: 16px;

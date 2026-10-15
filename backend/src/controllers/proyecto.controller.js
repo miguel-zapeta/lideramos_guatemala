@@ -1,6 +1,12 @@
 const pool =
     require("../config/database");
 
+const {
+    leerPaginacion,
+    construirBusqueda,
+    metaPaginacion
+} = require("../utils/paginacion");
+
 
 const ESTADOS_VALIDOS = [
     "planeado",
@@ -201,6 +207,20 @@ async function listarOpciones(
 }
 
 
+const MAPA_BUSQUEDA_PROYECTOS = {
+    nombre: ["p.nombre"],
+    inicio: ["TO_CHAR(p.fecha_inicio, 'YYYY-MM-DD')"],
+    fin: ["TO_CHAR(p.fecha_finalizacion, 'YYYY-MM-DD')"],
+    estado: ["p.estado"],
+    todos: [
+        "p.nombre",
+        "TO_CHAR(p.fecha_inicio, 'YYYY-MM-DD')",
+        "TO_CHAR(p.fecha_finalizacion, 'YYYY-MM-DD')",
+        "p.estado"
+    ]
+};
+
+
 async function listarProyectos(
     req,
     res
@@ -208,20 +228,95 @@ async function listarProyectos(
 
     try {
 
+        const paginacion = leerPaginacion(req);
+
+        if (paginacion.error) {
+
+            return res.status(400).json({
+                message:
+                    paginacion.error
+            });
+
+        }
+
+
+        const exportar =
+            req.query.exportar === "1";
+
+
+        const { sql: filtroBusqueda, params: paramsBusqueda } =
+            construirBusqueda({
+                buscar: req.query.buscar,
+                campo: req.query.campo,
+                mapa: MAPA_BUSQUEDA_PROYECTOS,
+                inicioParam: 1
+            });
+
+        const where =
+            filtroBusqueda ? `WHERE ${filtroBusqueda}` : "";
+
+
+        const totalResult =
+            await pool.query(
+                `
+                SELECT
+                    COUNT(*)::INTEGER AS total,
+                    COUNT(*) FILTER (WHERE p.estado = 'planeado')::INTEGER AS planeados,
+                    COUNT(*) FILTER (WHERE p.estado = 'en proceso')::INTEGER AS en_proceso,
+                    COUNT(*) FILTER (WHERE p.estado = 'finalizado')::INTEGER AS finalizados
+                FROM proyecto p
+                ${where}
+                `,
+                paramsBusqueda
+            );
+
+
+        const total = totalResult.rows[0].total;
+
+
+        const limiteDatos =
+            paramsBusqueda.length + 1;
+
+        const offsetDatos =
+            paramsBusqueda.length + 2;
+
         const result =
             await pool.query(
                 `
                 SELECT
                     ${COLUMNAS}
-                FROM proyecto
-                ORDER BY id_proyecto DESC
-                `
+                FROM proyecto p
+                ${where}
+                ORDER BY p.id_proyecto DESC
+
+                ${exportar ? "" : `LIMIT $${limiteDatos} OFFSET $${offsetDatos}`}
+                `,
+                exportar
+                    ? paramsBusqueda
+                    : [
+                        ...paramsBusqueda,
+                        paginacion.limite,
+                        paginacion.offset
+                    ]
             );
 
 
         return res.json({
             proyectos:
-                result.rows
+                result.rows,
+
+            ...metaPaginacion(
+                total,
+                exportar ? 1 : paginacion.pagina,
+                exportar ? total : paginacion.limite
+            ),
+
+            resumen: {
+                total,
+                planeados: totalResult.rows[0].planeados,
+                en_proceso: totalResult.rows[0].en_proceso,
+                finalizados: totalResult.rows[0].finalizados
+            }
         });
 
     } catch (error) {

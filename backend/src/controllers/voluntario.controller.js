@@ -1,6 +1,12 @@
 const pool =
     require("../config/database");
 
+const {
+    leerPaginacion,
+    construirBusqueda,
+    metaPaginacion
+} = require("../utils/paginacion");
+
 
 const COLUMNAS_LISTA = `
     p.id_persona,
@@ -20,7 +26,8 @@ const COLUMNAS_LISTA = `
     p.dpi18,
     p.certificado_nacimiento,
     p.dpi_encargado,
-    p.biografia
+    p.biografia,
+    p.estado
 `;
 
 
@@ -42,8 +49,31 @@ const COLUMNAS_RETURNING = `
     dpi18,
     certificado_nacimiento,
     dpi_encargado,
-    biografia
+    biografia,
+    estado
 `;
+
+
+const MAPA_BUSQUEDA_VOLUNTARIOS = {
+    nombre: ["p.nombres"],
+    apellido: ["p.apellidos"],
+    municipio: ["p.municipio"],
+    centro: ["p.centro_educativo"],
+    jornada: ["p.jornada"],
+    edad: ["p.edad::TEXT"],
+    estado: [
+        "CASE WHEN p.estado THEN 'activo' ELSE 'inactivo' END"
+    ],
+    todos: [
+        "p.nombres",
+        "p.apellidos",
+        "p.municipio",
+        "p.centro_educativo",
+        "p.jornada",
+        "p.edad::TEXT",
+        "CASE WHEN p.estado THEN 'activo' ELSE 'inactivo' END"
+    ]
+};
 
 
 async function proyectosDe(idPersona) {
@@ -225,7 +255,7 @@ function extraerCampos(body) {
 }
 
 
-async function listarVoluntarios(
+async function listarOpciones(
     req,
     res
 ) {
@@ -236,15 +266,12 @@ async function listarVoluntarios(
             await pool.query(
                 `
                 SELECT
-                    ${COLUMNAS_LISTA},
-                    COUNT(pp.id_proyecto)::INTEGER AS total_proyectos
-                FROM persona p
-                LEFT JOIN proyecto_persona pp
-                    ON pp.id_persona = p.id_persona
-                GROUP BY
-                    p.id_persona
-                ORDER BY
-                    p.id_persona DESC
+                    id_persona,
+                    nombres,
+                    apellidos
+                FROM persona
+                WHERE estado = TRUE
+                ORDER BY apellidos, nombres
                 `
             );
 
@@ -252,6 +279,145 @@ async function listarVoluntarios(
         return res.json({
             voluntarios:
                 result.rows
+        });
+
+    } catch (error) {
+
+        console.error(error);
+
+        return res.status(500).json({
+            message:
+                "Error al obtener voluntarios."
+        });
+
+    }
+}
+
+
+async function listarVoluntarios(
+    req,
+    res
+) {
+
+    try {
+
+        const paginacion = leerPaginacion(req);
+
+        if (paginacion.error) {
+
+            return res.status(400).json({
+                message:
+                    paginacion.error
+            });
+
+        }
+
+
+        const exportar =
+            req.query.exportar === "1";
+
+        const verInactivos =
+            req.query.ver_inactivos === "1";
+
+
+        const filtros = [];
+
+        const paramsBase = [];
+
+
+        if (!verInactivos) {
+            filtros.push("p.estado = TRUE");
+        }
+
+
+        const { sql: filtroBusqueda, params: paramsBusqueda } =
+            construirBusqueda({
+                buscar: req.query.buscar,
+                campo: req.query.campo,
+                mapa: MAPA_BUSQUEDA_VOLUNTARIOS,
+                inicioParam: 1
+            });
+
+        if (filtroBusqueda) {
+            filtros.push(filtroBusqueda);
+            paramsBase.push(...paramsBusqueda);
+        }
+
+
+        const where =
+            filtros.length > 0
+                ? `WHERE ${filtros.join(" AND ")}`
+                : "";
+
+
+        const totalResult =
+            await pool.query(
+                `
+                SELECT
+                    COUNT(DISTINCT p.id_persona)::INTEGER AS total,
+                    COUNT(DISTINCT pp.id_persona)::INTEGER AS en_proyectos
+                FROM persona p
+                LEFT JOIN proyecto_persona pp
+                    ON pp.id_persona = p.id_persona
+                ${where}
+                `,
+                paramsBase
+            );
+
+
+        const total = totalResult.rows[0].total;
+
+        const enProyectos = totalResult.rows[0].en_proyectos;
+
+
+        const limiteDatos =
+            paramsBase.length + 1;
+
+        const offsetDatos =
+            paramsBase.length + 2;
+
+        const result =
+            await pool.query(
+                `
+                SELECT
+                    ${COLUMNAS_LISTA},
+                    COUNT(pp.id_proyecto)::INTEGER AS total_proyectos
+                FROM persona p
+                LEFT JOIN proyecto_persona pp
+                    ON pp.id_persona = p.id_persona
+                ${where}
+                GROUP BY
+                    p.id_persona
+                ORDER BY
+                    p.id_persona DESC
+
+                ${exportar ? "" : `LIMIT $${limiteDatos} OFFSET $${offsetDatos}`}
+                `,
+                exportar
+                    ? paramsBase
+                    : [
+                        ...paramsBase,
+                        paginacion.limite,
+                        paginacion.offset
+                    ]
+            );
+
+
+        return res.json({
+            voluntarios:
+                result.rows,
+
+            ...metaPaginacion(
+                total,
+                exportar ? 1 : paginacion.pagina,
+                exportar ? total : paginacion.limite
+            ),
+
+            resumen: {
+                total,
+                en_proyectos: enProyectos,
+                sin_asignar: total - enProyectos
+            }
         });
 
     } catch (error) {
@@ -602,8 +768,10 @@ async function eliminarVoluntario(
         const result =
             await pool.query(
                 `
-                DELETE FROM persona
+                UPDATE persona
+                SET estado = FALSE
                 WHERE id_persona = $1
+                    AND estado = TRUE
                 RETURNING id_persona
                 `,
                 [id]
@@ -622,7 +790,7 @@ async function eliminarVoluntario(
 
         return res.json({
             message:
-                "Voluntario eliminado correctamente."
+                "Voluntario desactivado correctamente."
         });
 
     } catch (error) {
@@ -631,7 +799,95 @@ async function eliminarVoluntario(
 
         return res.status(500).json({
             message:
-                "Error al eliminar voluntario."
+                "Error al desactivar voluntario."
+        });
+
+    }
+}
+
+
+async function cambiarEstado(
+    req,
+    res
+) {
+
+    try {
+
+        const id =
+            Number(req.params.id);
+
+        const {
+            estado
+        } = req.body;
+
+
+        if (!Number.isInteger(id)) {
+
+            return res.status(400).json({
+                message:
+                    "ID de voluntario inválido."
+            });
+
+        }
+
+
+        if (
+            typeof estado !==
+            "boolean"
+        ) {
+
+            return res.status(400).json({
+                message:
+                    "El estado debe ser booleano."
+            });
+
+        }
+
+
+        const result =
+            await pool.query(
+                `
+                UPDATE persona
+                SET estado = $1
+                WHERE id_persona = $2
+                RETURNING
+                    id_persona,
+                    estado
+                `,
+                [
+                    estado,
+                    id
+                ]
+            );
+
+
+        if (result.rows.length === 0) {
+
+            return res.status(404).json({
+                message:
+                    "Voluntario no encontrado."
+            });
+
+        }
+
+
+        return res.json({
+
+            message:
+                "Estado actualizado correctamente.",
+
+            voluntario:
+                result.rows[0]
+
+        });
+
+    } catch (error) {
+
+        console.error(error);
+
+        return res.status(500).json({
+            message:
+                "Error al actualizar estado."
         });
 
     }
@@ -639,9 +895,11 @@ async function eliminarVoluntario(
 
 
 module.exports = {
+    listarOpciones,
     listarVoluntarios,
     obtenerVoluntario,
     crearVoluntario,
     editarVoluntario,
-    eliminarVoluntario
+    eliminarVoluntario,
+    cambiarEstado
 };

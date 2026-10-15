@@ -1324,3 +1324,90 @@ body {
     color: var(--dark);
 
 }
+
+
+.ver-inactivos {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 7px;
+
+    color: var(--gray);
+
+    font-size: 13px;
+
+    cursor: pointer;
+
+    white-space: nowrap;
+
+}
+
+
+.ver-inactivos input {
+
+    accent-color: var(--pink);
+
+    width: 15px;
+
+    height: 15px;
+
+}
+
+
+.pagination-buttons {
+
+    display: flex;
+
+    gap: 5px;
+
+}
+
+
+.pagination-buttons button {
+
+    width: 30px;
+
+    height: 30px;
+
+    border: 1px solid var(--border);
+
+    border-radius: 6px;
+
+    background: white;
+
+    color: #666;
+
+    cursor: pointer;
+
+}
+
+
+.pagination-buttons button:hover {
+
+    color: var(--pink);
+
+    border-color: var(--pink);
+
+}
+
+
+.pagination-buttons button.current {
+
+    color: white;
+
+    border-color: var(--pink);
+
+    background: var(--pink);
+
+}
+
+
+.pagination-buttons button:disabled {
+
+    opacity: 0.4;
+
+    cursor: default;
+
+}

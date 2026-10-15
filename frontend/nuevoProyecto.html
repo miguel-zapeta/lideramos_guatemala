@@ -599,6 +599,14 @@
                                     Gastos esperados asignados a este proyecto.
                                 </p>
 
+                                <label class="ver-inactivos">
+                                    <input
+                                        type="checkbox"
+                                        id="verInactivosGE"
+                                    >
+                                    <span>Ver inactivos</span>
+                                </label>
+
                             </div>
 
                         </div>
@@ -644,6 +652,12 @@
                                 </tbody>
 
                             </table>
+
+                            <div
+                                class="pagination-buttons"
+                                id="gastosEsperadosPagination"
+                                style="margin-top: 12px;"
+                            ></div>
 
                         </div>
 
@@ -819,6 +833,7 @@
     <script src="vendor/xlsx.full.min.js"></script>
     <script src="menu.js"></script>
     <script src="escape.js"></script>
+    <script src="paginacion.js"></script>
     <script src="nuevoProyecto.js"></script>
 
 </body>

@@ -6,6 +6,32 @@ const {
     validarPassword
 } = require("../utils/password");
 
+const {
+    leerPaginacion,
+    construirBusqueda,
+    metaPaginacion
+} = require("../utils/paginacion");
+
+
+const MAPA_BUSQUEDA_USUARIOS = {
+    nombre: ["u.nombre"],
+    apellido: ["u.apellido"],
+    usuario: ["u.nombre_usuario"],
+    correo: ["u.correo"],
+    rol: ["r.nombre"],
+    estado: [
+        "CASE WHEN u.estado THEN 'activo' ELSE 'inactivo' END"
+    ],
+    todos: [
+        "u.nombre",
+        "u.apellido",
+        "u.nombre_usuario",
+        "u.correo",
+        "r.nombre",
+        "CASE WHEN u.estado THEN 'activo' ELSE 'inactivo' END"
+    ]
+};
+
 
 async function listarUsuarios(
     req,
@@ -13,6 +39,60 @@ async function listarUsuarios(
 ) {
 
     try {
+
+        const paginacion = leerPaginacion(req);
+
+        if (paginacion.error) {
+
+            return res.status(400).json({
+                message:
+                    paginacion.error
+            });
+
+        }
+
+
+        const exportar =
+            req.query.exportar === "1";
+
+
+        const { sql: filtroBusqueda, params: paramsBusqueda } =
+            construirBusqueda({
+                buscar: req.query.buscar,
+                campo: req.query.campo,
+                mapa: MAPA_BUSQUEDA_USUARIOS,
+                inicioParam: 1
+            });
+
+        const where =
+            filtroBusqueda ? `WHERE ${filtroBusqueda}` : "";
+
+
+        const totalResult =
+            await pool.query(
+                `
+                SELECT
+                    COUNT(*)::INTEGER AS total,
+                    COUNT(*) FILTER (WHERE u.estado = TRUE)::INTEGER AS activos
+                FROM usuario u
+                INNER JOIN rol r
+                    ON r.id_rol = u.id_rol
+                ${where}
+                `,
+                paramsBusqueda
+            );
+
+
+        const total = totalResult.rows[0].total;
+
+        const activos = totalResult.rows[0].activos;
+
+
+        const limiteDatos =
+            paramsBusqueda.length + 1;
+
+        const offsetDatos =
+            paramsBusqueda.length + 2;
 
         const result =
             await pool.query(
@@ -32,15 +112,38 @@ async function listarUsuarios(
                 INNER JOIN rol r
                     ON r.id_rol = u.id_rol
 
+                ${where}
+
                 ORDER BY
                     u.id_usuario DESC
-                `
+
+                ${exportar ? "" : `LIMIT $${limiteDatos} OFFSET $${offsetDatos}`}
+                `,
+                exportar
+                    ? paramsBusqueda
+                    : [
+                        ...paramsBusqueda,
+                        paginacion.limite,
+                        paginacion.offset
+                    ]
             );
 
 
         return res.json({
             usuarios:
-                result.rows
+                result.rows,
+
+            ...metaPaginacion(
+                total,
+                exportar ? 1 : paginacion.pagina,
+                exportar ? total : paginacion.limite
+            ),
+
+            resumen: {
+                total,
+                activos,
+                inactivos: total - activos
+            }
         });
 
     } catch (error) {

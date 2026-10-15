@@ -3,6 +3,25 @@ let permisosActuales = [];
 let todosLosUsuarios = [];
 let ultimosResultados = [];
 
+let paginaActual = 1;
+
+const LIMITE_PAGINA = 20;
+
+let debounceBusqueda = null;
+
+let metaPaginacionActual = {
+    total: 0,
+    pagina: 1,
+    limite: 20,
+    totalPaginas: 1
+};
+
+let resumenActual = {
+    total: 0,
+    activos: 0,
+    inactivos: 0
+};
+
 
 const AVATAR_CLASSES = [
     "avatar-pink",
@@ -125,9 +144,26 @@ async function cargarUsuarios() {
 
     try {
 
+        const buscar =
+            document.getElementById("searchInput")?.value.trim() || "";
+
+        const campo =
+            document.getElementById("searchField")?.value || "todos";
+
+        const params =
+            new URLSearchParams({
+                pagina: String(paginaActual),
+                limite: String(LIMITE_PAGINA)
+            });
+
+        if (buscar) {
+            params.set("buscar", buscar);
+            params.set("campo", campo);
+        }
+
         const response =
             await fetch(
-                "/api/usuarios",
+                `/api/usuarios?${params.toString()}`,
                 {
                     method: "GET",
                     credentials: "include"
@@ -170,6 +206,20 @@ async function cargarUsuarios() {
 
         todosLosUsuarios =
             data.usuarios || [];
+
+        metaPaginacionActual = {
+            total: data.total || 0,
+            pagina: data.pagina || 1,
+            limite: data.limite || LIMITE_PAGINA,
+            totalPaginas: data.totalPaginas || 1
+        };
+
+        resumenActual =
+            data.resumen || {
+                total: todosLosUsuarios.length,
+                activos: todosLosUsuarios.filter((u) => u.estado).length,
+                inactivos: 0
+            };
 
 
         renderUsuarios(todosLosUsuarios);
@@ -228,24 +278,59 @@ function renderUsuarios(usuarios) {
         document.getElementById("paginationInfo");
 
 
-    const total = usuarios.length;
+    const total = metaPaginacionActual.total;
 
-    const activos =
-        usuarios.filter((u) => u.estado).length;
+    const activos = resumenActual.activos;
+
+    const inactivos = resumenActual.inactivos;
 
 
     document.getElementById("statTotal").textContent = total;
     document.getElementById("statActivos").textContent = activos;
-    document.getElementById("statInactivos").textContent = total - activos;
+    document.getElementById("statInactivos").textContent = inactivos;
 
-    paginationInfo.textContent =
-        `Mostrando ${total} usuario(s).`;
+
+    if (total === 0) {
+
+        paginationInfo.textContent =
+            "Sin resultados.";
+
+        renderPaginacion({
+            contenedorId: "paginationButtons",
+            pagina: 1,
+            totalPaginas: 1,
+            onCambiar: () => {}
+        });
+
+    } else {
+
+        const desde =
+            (metaPaginacionActual.pagina - 1) *
+                metaPaginacionActual.limite + 1;
+
+        const hasta =
+            desde + usuarios.length - 1;
+
+        paginationInfo.textContent =
+            `Mostrando ${desde}–${hasta} de ${total}.`;
+
+        renderPaginacion({
+            contenedorId: "paginationButtons",
+            pagina: metaPaginacionActual.pagina,
+            totalPaginas: metaPaginacionActual.totalPaginas,
+            onCambiar: (nuevaPagina) => {
+                paginaActual = nuevaPagina;
+                cargarUsuarios();
+            }
+        });
+
+    }
 
 
     ultimosResultados = usuarios;
 
 
-    if (total === 0) {
+    if (usuarios.length === 0) {
 
         tbody.innerHTML =
             `<tr><td colspan="8">No hay usuarios registrados.</td></tr>`;
@@ -379,9 +464,8 @@ async function cambiarEstado(id, estado) {
 /*
 =========================================
 EXPORTAR A EXCEL
-Exporta lo mostrado en la tabla (resultado
-del buscador o todo si no hay búsqueda),
-siempre con la información completa.
+Exporta todo lo filtrado (no solo la
+página visible) con la información completa.
 =========================================
 */
 
@@ -395,15 +479,37 @@ function exportarExcel() {
     }
 
 
-    if (ultimosResultados.length === 0) {
+    const buscar =
+        document.getElementById("searchInput")?.value.trim() || "";
 
-        alert("No hay resultados para exportar.");
+    const campo =
+        document.getElementById("searchField")?.value || "todos";
 
-        return;
+    const params =
+        new URLSearchParams({ exportar: "1" });
+
+    if (buscar) {
+        params.set("buscar", buscar);
+        params.set("campo", campo);
     }
 
 
-    const filas = ultimosResultados.map((u) => ({
+    fetch(
+        `/api/usuarios?${params.toString()}`,
+        {
+            method: "GET",
+            credentials: "include"
+        }
+    ).then(async (response) => {
+
+        if (!response.ok) {
+            throw new Error("No se pudo obtener los datos.");
+        }
+
+        const data =
+            await response.json();
+
+        const filas = (data.usuarios || []).map((u) => ({
         "ID": u.id_usuario,
         "Usuario": u.nombre_usuario,
         "Nombre": u.nombre,
@@ -414,19 +520,37 @@ function exportarExcel() {
     }));
 
 
-    const hoja =
-        XLSX.utils.json_to_sheet(filas);
+        if (filas.length === 0) {
 
-    hoja["!cols"] = [
-        { wch: 8 }, { wch: 18 }, { wch: 18 }, { wch: 18 },
-        { wch: 30 }, { wch: 16 }, { wch: 10 }
-    ];
+            alert("No hay resultados para exportar.");
 
-    const libro = XLSX.utils.book_new();
+            return;
+        }
 
-    XLSX.utils.book_append_sheet(libro, hoja, "Usuarios");
 
-    XLSX.writeFile(libro, "usuarios.xlsx");
+        const hoja =
+            XLSX.utils.json_to_sheet(filas);
+
+        hoja["!cols"] = [
+            { wch: 8 }, { wch: 18 }, { wch: 18 }, { wch: 18 },
+            { wch: 30 }, { wch: 16 }, { wch: 10 }
+        ];
+
+        const libro = XLSX.utils.book_new();
+
+        XLSX.utils.book_append_sheet(libro, hoja, "Usuarios");
+
+        XLSX.writeFile(libro, "usuarios.xlsx");
+
+    }).catch((error) => {
+
+        console.error(
+            "Error exportando usuarios:",
+            error
+        );
+
+        alert("No se pudo exportar el archivo.");
+    });
 }
 
 
@@ -441,65 +565,18 @@ if (exportButton) {
 
 /*
 =========================================
-BUSCADOR
+BUSCADOR EN SERVIDOR
 =========================================
 */
 
-function valorCampo(usuario, campo) {
-
-    switch (campo) {
-
-        case "nombre":
-            return usuario.nombre || "";
-
-        case "apellido":
-            return usuario.apellido || "";
-
-        case "usuario":
-            return usuario.nombre_usuario || "";
-
-        case "correo":
-            return usuario.correo || "";
-
-        case "rol":
-            return usuario.rol || "";
-
-        case "estado":
-            return usuario.estado ? "activo" : "inactivo";
-
-        default:
-            return [
-                usuario.nombre,
-                usuario.apellido,
-                usuario.nombre_usuario,
-                usuario.correo,
-                usuario.rol,
-                usuario.estado ? "activo" : "inactivo"
-            ].filter(Boolean).join(" ");
-    }
-}
-
-
 function aplicarFiltro() {
 
-    const q =
-        searchInput.value.trim().toLowerCase();
+    clearTimeout(debounceBusqueda);
 
-    const campo =
-        searchField ? searchField.value : "todos";
-
-    if (!q) {
-
-        renderUsuarios(todosLosUsuarios);
-
-        return;
-    }
-
-    renderUsuarios(
-        todosLosUsuarios.filter((u) =>
-            valorCampo(u, campo).toLowerCase().includes(q)
-        )
-    );
+    debounceBusqueda = setTimeout(() => {
+        paginaActual = 1;
+        cargarUsuarios();
+    }, 300);
 }
 
 

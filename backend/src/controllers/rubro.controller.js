@@ -1,8 +1,28 @@
 const pool =
     require("../config/database");
 
+const {
+    leerPaginacion,
+    construirBusqueda,
+    metaPaginacion
+} = require("../utils/paginacion");
 
-async function listarRubros(
+
+const MAPA_BUSQUEDA_RUBROS = {
+    nombre: ["nombre"],
+    descripcion: ["descripcion"],
+    estado: [
+        "CASE WHEN estado THEN 'activo' ELSE 'inactivo' END"
+    ],
+    todos: [
+        "nombre",
+        "descripcion",
+        "CASE WHEN estado THEN 'activo' ELSE 'inactivo' END"
+    ]
+};
+
+
+async function listarOpciones(
     req,
     res
 ) {
@@ -15,10 +35,10 @@ async function listarRubros(
                 SELECT
                     id_rubro,
                     nombre,
-                    descripcion,
                     estado
                 FROM rubro
-                ORDER BY id_rubro DESC
+                WHERE estado = TRUE
+                ORDER BY nombre
                 `
             );
 
@@ -26,6 +46,119 @@ async function listarRubros(
         return res.json({
             rubros:
                 result.rows
+        });
+
+    } catch (error) {
+
+        console.error(error);
+
+        return res.status(500).json({
+            message:
+                "Error al obtener rubros."
+        });
+
+    }
+}
+
+
+async function listarRubros(
+    req,
+    res
+) {
+
+    try {
+
+        const paginacion = leerPaginacion(req);
+
+        if (paginacion.error) {
+
+            return res.status(400).json({
+                message:
+                    paginacion.error
+            });
+
+        }
+
+
+        const exportar =
+            req.query.exportar === "1";
+
+
+        const { sql: filtroBusqueda, params: paramsBusqueda } =
+            construirBusqueda({
+                buscar: req.query.buscar,
+                campo: req.query.campo,
+                mapa: MAPA_BUSQUEDA_RUBROS,
+                inicioParam: 1
+            });
+
+        const where =
+            filtroBusqueda ? `WHERE ${filtroBusqueda}` : "";
+
+
+        const totalResult =
+            await pool.query(
+                `
+                SELECT
+                    COUNT(*)::INTEGER AS total,
+                    COUNT(*) FILTER (WHERE estado = TRUE)::INTEGER AS activos
+                FROM rubro
+                ${where}
+                `,
+                paramsBusqueda
+            );
+
+
+        const total = totalResult.rows[0].total;
+
+        const activos = totalResult.rows[0].activos;
+
+
+        const limiteDatos =
+            paramsBusqueda.length + 1;
+
+        const offsetDatos =
+            paramsBusqueda.length + 2;
+
+        const result =
+            await pool.query(
+                `
+                SELECT
+                    id_rubro,
+                    nombre,
+                    descripcion,
+                    estado
+                FROM rubro
+                ${where}
+                ORDER BY id_rubro DESC
+
+                ${exportar ? "" : `LIMIT $${limiteDatos} OFFSET $${offsetDatos}`}
+                `,
+                exportar
+                    ? paramsBusqueda
+                    : [
+                        ...paramsBusqueda,
+                        paginacion.limite,
+                        paginacion.offset
+                    ]
+            );
+
+
+        return res.json({
+            rubros:
+                result.rows,
+
+            ...metaPaginacion(
+                total,
+                exportar ? 1 : paginacion.pagina,
+                exportar ? total : paginacion.limite
+            ),
+
+            resumen: {
+                total,
+                activos,
+                inactivos: total - activos
+            }
         });
 
     } catch (error) {
@@ -384,6 +517,7 @@ async function cambiarEstado(
 
 
 module.exports = {
+    listarOpciones,
     listarRubros,
     obtenerRubro,
     crearRubro,

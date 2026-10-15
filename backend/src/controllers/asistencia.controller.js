@@ -1,6 +1,11 @@
 const pool =
     require("../config/database");
 
+const {
+    leerPaginacion,
+    metaPaginacion
+} = require("../utils/paginacion");
+
 
 async function proyectoFinalizadoPorActividad(idActividad) {
 
@@ -46,6 +51,35 @@ async function listarAsistencia(
         }
 
 
+        const paginacion = leerPaginacion(req);
+
+        if (paginacion.error) {
+
+            return res.status(400).json({
+                message:
+                    paginacion.error
+            });
+
+        }
+
+
+        const totalResult =
+            await pool.query(
+                `
+                SELECT
+                    COUNT(*)::INTEGER AS total
+                FROM asistencia a
+                INNER JOIN persona p
+                    ON p.id_persona = a.id_persona
+                WHERE a.id_actividad = $1
+                `,
+                [idActividad]
+            );
+
+
+        const total = totalResult.rows[0].total;
+
+
         const result =
             await pool.query(
                 `
@@ -58,14 +92,25 @@ async function listarAsistencia(
                     ON p.id_persona = a.id_persona
                 WHERE a.id_actividad = $1
                 ORDER BY p.apellidos, p.nombres
+                LIMIT $2 OFFSET $3
                 `,
-                [idActividad]
+                [
+                    idActividad,
+                    paginacion.limite,
+                    paginacion.offset
+                ]
             );
 
 
         return res.json({
             asistencia:
-                result.rows
+                result.rows,
+
+            ...metaPaginacion(
+                total,
+                paginacion.pagina,
+                paginacion.limite
+            )
         });
 
     } catch (error) {

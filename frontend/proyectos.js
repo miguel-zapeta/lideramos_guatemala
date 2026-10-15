@@ -3,6 +3,26 @@ let permisosActuales = [];
 let todosLosProyectos = [];
 let ultimosResultados = [];
 
+let paginaActual = 1;
+
+const LIMITE_PAGINA = 20;
+
+let debounceBusqueda = null;
+
+let metaPaginacionActual = {
+    total: 0,
+    pagina: 1,
+    limite: 20,
+    totalPaginas: 1
+};
+
+let resumenActual = {
+    total: 0,
+    planeados: 0,
+    en_proceso: 0,
+    finalizados: 0
+};
+
 
 const AVATAR_CLASSES = [
     "avatar-pink",
@@ -138,9 +158,26 @@ async function cargarProyectos() {
 
     try {
 
+        const buscar =
+            document.getElementById("searchInput")?.value.trim() || "";
+
+        const campo =
+            document.getElementById("searchField")?.value || "todos";
+
+        const params =
+            new URLSearchParams({
+                pagina: String(paginaActual),
+                limite: String(LIMITE_PAGINA)
+            });
+
+        if (buscar) {
+            params.set("buscar", buscar);
+            params.set("campo", campo);
+        }
+
         const response =
             await fetch(
-                "/api/proyectos",
+                `/api/proyectos?${params.toString()}`,
                 {
                     method: "GET",
                     credentials: "include"
@@ -183,6 +220,21 @@ async function cargarProyectos() {
 
         todosLosProyectos =
             data.proyectos || [];
+
+        metaPaginacionActual = {
+            total: data.total || 0,
+            pagina: data.pagina || 1,
+            limite: data.limite || LIMITE_PAGINA,
+            totalPaginas: data.totalPaginas || 1
+        };
+
+        resumenActual =
+            data.resumen || {
+                total: todosLosProyectos.length,
+                planeados: todosLosProyectos.filter((p) => p.estado === "planeado").length,
+                en_proceso: todosLosProyectos.filter((p) => p.estado === "en proceso").length,
+                finalizados: todosLosProyectos.filter((p) => p.estado === "finalizado").length
+            };
 
 
         renderProyectos(todosLosProyectos);
@@ -233,25 +285,58 @@ function renderProyectos(proyectos) {
         document.getElementById("paginationInfo");
 
 
-    const total = proyectos.length;
+    const total = metaPaginacionActual.total;
 
 
     document.getElementById("statTotal").textContent = total;
     document.getElementById("statPlaneados").textContent =
-        proyectos.filter((p) => p.estado === "planeado").length;
+        resumenActual.planeados;
     document.getElementById("statEnProceso").textContent =
-        proyectos.filter((p) => p.estado === "en proceso").length;
+        resumenActual.en_proceso;
     document.getElementById("statFinalizados").textContent =
-        proyectos.filter((p) => p.estado === "finalizado").length;
+        resumenActual.finalizados;
 
-    paginationInfo.textContent =
-        `Mostrando ${total} proyecto(s).`;
+    if (total === 0) {
+
+        paginationInfo.textContent =
+            "Sin resultados.";
+
+        renderPaginacion({
+            contenedorId: "paginationButtons",
+            pagina: 1,
+            totalPaginas: 1,
+            onCambiar: () => {}
+        });
+
+    } else {
+
+        const desde =
+            (metaPaginacionActual.pagina - 1) *
+                metaPaginacionActual.limite + 1;
+
+        const hasta =
+            desde + proyectos.length - 1;
+
+        paginationInfo.textContent =
+            `Mostrando ${desde}–${hasta} de ${total}.`;
+
+        renderPaginacion({
+            contenedorId: "paginationButtons",
+            pagina: metaPaginacionActual.pagina,
+            totalPaginas: metaPaginacionActual.totalPaginas,
+            onCambiar: (nuevaPagina) => {
+                paginaActual = nuevaPagina;
+                cargarProyectos();
+            }
+        });
+
+    }
 
 
     ultimosResultados = proyectos;
 
 
-    if (total === 0) {
+    if (proyectos.length === 0) {
 
         tbody.innerHTML =
             `<tr><td colspan="5">No hay proyectos registrados.</td></tr>`;
@@ -423,15 +508,37 @@ function exportarExcel() {
     }
 
 
-    if (ultimosResultados.length === 0) {
+    const buscar =
+        document.getElementById("searchInput")?.value.trim() || "";
 
-        alert("No hay resultados para exportar.");
+    const campo =
+        document.getElementById("searchField")?.value || "todos";
 
-        return;
+    const params =
+        new URLSearchParams({ exportar: "1" });
+
+    if (buscar) {
+        params.set("buscar", buscar);
+        params.set("campo", campo);
     }
 
 
-    const filas = ultimosResultados.map((p) => ({
+    fetch(
+        `/api/proyectos?${params.toString()}`,
+        {
+            method: "GET",
+            credentials: "include"
+        }
+    ).then(async (response) => {
+
+        if (!response.ok) {
+            throw new Error("No se pudo obtener los datos.");
+        }
+
+        const data =
+            await response.json();
+
+        const filas = (data.proyectos || []).map((p) => ({
         "ID": p.id_proyecto,
         "Nombre": p.nombre,
         "Fecha inicio": formatoFecha(p.fecha_inicio),
@@ -448,14 +555,32 @@ function exportarExcel() {
     }));
 
 
-    const hoja =
-        XLSX.utils.json_to_sheet(filas);
+        if (filas.length === 0) {
 
-    const libro = XLSX.utils.book_new();
+            alert("No hay resultados para exportar.");
 
-    XLSX.utils.book_append_sheet(libro, hoja, "Proyectos");
+            return;
+        }
 
-    XLSX.writeFile(libro, "proyectos.xlsx");
+
+        const hoja =
+            XLSX.utils.json_to_sheet(filas);
+
+        const libro = XLSX.utils.book_new();
+
+        XLSX.utils.book_append_sheet(libro, hoja, "Proyectos");
+
+        XLSX.writeFile(libro, "proyectos.xlsx");
+
+    }).catch((error) => {
+
+        console.error(
+            "Error exportando proyectos:",
+            error
+        );
+
+        alert("No se pudo exportar el archivo.");
+    });
 }
 
 
@@ -474,55 +599,14 @@ BUSCADOR
 =========================================
 */
 
-function valorCampo(p, campo) {
-
-    switch (campo) {
-
-        case "nombre":
-            return p.nombre || "";
-
-        case "inicio":
-            return formatoFecha(p.fecha_inicio);
-
-        case "fin":
-            return formatoFecha(p.fecha_finalizacion);
-
-        case "estado":
-            return p.estado || "";
-
-        default:
-            return [
-                p.nombre,
-                formatoFecha(p.fecha_inicio),
-                formatoFecha(p.fecha_finalizacion),
-                p.estado
-            ].filter(
-                (x) => x !== null && x !== undefined && x !== "" && x !== "—"
-            ).join(" ");
-    }
-}
-
-
 function aplicarFiltro() {
 
-    const q =
-        searchInput.value.trim().toLowerCase();
+    clearTimeout(debounceBusqueda);
 
-    const campo =
-        searchField ? searchField.value : "todos";
-
-    if (!q) {
-
-        renderProyectos(todosLosProyectos);
-
-        return;
-    }
-
-    renderProyectos(
-        todosLosProyectos.filter((p) =>
-            valorCampo(p, campo).toLowerCase().includes(q)
-        )
-    );
+    debounceBusqueda = setTimeout(() => {
+        paginaActual = 1;
+        cargarProyectos();
+    }, 300);
 }
 
 

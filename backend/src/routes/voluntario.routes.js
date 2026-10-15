@@ -7,11 +7,13 @@ const requirePermission =
     require("../middleware/permission.middleware");
 
 const {
+    listarOpciones,
     listarVoluntarios,
     obtenerVoluntario,
     crearVoluntario,
     editarVoluntario,
-    eliminarVoluntario
+    eliminarVoluntario,
+    cambiarEstado
 } = require(
     "../controllers/voluntario.controller"
 );
@@ -19,6 +21,14 @@ const {
 
 const router =
     express.Router();
+
+
+router.get(
+    "/opciones",
+    authenticate,
+
+    listarOpciones
+);
 
 
 router.get(
@@ -78,6 +88,18 @@ router.delete(
     ),
 
     eliminarVoluntario
+);
+
+
+router.patch(
+    "/:id/estado",
+    authenticate,
+
+    requirePermission(
+        "voluntarios.editar"
+    ),
+
+    cambiarEstado
 );
 
 

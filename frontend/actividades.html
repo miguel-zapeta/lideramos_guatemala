@@ -258,6 +258,16 @@
 
                         <h3>Actividades registradas</h3>
 
+
+                        <label class="ver-inactivos">
+                            <input
+                                type="checkbox"
+                                id="verInactivos"
+                            >
+                            <span>Ver inactivos</span>
+                        </label>
+
+
                         <div class="search-box">
 
                             <span>🔍</span>
@@ -337,6 +347,11 @@
                             Cargando actividades...
                         </span>
 
+                        <div
+                            class="pagination-buttons"
+                            id="paginationButtons"
+                        ></div>
+
                     </div>
 
                 </div>
@@ -352,6 +367,7 @@
 <script src="vendor/xlsx.full.min.js"></script>
 <script src="menu.js"></script>
 <script src="escape.js"></script>
+<script src="paginacion.js"></script>
 <script src="actividades.js"></script>
 
 </html>
