@@ -49,6 +49,9 @@ const reporteAcumulativoRoutes =
 const comparativoRoutes =
     require("./routes/comparativo.routes");
 
+const archivoRoutes =
+    require("./routes/archivo.routes");
+
 const requirePagePermission =
     require("./middleware/page-permission.middleware");
 
@@ -71,7 +74,8 @@ const PAGINAS = [
     ["crearActividad.html", "actividades.ver"],
     ["reporte-mensual.html", "finanzas.ver"],
     ["reporte-acumulativo.html", "finanzas.ver"],
-    ["reporte-comparativo.html", "finanzas.ver"]
+    ["reporte-comparativo.html", "finanzas.ver"],
+    ["archivos.html", "reportes.ver"]
 ];
 
 
@@ -242,6 +246,12 @@ app.use(
 app.use(
     "/api/reportes-comparativo",
     comparativoRoutes
+);
+
+
+app.use(
+    "/api/archivos",
+    archivoRoutes
 );
 
 

@@ -259,6 +259,45 @@ const MAPA_BUSQUEDA_ACTIVIDADES = {
 };
 
 
+async function listarOpciones(
+    req,
+    res
+) {
+
+    try {
+
+        const result =
+            await pool.query(
+                `
+                SELECT
+                    id_actividad,
+                    nombre,
+                    estado
+                FROM actividad
+                WHERE estado = TRUE
+                ORDER BY nombre
+                `
+            );
+
+
+        return res.json({
+            actividades:
+                result.rows
+        });
+
+    } catch (error) {
+
+        console.error(error);
+
+        return res.status(500).json({
+            message:
+                "Error al obtener actividades."
+        });
+
+    }
+}
+
+
 async function listarActividades(
     req,
     res
@@ -829,6 +868,7 @@ async function cambiarEstado(
 
 
 module.exports = {
+    listarOpciones,
     listarActividades,
     obtenerActividad,
     crearActividad,

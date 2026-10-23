@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Archivos - Panel Administrativo</title>
+
+    <link rel="stylesheet" href="usuarios.css">
+    <link rel="stylesheet" href="archivos.css">
+</head>
+
+<body>
+
+    <!-- =========================
+         PANEL PRINCIPAL
+         ========================= -->
+
+    <div class="dashboard">
+
+        <!-- =========================
+             MENÚ LATERAL
+             ========================= -->
+
+        <aside class="sidebar">
+
+            <div class="sidebar-header">
+
+                <img src="Lideramos.png" alt="Logo de la organización" class="sidebar-logo" >
+
+            </div>
+
+
+            <!-- MENÚ -->
+
+            <nav class="menu">
+
+                <a href="usuarios.html" class="menu-item" data-modulo="usuarios">
+
+                    <span class="icon">👥</span>
+
+                    <span>Usuarios</span>
+
+                </a>
+
+
+                <a href="voluntarios.html" class="menu-item" data-modulo="voluntarios">
+
+                    <span class="icon">🤝</span>
+
+                    <span>Voluntarios</span>
+
+                </a>
+
+
+                <a href="finanzas.html" class="menu-item" data-modulo="finanzas">
+
+                    <span class="icon">💰</span>
+
+                    <span>Finanzas</span>
+
+                </a>
+
+
+                <a href="actividades.html" class="menu-item" data-modulo="actividades">
+
+                    <span class="icon">📅</span>
+
+                    <span>Actividades</span>
+
+                </a>
+
+
+                <a href="archivos.html" class="menu-item active" data-modulo="reportes">
+
+                    <span class="icon">📁</span>
+
+                    <span>Archivos</span>
+
+                </a>
+
+            </nav>
+
+
+            <!-- PARTE INFERIOR DEL MENÚ -->
+
+            <div class="sidebar-bottom">
+
+                <a href="#" class="menu-item" data-modulo="configuracion">
+
+                    <span class="icon">⚙️</span>
+
+                    <span>Configuración</span>
+
+                </a>
+
+                <a href="#" class="menu-item logout">
+
+                    <span class="icon">↪</span>
+
+                    <span>Cerrar sesión</span>
+
+                </a>
+
+            </div>
+
+        </aside>
+
+
+        <!-- =========================
+             CONTENIDO
+             ========================= -->
+
+        <main class="main-content">
+
+
+            <!-- BARRA SUPERIOR -->
+
+            <header class="topbar">
+
+                <div class="page-title">
+
+                    <h1>Archivos</h1>
+
+                    <p>Imágenes y documentos de la organización</p>
+
+                </div>
+
+
+                <div class="admin-profile">
+
+                    <div
+                        class="admin-avatar"
+                        id="currentUserAvatar"
+                    >
+                        US
+                    </div>
+
+                    <div class="admin-info">
+
+                        <strong id="currentUserName">
+                            Usuario
+                        </strong>
+
+                        <span id="currentUserRole">
+                            Rol
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </header>
+
+
+            <!-- CONTENIDO DE ARCHIVOS -->
+
+            <section class="content">
+
+
+                <!-- ENCABEZADO -->
+
+                <div class="section-header">
+
+                    <div>
+
+                        <h2>Biblioteca de archivos</h2>
+
+                        <p>
+                            Sube imágenes o documentos y relaciónalos a un proyecto o actividad (opcional).
+                        </p>
+
+                    </div>
+
+
+                    <div class="header-actions">
+
+                        <button
+                            type="button"
+                            id="exportButton"
+                            class="new-user-button"
+                            title="Exportar a Excel lo mostrado en la tabla"
+                        >
+                            📥 Exportar Excel
+                        </button>
+
+                    </div>
+
+
+                </div>
+
+
+                <!-- SUBIR ARCHIVOS -->
+
+                <div class="table-container upload-section" id="uploadSection">
+
+                    <div class="table-header">
+
+                        <h3>Subir archivos</h3>
+
+                    </div>
+
+
+                    <div class="upload-grid">
+
+                        <div class="upload-field field-wide">
+
+                            <label for="archivoInput">
+                                Archivos (imágenes o documentos)
+                            </label>
+
+                            <input
+                                type="file"
+                                id="archivoInput"
+                                multiple
+                                accept=".jpg,.jpeg,.png,.gif,.webp,.pdf,.doc,.docx,.xls,.xlsx,.csv,.txt,.zip"
+                            >
+
+                            <small>
+                                Hasta 10 MB por archivo y 10 archivos por vez. Tipos: imágenes, PDF, Word, Excel, CSV, TXT y ZIP.
+                            </small>
+
+                        </div>
+
+
+                        <div class="upload-field">
+
+                            <label for="subidaProyecto">
+                                Proyecto (opcional)
+                            </label>
+
+                            <select id="subidaProyecto">
+                                <option value="">Sin proyecto</option>
+                            </select>
+
+                        </div>
+
+
+                        <div class="upload-field">
+
+                            <label for="subidaActividad">
+                                Actividad (opcional)
+                            </label>
+
+                            <select id="subidaActividad">
+                                <option value="">Sin actividad</option>
+                            </select>
+
+                        </div>
+
+
+                        <div class="upload-field field-wide">
+
+                            <label for="archivoDescripcion">
+                                Descripción (opcional)
+                            </label>
+
+                            <input
+                                type="text"
+                                id="archivoDescripcion"
+                                maxlength="255"
+                                placeholder="Ej. Fotos de la jornada de limpieza"
+                            >
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="upload-actions">
+
+                        <button
+                            type="button"
+                            id="subirButton"
+                            class="new-user-button"
+                        >
+                            ⬆️ Subir archivos
+                        </button>
+
+                        <span id="uploadMessage" class="upload-message"></span>
+
+                    </div>
+
+                </div>
+
+
+                <!-- TARJETAS DE RESUMEN -->
+
+                <div class="statistics">
+
+                    <div class="stat-card">
+
+                        <div class="stat-icon users-icon">
+                            📄
+                        </div>
+
+                        <div>
+
+                            <span>Total de archivos</span>
+
+                            <strong id="statTotal">—</strong>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="stat-card">
+
+                        <div class="stat-icon active-icon">
+                            🖼️
+                        </div>
+
+                        <div>
+
+                            <span>Imágenes</span>
+
+                            <strong id="statImagenes">—</strong>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="stat-card">
+
+                        <div class="stat-icon inactive-icon">
+                            📑
+                        </div>
+
+                        <div>
+
+                            <span>Otros archivos</span>
+
+                            <strong id="statOtros">—</strong>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- TABLA / GALERÍA -->
+
+                <div class="table-container">
+                    <div class="table-header">
+
+                        <h3>Archivos subidos</h3>
+
+
+                        <div class="view-toggle" id="viewToggle">
+
+                            <button
+                                type="button"
+                                id="btnVistaLista"
+                                class="view-button current"
+                            >
+                                ☰ Lista
+                            </button>
+
+                            <button
+                                type="button"
+                                id="btnVistaGaleria"
+                                class="view-button"
+                            >
+                                🖼️ Galería
+                            </button>
+
+                        </div>
+
+
+                        <select id="filtroTipo" title="Filtrar por tipo">
+                            <option value="">Todos los tipos</option>
+                            <option value="imagen">Imágenes</option>
+                            <option value="archivo">Otros archivos</option>
+                        </select>
+
+
+                        <select id="filtroProyecto" title="Filtrar por proyecto">
+                            <option value="">Todos los proyectos</option>
+                        </select>
+
+
+                        <select id="filtroActividad" title="Filtrar por actividad">
+                            <option value="">Todas las actividades</option>
+                        </select>
+
+
+                        <div class="search-box">
+
+                            <span>🔍</span>
+
+                            <select id="searchField" title="Buscar por">
+                                <option value="todos">Todos</option>
+                                <option value="nombre">Nombre</option>
+                                <option value="descripcion">Descripción</option>
+                            </select>
+
+                            <input
+                                type="text"
+                                id="searchInput"
+                                placeholder="Buscar archivo..."
+                            >
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- VISTA LISTA -->
+
+                    <div class="table-responsive" id="vistaLista">
+
+                        <table>
+
+                            <thead>
+
+                                <tr>
+
+                                    <th>Archivo</th>
+
+                                    <th>Tamaño</th>
+
+                                    <th>Proyecto</th>
+
+                                    <th>Actividad</th>
+
+                                    <th>Subido por</th>
+
+                                    <th>Fecha</th>
+
+                                    <th>Acciones</th>
+
+                                </tr>
+
+                            </thead>
+
+
+                            <tbody id="archivosTbody">
+
+                                <tr>
+
+                                    <td colspan="7">
+                                        Cargando archivos...
+                                    </td>
+
+                                </tr>
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+
+                    <!-- VISTA GALERÍA -->
+
+                    <div
+                        class="gallery-grid"
+                        id="vistaGaleria"
+                        style="display: none;"
+                    ></div>
+
+
+                    <!-- PAGINACIÓN -->
+
+                    <div class="pagination">
+
+                        <span id="paginationInfo">
+                            Cargando archivos...
+                        </span>
+
+                        <div class="pagination-buttons" id="paginationButtons"></div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+        </main>
+
+    </div>
+
+
+    <!-- =========================
+         VISOR DE IMÁGENES
+         ========================= -->
+
+    <div class="lightbox" id="lightbox" style="display: none;">
+
+        <button type="button" class="lightbox-close" id="lightboxClose" title="Cerrar">
+            ✕
+        </button>
+
+        <button type="button" class="lightbox-nav prev" id="lightboxPrev" title="Anterior">
+            ‹
+        </button>
+
+        <div class="lightbox-body">
+
+            <img id="lightboxImg" src="" alt="Vista previa">
+
+            <div class="lightbox-caption">
+
+                <span id="lightboxNombre">—</span>
+
+                <a
+                    id="lightboxDescargar"
+                    href="#"
+                    class="new-user-button"
+                    download
+                >
+                    ⬇️ Descargar
+                </a>
+
+            </div>
+
+        </div>
+
+        <button type="button" class="lightbox-nav next" id="lightboxNext" title="Siguiente">
+            ›
+        </button>
+
+    </div>
+
+</body>
+
+<script src="vendor/xlsx.full.min.js"></script>
+<script src="menu.js"></script>
+<script src="escape.js"></script>
+<script src="paginacion.js"></script>
+<script src="archivos.js"></script>
+
+</html>
