@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Publicaciones - Panel Administrativo</title>
+
+    <link rel="stylesheet" href="usuarios.css">
+    <link rel="stylesheet" href="publicaciones.css">
+</head>
+
+<body>
+
+    <!-- =========================
+         PANEL PRINCIPAL
+         ========================= -->
+
+    <div class="dashboard">
+
+        <!-- =========================
+             MENÚ LATERAL
+             ========================= -->
+
+        <aside class="sidebar">
+
+            <div class="sidebar-header">
+
+                <img src="Lideramos.png" alt="Logo de la organización" class="sidebar-logo" >
+
+            </div>
+
+
+            <!-- MENÚ -->
+
+            <nav class="menu">
+
+                <a href="usuarios.html" class="menu-item" data-modulo="usuarios">
+
+                    <span class="icon">👥</span>
+
+                    <span>Usuarios</span>
+
+                </a>
+
+
+                <a href="voluntarios.html" class="menu-item" data-modulo="voluntarios">
+
+                    <span class="icon">🤝</span>
+
+                    <span>Voluntarios</span>
+
+                </a>
+
+
+                <a href="finanzas.html" class="menu-item" data-modulo="finanzas">
+
+                    <span class="icon">💰</span>
+
+                    <span>Finanzas</span>
+
+                </a>
+
+
+                <a href="actividades.html" class="menu-item" data-modulo="actividades">
+
+                    <span class="icon">📅</span>
+
+                    <span>Actividades</span>
+
+                </a>
+
+
+                <a href="archivos.html" class="menu-item" data-modulo="reportes">
+
+                    <span class="icon">📁</span>
+
+                    <span>Archivos</span>
+
+                </a>
+
+
+                <a href="publicaciones.html" class="menu-item active" data-modulo="publicaciones">
+
+                    <span class="icon">📰</span>
+
+                    <span>Publicaciones</span>
+
+                </a>
+
+            </nav>
+
+
+            <!-- PARTE INFERIOR DEL MENÚ -->
+
+            <div class="sidebar-bottom">
+
+                <a href="#" class="menu-item" data-modulo="configuracion">
+
+                    <span class="icon">⚙️</span>
+
+                    <span>Configuración</span>
+
+                </a>
+
+                <a href="#" class="menu-item logout">
+
+                    <span class="icon">↪</span>
+
+                    <span>Cerrar sesión</span>
+
+                </a>
+
+            </div>
+
+        </aside>
+
+
+        <!-- =========================
+             CONTENIDO
+             ========================= -->
+
+        <main class="main-content">
+
+
+            <!-- BARRA SUPERIOR -->
+
+            <header class="topbar">
+
+                <div class="page-title">
+
+                    <h1>Publicaciones</h1>
+
+                    <p>Contenido de las páginas públicas del sitio</p>
+
+                </div>
+
+
+                <div class="admin-profile">
+
+                    <div
+                        class="admin-avatar"
+                        id="currentUserAvatar"
+                    >
+                        US
+                    </div>
+
+                    <div class="admin-info">
+
+                        <strong id="currentUserName">
+                            Usuario
+                        </strong>
+
+                        <span id="currentUserRole">
+                            Rol
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </header>
+
+
+            <!-- CONTENIDO DE PUBLICACIONES -->
+
+            <section class="content">
+
+
+                <!-- ENCABEZADO -->
+
+                <div class="section-header">
+
+                    <div>
+
+                        <h2>Gestión de publicaciones</h2>
+
+                        <p>
+                            Agrega texto o imágenes que se muestran en el inicio, quiénes somos y contáctanos. Se ordenan por el número de orden.
+                        </p>
+
+                    </div>
+
+
+                </div>
+
+
+                <!-- FORMULARIO -->
+
+                <div class="table-container upload-section" id="formSection">
+
+                    <div class="table-header">
+
+                        <h3 id="formTitulo">Nueva publicación</h3>
+
+                    </div>
+
+
+                    <div class="upload-grid">
+
+                        <div class="upload-field">
+
+                            <label for="pubPagina">
+                                Página
+                            </label>
+
+                            <select id="pubPagina">
+                                <option value="index">Inicio (index)</option>
+                                <option value="quienes">Quiénes somos</option>
+                                <option value="contactanos">Contáctanos</option>
+                            </select>
+
+                        </div>
+
+
+                        <div class="upload-field">
+
+                            <label for="pubOrden">
+                                Orden
+                            </label>
+
+                            <input
+                                type="number"
+                                id="pubOrden"
+                                min="0"
+                                step="1"
+                                value="0"
+                            >
+
+                        </div>
+
+
+                        <div class="upload-field field-wide">
+
+                            <label for="pubTitulo">
+                                Título (opcional)
+                            </label>
+
+                            <input
+                                type="text"
+                                id="pubTitulo"
+                                maxlength="255"
+                                placeholder="Ej. Nuestra misión"
+                            >
+
+                        </div>
+
+
+                        <div class="upload-field field-wide">
+
+                            <label for="pubContenido">
+                                Texto (opcional si adjuntas imagen)
+                            </label>
+
+                            <textarea
+                                id="pubContenido"
+                                rows="4"
+                                placeholder="Escribe el contenido en texto plano..."
+                            ></textarea>
+
+                        </div>
+
+
+                        <div class="upload-field field-wide">
+
+                            <label for="pubImagen">
+                                Imagen (opcional, jpg/png/gif/webp, máx. 10 MB)
+                            </label>
+
+                            <input
+                                type="file"
+                                id="pubImagen"
+                                accept=".jpg,.jpeg,.png,.gif,.webp"
+                            >
+
+                            <div class="imagen-preview" id="imagenPreview" style="display: none;">
+
+                                <img id="imagenPreviewImg" src="" alt="Vista previa">
+
+                                <label class="quitar-imagen" id="quitarImagenLabel" style="display: none;">
+                                    <input type="checkbox" id="pubQuitarImagen">
+                                    <span>Quitar imagen actual</span>
+                                </label>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="upload-actions">
+
+                        <button
+                            type="button"
+                            id="guardarButton"
+                            class="new-user-button"
+                        >
+                            💾 Guardar publicación
+                        </button>
+
+                        <button
+                            type="button"
+                            id="cancelarButton"
+                            class="link-volver"
+                            style="display: none;"
+                        >
+                            Cancelar
+                        </button>
+
+                        <span id="formMessage" class="upload-message"></span>
+
+                    </div>
+
+                </div>
+
+
+                <!-- TARJETAS DE RESUMEN -->
+
+                <div class="statistics">
+
+                    <div class="stat-card">
+
+                        <div class="stat-icon users-icon">
+                            📰
+                        </div>
+
+                        <div>
+
+                            <span>Total publicaciones</span>
+
+                            <strong id="statTotal">—</strong>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="stat-card">
+
+                        <div class="stat-icon active-icon">
+                            ✓
+                        </div>
+
+                        <div>
+
+                            <span>Visibles</span>
+
+                            <strong id="statActivas">—</strong>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="stat-card">
+
+                        <div class="stat-icon inactive-icon">
+                            ○
+                        </div>
+
+                        <div>
+
+                            <span>Ocultas</span>
+
+                            <strong id="statOcultas">—</strong>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- TABLA -->
+
+                <div class="table-container">
+                    <div class="table-header">
+
+                        <h3>Publicaciones registradas</h3>
+
+
+                        <select id="filtroPagina" title="Filtrar por página">
+                            <option value="">Todas las páginas</option>
+                            <option value="index">Inicio</option>
+                            <option value="quienes">Quiénes somos</option>
+                            <option value="contactanos">Contáctanos</option>
+                        </select>
+
+
+                        <div class="search-box">
+
+                            <span>🔍</span>
+
+                            <select id="searchField" title="Buscar por">
+                                <option value="todos">Todos</option>
+                                <option value="titulo">Título</option>
+                                <option value="contenido">Contenido</option>
+                            </select>
+
+                            <input
+                                type="text"
+                                id="searchInput"
+                                placeholder="Buscar publicación..."
+                            >
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="table-responsive">
+
+                        <table>
+
+                            <thead>
+
+                                <tr>
+
+                                    <th>Página</th>
+
+                                    <th>Contenido</th>
+
+                                    <th>Orden</th>
+
+                                    <th>Estado</th>
+
+                                    <th>Fecha</th>
+
+                                    <th>Acciones</th>
+
+                                </tr>
+
+                            </thead>
+
+
+                            <tbody id="publicacionesTbody">
+
+                                <tr>
+
+                                    <td colspan="6">
+                                        Cargando publicaciones...
+                                    </td>
+
+                                </tr>
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+
+                    <!-- PAGINACIÓN -->
+
+                    <div class="pagination">
+
+                        <span id="paginationInfo">
+                            Cargando publicaciones...
+                        </span>
+
+                        <div class="pagination-buttons" id="paginationButtons"></div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+        </main>
+
+    </div>
+
+</body>
+
+<script src="menu.js"></script>
+<script src="escape.js"></script>
+<script src="paginacion.js"></script>
+<script src="publicaciones.js"></script>
+
+</html>

@@ -1,0 +1,258 @@
+/*
+========================================
+PUBLICACIONES: estilos del panel admin
+========================================
+*/
+
+
+/* ---------- FORMULARIO ---------- */
+
+.upload-section {
+    margin-bottom: 20px;
+}
+
+
+.upload-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+    padding: 4px 16px 8px;
+}
+
+
+.upload-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+
+.upload-field.field-wide {
+    grid-column: 1 / -1;
+}
+
+
+.upload-field label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #444;
+}
+
+
+.upload-field input[type="text"],
+.upload-field input[type="number"],
+.upload-field select,
+.upload-field textarea {
+    width: 100%;
+    padding: 9px 10px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 14px;
+    background: #fff;
+    font-family: inherit;
+    resize: vertical;
+}
+
+
+.upload-field input:focus,
+.upload-field select:focus,
+.upload-field textarea:focus {
+    outline: none;
+    border-color: var(--pink);
+}
+
+
+.upload-field input[type="file"] {
+    padding: 8px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: #fafafa;
+    font-size: 13px;
+}
+
+
+.upload-field small {
+    color: var(--gray);
+    font-size: 12px;
+}
+
+
+/* ---------- PREVIEW DE IMAGEN ---------- */
+
+.imagen-preview {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-top: 6px;
+}
+
+
+.imagen-preview img {
+    width: 120px;
+    height: 90px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+}
+
+
+.quitar-imagen {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: #666;
+    cursor: pointer;
+}
+
+
+.quitar-imagen input {
+    accent-color: var(--pink);
+    width: 15px;
+    height: 15px;
+}
+
+
+/* ---------- ACCIONES ---------- */
+
+.upload-actions {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 6px 16px 16px;
+    flex-wrap: wrap;
+}
+
+
+.upload-message {
+    font-size: 13px;
+    color: var(--gray);
+}
+
+
+.upload-message.ok {
+    color: #2e9e44;
+}
+
+
+.upload-message.error {
+    color: var(--pink);
+}
+
+
+/* ---------- FILTROS ---------- */
+
+.table-header {
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+
+.table-header > select {
+    padding: 6px 8px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 13px;
+    background: #fff;
+    color: #444;
+    max-width: 200px;
+}
+
+
+.table-header > select:focus {
+    outline: none;
+    border-color: var(--pink);
+}
+
+
+/* ---------- CELDA DE CONTENIDO ---------- */
+
+.pub-cell {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+
+.pub-thumb {
+    width: 42px;
+    height: 32px;
+    border-radius: 5px;
+    object-fit: cover;
+    border: 1px solid var(--border);
+    flex-shrink: 0;
+}
+
+
+.pub-icon-thumb {
+    width: 42px;
+    height: 32px;
+    border-radius: 5px;
+    border: 1px solid var(--border);
+    background: #f5f5f5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+}
+
+
+.pub-preview {
+    display: block;
+    color: var(--gray);
+    font-size: 12px;
+    max-width: 380px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+
+.pub-titulo {
+    display: block;
+    font-weight: 600;
+    font-size: 13px;
+    color: #333;
+}
+
+
+/* ---------- BADGE DE PÁGINA ---------- */
+
+.badge-pagina {
+    display: inline-block;
+    padding: 3px 9px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+
+.badge-pagina.badge-index {
+    background: #fce4ec;
+    color: #c62828;
+}
+
+
+.badge-pagina.badge-quienes {
+    background: #e8eaf6;
+    color: #283593;
+}
+
+
+.badge-pagina.badge-contactanos {
+    background: #e8f5e9;
+    color: #2e7d32;
+}
+
+
+/* ---------- RESPONSIVE ---------- */
+
+@media (max-width: 900px) {
+
+    .upload-grid {
+        grid-template-columns: 1fr;
+    }
+
+}

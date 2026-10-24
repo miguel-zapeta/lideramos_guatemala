@@ -367,6 +367,11 @@ VALUES
 ('reportes.crear', 'Generar reportes'),
 ('reportes.eliminar', 'Eliminar reportes'),
 
+('publicaciones.ver', 'Ver publicaciones'),
+('publicaciones.crear', 'Crear publicaciones'),
+('publicaciones.editar', 'Editar publicaciones'),
+('publicaciones.eliminar', 'Eliminar publicaciones'),
+
 ('configuracion.ver', 'Ver configuración'),
 ('configuracion.editar', 'Modificar configuración')
 ON CONFLICT (nombre) DO NOTHING;
@@ -395,6 +400,10 @@ JOIN permiso p
         'reportes.ver',
         'reportes.crear',
 		'reportes.eliminar',
+		'publicaciones.ver',
+		'publicaciones.crear',
+		'publicaciones.editar',
+		'publicaciones.eliminar',
 		'configuracion.ver',
 		'configuracion.editar'
     )
@@ -419,6 +428,10 @@ JOIN permiso p
         'reportes.ver',
         'reportes.crear'
 		'reportes.eliminar',
+		'publicaciones.ver',
+		'publicaciones.crear',
+		'publicaciones.editar',
+		'publicaciones.eliminar',
 		'configuracion.ver',
 		'configuracion.editar'
     )

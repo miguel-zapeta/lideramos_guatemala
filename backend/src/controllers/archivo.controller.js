@@ -983,6 +983,7 @@ async function eliminarArchivo(
 
 
 module.exports = {
+    compactar,
     subirArchivosMiddleware,
     guardarArchivos,
     listarArchivos,

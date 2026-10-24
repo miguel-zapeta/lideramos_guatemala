@@ -52,6 +52,9 @@ const comparativoRoutes =
 const archivoRoutes =
     require("./routes/archivo.routes");
 
+const publicacionRoutes =
+    require("./routes/publicacion.routes");
+
 const requirePagePermission =
     require("./middleware/page-permission.middleware");
 
@@ -75,7 +78,8 @@ const PAGINAS = [
     ["reporte-mensual.html", "finanzas.ver"],
     ["reporte-acumulativo.html", "finanzas.ver"],
     ["reporte-comparativo.html", "finanzas.ver"],
-    ["archivos.html", "reportes.ver"]
+    ["archivos.html", "reportes.ver"],
+    ["publicaciones.html", "publicaciones.ver"]
 ];
 
 
@@ -252,6 +256,12 @@ app.use(
 app.use(
     "/api/archivos",
     archivoRoutes
+);
+
+
+app.use(
+    "/api/publicaciones",
+    publicacionRoutes
 );
 
 
