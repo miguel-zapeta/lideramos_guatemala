@@ -274,6 +274,36 @@ body {
 }
 
 
+.landing-hero {
+
+    text-align: center;
+
+    background: var(--white);
+
+    border: 1px solid var(--border);
+
+    border-radius: 8px;
+
+    padding: 56px 24px;
+
+    margin-bottom: 24px;
+
+}
+
+
+.landing-hero-logo {
+
+    width: min(420px, 100%);
+
+    height: auto;
+
+    display: block;
+
+    margin: 0 auto;
+
+}
+
+
 .publicacion {
 
     background: var(--white);
@@ -384,6 +414,13 @@ body {
     .publicacion-hero {
 
         padding: 36px 20px;
+
+    }
+
+
+    .landing-hero {
+
+        padding: 36px 16px;
 
     }
 
