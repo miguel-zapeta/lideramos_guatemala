@@ -659,6 +659,18 @@ async function listarArchivos(
         }
 
 
+        // Archivos de voluntarios (persona_archivo):
+        // no se muestran en el módulo Archivos,
+        // solo al ver la información del voluntario.
+        condiciones.push(
+            `NOT EXISTS (
+                SELECT 1
+                FROM persona_archivo pa
+                WHERE pa.id_archivo = a.id_archivo
+            )`
+        );
+
+
         const where =
             condiciones.length > 0
                 ? `WHERE ${condiciones.join(" AND ")}`
@@ -939,6 +951,26 @@ async function eliminarArchivo(
             return res.status(400).json({
                 message:
                     "ID de archivo inválido."
+            });
+        }
+
+
+        const vinculoPersona =
+            await pool.query(
+                `
+                SELECT 1
+                FROM persona_archivo
+                WHERE id_archivo = $1
+                LIMIT 1
+                `,
+                [id]
+            );
+
+        if (vinculoPersona.rows.length > 0) {
+
+            return res.status(403).json({
+                message:
+                    "El archivo pertenece a un voluntario."
             });
         }
 

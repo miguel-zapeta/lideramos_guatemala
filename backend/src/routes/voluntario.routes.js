@@ -10,10 +10,13 @@ const {
     listarOpciones,
     listarVoluntarios,
     obtenerVoluntario,
+    listarDocumentos,
+    obtenerDocumentoContenido,
     crearVoluntario,
     editarVoluntario,
     eliminarVoluntario,
-    cambiarEstado
+    cambiarEstado,
+    subirAdjuntosMiddleware
 } = require(
     "../controllers/voluntario.controller"
 );
@@ -55,6 +58,30 @@ router.get(
 );
 
 
+router.get(
+    "/:id/documentos",
+    authenticate,
+
+    requirePermission(
+        "voluntarios.ver"
+    ),
+
+    listarDocumentos
+);
+
+
+router.get(
+    "/:id/documentos/:idArchivo",
+    authenticate,
+
+    requirePermission(
+        "voluntarios.ver"
+    ),
+
+    obtenerDocumentoContenido
+);
+
+
 router.post(
     "/",
     authenticate,
@@ -62,6 +89,8 @@ router.post(
     requirePermission(
         "voluntarios.crear"
     ),
+
+    subirAdjuntosMiddleware,
 
     crearVoluntario
 );
@@ -74,6 +103,8 @@ router.put(
     requirePermission(
         "voluntarios.editar"
     ),
+
+    subirAdjuntosMiddleware,
 
     editarVoluntario
 );

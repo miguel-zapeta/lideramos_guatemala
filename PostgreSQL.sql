@@ -218,6 +218,7 @@ CREATE TABLE persona (
 	dpi18                     VARCHAR(50),
 	certificado_nacimiento    VARCHAR(50),
     dpi_encargado             VARCHAR(50),
+    fecha_nacimiento          DATE,
     biografia                 VARCHAR(250),
     estado                    BOOLEAN NOT NULL DEFAULT TRUE,
 
@@ -241,6 +242,34 @@ CREATE TABLE proyecto_persona (
         FOREIGN KEY (id_persona)
         REFERENCES persona(id_persona)
         ON DELETE CASCADE
+);
+
+CREATE TABLE persona_archivo (
+    id_persona INTEGER NOT NULL,
+    id_archivo INTEGER NOT NULL,
+    campo      VARCHAR(50) NOT NULL,
+
+    PRIMARY KEY (id_persona, id_archivo),
+
+    CONSTRAINT fk_persona_archivo_persona
+        FOREIGN KEY (id_persona)
+        REFERENCES persona(id_persona)
+        ON DELETE CASCADE,
+
+    CONSTRAINT fk_persona_archivo_archivo
+        FOREIGN KEY (id_archivo)
+        REFERENCES archivo(id_archivo)
+        ON DELETE CASCADE,
+
+    CONSTRAINT chk_persona_archivo_campo
+        CHECK (campo IN (
+            'dpi18',
+            'certificado_nacimiento',
+            'carta_compromiso',
+            'carta_medios_comunicacion',
+            'dpi_encargado',
+            'foto'
+        ))
 );
 
 CREATE TABLE asistencia (

@@ -332,21 +332,40 @@
                                 </div>
 
 
-                                <!-- EDAD -->
+                                <!-- FECHA DE NACIMIENTO -->
+
+                                <div class="form-group">
+
+                                    <label for="fecha_nacimiento">
+                                        Fecha de nacimiento
+                                    </label>
+
+                                    <input
+                                        type="date"
+                                        id="fecha_nacimiento"
+                                        name="fecha_nacimiento"
+                                    >
+
+                                </div>
+
+
+                                <!-- EDAD (automática) -->
 
                                 <div class="form-group">
 
                                     <label for="edad">
                                         Edad
+                                        <em class="edad-nota">automática</em>
                                     </label>
 
                                     <input
-                                        type="number"
+                                        type="text"
                                         id="edad"
                                         name="edad"
-                                        min="0"
-                                        step="1"
-                                        placeholder="Ej. 25"
+                                        readonly
+                                        tabindex="-1"
+                                        class="edad-automatica"
+                                        placeholder="—"
                                     >
 
                                 </div>
@@ -695,6 +714,19 @@
                                         style="display: none; margin-top: 8px;"
                                     >
 
+                                    <input
+                                        type="file"
+                                        id="archivo_dpi18"
+                                        name="archivo_dpi18"
+                                        accept=".jpg,.jpeg,.png,.gif,.webp,.pdf,.doc,.docx"
+                                        class="doc-archivo"
+                                    >
+
+                                    <div
+                                        class="doc-adjuntos"
+                                        id="adjuntos_dpi18"
+                                    ></div>
+
                                 </div>
 
 
@@ -740,6 +772,19 @@
                                         placeholder="Especifique"
                                         style="display: none; margin-top: 8px;"
                                     >
+
+                                    <input
+                                        type="file"
+                                        id="archivo_dpi_encargado"
+                                        name="archivo_dpi_encargado"
+                                        accept=".jpg,.jpeg,.png,.gif,.webp,.pdf,.doc,.docx"
+                                        class="doc-archivo"
+                                    >
+
+                                    <div
+                                        class="doc-adjuntos"
+                                        id="adjuntos_dpi_encargado"
+                                    ></div>
 
                                 </div>
 
@@ -787,6 +832,19 @@
                                         style="display: none; margin-top: 8px;"
                                     >
 
+                                    <input
+                                        type="file"
+                                        id="archivo_certificado_nacimiento"
+                                        name="archivo_certificado_nacimiento"
+                                        accept=".jpg,.jpeg,.png,.gif,.webp,.pdf,.doc,.docx"
+                                        class="doc-archivo"
+                                    >
+
+                                    <div
+                                        class="doc-adjuntos"
+                                        id="adjuntos_certificado_nacimiento"
+                                    ></div>
+
                                 </div>
 
 
@@ -832,6 +890,19 @@
                                         placeholder="Especifique"
                                         style="display: none; margin-top: 8px;"
                                     >
+
+                                    <input
+                                        type="file"
+                                        id="archivo_carta_compromiso"
+                                        name="archivo_carta_compromiso"
+                                        accept=".jpg,.jpeg,.png,.gif,.webp,.pdf,.doc,.docx"
+                                        class="doc-archivo"
+                                    >
+
+                                    <div
+                                        class="doc-adjuntos"
+                                        id="adjuntos_carta_compromiso"
+                                    ></div>
 
                                 </div>
 
@@ -879,8 +950,78 @@
                                         style="display: none; margin-top: 8px;"
                                     >
 
+                                    <input
+                                        type="file"
+                                        id="archivo_carta_medios_comunicacion"
+                                        name="archivo_carta_medios_comunicacion"
+                                        accept=".jpg,.jpeg,.png,.gif,.webp,.pdf,.doc,.docx"
+                                        class="doc-archivo"
+                                    >
+
+                                    <div
+                                        class="doc-adjuntos"
+                                        id="adjuntos_carta_medios_comunicacion"
+                                    ></div>
+
                                 </div>
 
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- =================================
+                             FOTOGRAFÍA
+                             ================================= -->
+
+                        <div class="form-section">
+
+
+                            <div class="form-section-header">
+
+                                <div class="form-section-icon orange">
+                                    📸
+                                </div>
+
+
+                                <div>
+
+                                    <h3>
+                                        Fotografía
+                                    </h3>
+
+                                    <p>
+                                        Foto del voluntario (imagen o PDF).
+                                    </p>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="form-grid">
+
+                                <div class="form-group full-width">
+
+                                    <label for="foto">
+                                        Fotografía del voluntario
+                                    </label>
+
+                                    <input
+                                        type="file"
+                                        id="foto"
+                                        name="foto"
+                                        accept=".jpg,.jpeg,.png,.gif,.webp,.pdf"
+                                        class="doc-archivo"
+                                    >
+
+                                    <div
+                                        class="foto-preview"
+                                        id="adjuntos_foto"
+                                    ></div>
+
+                                </div>
 
                             </div>
 

@@ -1,10 +1,14 @@
 /*
-=========================================
+========================================
 NUEVO / VER / EDITAR VOLUNTARIO
-Crear: POST /api/voluntarios {nombres, apellidos, edad?, municipio?, centro_educativo?, jornada?}
+Crear: POST /api/voluntarios (multipart con adjuntos)
 Ver: ?id=X&modo=ver (solo lectura + botón Editar)
 Editar: ?id=X -> PUT /api/voluntarios/:id
-=========================================
+Edad: calculada automáticamente desde fecha_nacimiento.
+Adjuntos: documentos por campo + foto, guardados en
+tabla archivo vía persona_archivo (no salen en el
+módulo Archivos; se ven aquí con voluntarios.ver).
+========================================
 */
 
 let permisosActuales = [];
@@ -15,7 +19,7 @@ let modoVer = false;
 const CAMPOS = [
     "nombres",
     "apellidos",
-    "edad",
+    "fecha_nacimiento",
     "dpi",
     "municipio",
     "telefono",
@@ -39,6 +43,28 @@ const CAMPOS_OTRO = [
     "carta_compromiso",
     "carta_medios_comunicacion"
 ];
+
+const CAMPOS_ADJUNTO = [
+    "dpi18",
+    "certificado_nacimiento",
+    "carta_compromiso",
+    "carta_medios_comunicacion",
+    "dpi_encargado",
+    "foto"
+];
+
+const NOMBRES_CAMPO = {
+    dpi18: "DPI (mayor de edad)",
+    certificado_nacimiento: "Certificado de nacimiento",
+    carta_compromiso: "Carta de compromiso",
+    carta_medios_comunicacion: "Carta de medios de comunicación",
+    dpi_encargado: "DPI del encargado (respaldo)",
+    foto: "Fotografía"
+};
+
+// campo -> { actual: {id_archivo, nombre_archivo, tipo_mime}|null,
+//            seleccionado: File|null, quitar: boolean }
+const estadoAdjuntos = {};
 
 
 async function verificarSesion() {
@@ -126,6 +152,21 @@ function setSoloLectura(soloLectura) {
         if (otro) otro.disabled = soloLectura;
     }
 
+    const edadInput = document.getElementById("edad");
+
+    if (edadInput) edadInput.readOnly = true;
+
+    for (const campo of CAMPOS_ADJUNTO) {
+
+        const input = document.getElementById(
+            campo === "foto" ? "foto" : `archivo_${campo}`
+        );
+
+        if (input) input.disabled = soloLectura;
+    }
+
+    renderAdjuntos();
+
     document.getElementById("submitButton").style.display =
         soloLectura ? "none" : "";
 
@@ -184,6 +225,343 @@ function fijarDocumento(id, valor) {
         select.value = valor || "";
         otro.value = "";
         otro.style.display = "none";
+    }
+}
+
+
+/*
+========================================
+EDAD AUTOMÁTICA (desde fecha_nacimiento)
+========================================
+*/
+
+function calcularEdad(valorFecha) {
+
+    if (!valorFecha) return null;
+
+    const partes = valorFecha.split("-");
+
+    if (partes.length !== 3) return null;
+
+    const [anio, mes, dia] =
+        partes.map(Number);
+
+    if (!anio || !mes || !dia) return null;
+
+    const hoy = new Date();
+
+    let edad =
+        hoy.getFullYear() - anio;
+
+    const deltaMes =
+        hoy.getMonth() - (mes - 1);
+
+    if (
+        deltaMes < 0 ||
+        (deltaMes === 0 && hoy.getDate() < dia)
+    ) {
+        edad--;
+    }
+
+    return edad >= 0 ? edad : null;
+}
+
+
+function calcularEdadLive() {
+
+    const fechaInput =
+        document.getElementById("fecha_nacimiento");
+
+    const edadInput =
+        document.getElementById("edad");
+
+    if (!fechaInput || !edadInput) return;
+
+    const edad =
+        calcularEdad(fechaInput.value);
+
+    edadInput.value =
+        edad === null ? "" : String(edad);
+}
+
+
+/*
+========================================
+ADJUNTOS (documentos + foto)
+========================================
+*/
+
+function esImagen(mime) {
+
+    return (
+        typeof mime === "string" &&
+        mime.startsWith("image/")
+    );
+}
+
+
+function initAdjunto(campo, doc) {
+
+    estadoAdjuntos[campo] = {
+
+        actual:
+            doc
+                ? {
+                    id_archivo: doc.id_archivo,
+                    nombre_archivo: doc.nombre_archivo,
+                    tipo_mime: doc.tipo_mime
+                }
+                : null,
+
+        seleccionado: null,
+
+        quitar: false
+    };
+}
+
+
+function crearNota(texto) {
+
+    const p = document.createElement("p");
+
+    p.className = "doc-adjunto-vacio";
+
+    p.textContent = texto;
+
+    return p;
+}
+
+
+function crearBotonAccion(texto, alHacerClic) {
+
+    const boton =
+        document.createElement("button");
+
+    boton.type = "button";
+
+    boton.className = "doc-adjunto-accion";
+
+    boton.textContent = texto;
+
+    boton.addEventListener("click", alHacerClic);
+
+    return boton;
+}
+
+
+function urlDocumento(campo) {
+
+    const doc =
+        estadoAdjuntos[campo].actual;
+
+    return `/api/voluntarios/${editId}/documentos/${doc.id_archivo}`;
+}
+
+
+function renderAdjuntos() {
+
+    for (const campo of CAMPOS_ADJUNTO) {
+
+        const contenedor =
+            document.getElementById(`adjuntos_${campo}`);
+
+        const estado =
+            estadoAdjuntos[campo];
+
+        if (!contenedor || !estado) continue;
+
+        contenedor.innerHTML = "";
+
+        const esFoto =
+            campo === "foto";
+
+
+        // 1) Marcado para quitar (modo edición)
+
+        if (estado.quitar && !modoVer) {
+
+            const fila =
+                document.createElement("div");
+
+            fila.className = "doc-adjunto-item";
+
+            const nota =
+                crearNota("Se quitará al guardar cambios.");
+
+            fila.appendChild(nota);
+
+            fila.appendChild(
+                crearBotonAccion("Deshacer", () => {
+
+                    estado.quitar = false;
+
+                    renderAdjuntos();
+                })
+            );
+
+            contenedor.appendChild(fila);
+
+            continue;
+        }
+
+
+        // 2) Archivo seleccionado nuevo
+
+        if (estado.seleccionado) {
+
+            if (esFoto && esImagen(estado.seleccionado.type)) {
+
+                const img =
+                    document.createElement("img");
+
+                img.src =
+                    URL.createObjectURL(estado.seleccionado);
+
+                img.alt =
+                    "Vista previa de la fotografía";
+
+                contenedor.appendChild(img);
+
+            } else {
+
+                contenedor.appendChild(
+                    crearNota(
+                        `Archivo seleccionado: ${estado.seleccionado.name}`
+                    )
+                );
+            }
+
+
+            if (estado.actual) {
+
+                contenedor.appendChild(
+                    crearNota(
+                        "Reemplazará al archivo actual al guardar."
+                    )
+                );
+            }
+
+            continue;
+        }
+
+
+        // 3) Adjunto actual (link / preview)
+
+        if (estado.actual) {
+
+            const url =
+                urlDocumento(campo);
+
+            if (esFoto && esImagen(estado.actual.tipo_mime)) {
+
+                const img =
+                    document.createElement("img");
+
+                img.src = url;
+
+                img.alt =
+                    `Fotografía: ${estado.actual.nombre_archivo}`;
+
+                contenedor.appendChild(img);
+            }
+
+
+            const fila =
+                document.createElement("div");
+
+            fila.className = "doc-adjunto-item";
+
+            const enlace =
+                document.createElement("a");
+
+            enlace.href = url;
+
+            enlace.target = "_blank";
+
+            enlace.rel = "noopener";
+
+            enlace.textContent =
+                estado.actual.nombre_archivo;
+
+            fila.appendChild(enlace);
+
+
+            if (!modoVer) {
+
+                fila.appendChild(
+                    crearBotonAccion("Quitar", () => {
+
+                        estado.quitar = true;
+
+                        const input =
+                            document.getElementById(
+                                esFoto ? "foto" : `archivo_${campo}`
+                            );
+
+                        if (input) input.value = "";
+
+                        renderAdjuntos();
+                    })
+                );
+            }
+
+
+            contenedor.appendChild(fila);
+
+            continue;
+        }
+
+
+        // 4) Sin adjunto
+
+        contenedor.appendChild(
+            crearNota("Sin archivo adjunto (opcional).")
+        );
+    }
+}
+
+
+function conectarAdjuntos() {
+
+    for (const campo of CAMPOS_ADJUNTO) {
+
+        const input =
+            document.getElementById(
+                campo === "foto" ? "foto" : `archivo_${campo}`
+            );
+
+        if (!input) continue;
+
+        input.addEventListener("change", () => {
+
+            const estado =
+                estadoAdjuntos[campo];
+
+            if (!estado) return;
+
+            estado.seleccionado =
+                input.files && input.files.length > 0
+                    ? input.files[0]
+                    : null;
+
+            if (estado.seleccionado) {
+                estado.quitar = false;
+            }
+
+            renderAdjuntos();
+        });
+    }
+
+
+    const fechaInput =
+        document.getElementById("fecha_nacimiento");
+
+    if (fechaInput) {
+
+        fechaInput.addEventListener(
+            "change",
+            calcularEdadLive
+        );
     }
 }
 
@@ -286,6 +664,32 @@ async function cargarVoluntario(id) {
                 valor === null || valor === undefined ? "" : valor;
         }
 
+
+        const edadInput =
+            document.getElementById("edad");
+
+        if (edadInput) {
+
+            edadInput.value =
+                v.edad === null || v.edad === undefined
+                    ? ""
+                    : String(v.edad);
+        }
+
+
+        for (const campo of CAMPOS_ADJUNTO) {
+
+            const doc =
+                (v.documentos || []).find(
+                    (d) => d.campo === campo
+                );
+
+            initAdjunto(campo, doc || null);
+        }
+
+
+        renderAdjuntos();
+
         mostrarProyectos(v.proyectos);
 
 
@@ -328,18 +732,6 @@ function leerEnteroOpcional(id) {
 }
 
 
-function leerEdad() {
-
-    const n = leerEnteroOpcional("edad");
-
-    if (n === false || (n !== null && n < 0)) {
-        return false;
-    }
-
-    return n;
-}
-
-
 async function guardarVoluntario(event) {
 
     event.preventDefault();
@@ -354,19 +746,6 @@ async function guardarVoluntario(event) {
     if (!nombres || !apellidos) {
 
         mostrarMensaje("Nombre y apellido son obligatorios.", true);
-
-        return;
-    }
-
-
-    const edad = leerEdad();
-
-    if (edad === false) {
-
-        mostrarMensaje(
-            "La edad debe ser un número entero mayor o igual a 0.",
-            true
-        );
 
         return;
     }
@@ -401,25 +780,66 @@ async function guardarVoluntario(event) {
     };
 
 
-    const body = {
-        nombres,
-        apellidos,
-        edad,
-        dpi: enteros.dpi,
-        municipio: texto("municipio"),
-        telefono: enteros.telefono,
-        centro_educativo: texto("centro_educativo"),
-        jornada: texto("jornada"),
-        encargado: texto("encargado"),
-        telefono_encargado: enteros.telefono_encargado,
-        dpi_del_encargado: enteros.dpi_del_encargado,
-        carta_compromiso: leerDocumento("carta_compromiso"),
-        carta_medios_comunicacion: leerDocumento("carta_medios_comunicacion"),
-        dpi18: leerDocumento("dpi18"),
-        certificado_nacimiento: leerDocumento("certificado_nacimiento"),
-        dpi_encargado: leerDocumento("dpi_encargado"),
-        biografia: texto("biografia")
-    };
+    const comoTexto = (valor) =>
+        valor === null || valor === undefined
+            ? ""
+            : String(valor);
+
+
+    const formData =
+        new FormData();
+
+    formData.append("nombres", nombres);
+    formData.append("apellidos", apellidos);
+
+    formData.append(
+        "fecha_nacimiento",
+        document.getElementById("fecha_nacimiento").value.trim()
+    );
+
+    formData.append("dpi", comoTexto(enteros.dpi));
+    formData.append("municipio", comoTexto(texto("municipio")));
+    formData.append("telefono", comoTexto(enteros.telefono));
+    formData.append("centro_educativo", comoTexto(texto("centro_educativo")));
+    formData.append("jornada", comoTexto(texto("jornada")));
+    formData.append("encargado", comoTexto(texto("encargado")));
+    formData.append("telefono_encargado", comoTexto(enteros.telefono_encargado));
+    formData.append("dpi_del_encargado", comoTexto(enteros.dpi_del_encargado));
+
+    formData.append("carta_compromiso", comoTexto(leerDocumento("carta_compromiso")));
+    formData.append("carta_medios_comunicacion", comoTexto(leerDocumento("carta_medios_comunicacion")));
+    formData.append("dpi18", comoTexto(leerDocumento("dpi18")));
+    formData.append("certificado_nacimiento", comoTexto(leerDocumento("certificado_nacimiento")));
+    formData.append("dpi_encargado", comoTexto(leerDocumento("dpi_encargado")));
+
+    formData.append("biografia", comoTexto(texto("biografia")));
+
+
+    for (const campo of CAMPOS_ADJUNTO) {
+
+        const estado =
+            estadoAdjuntos[campo];
+
+        if (!estado) continue;
+
+        if (estado.seleccionado) {
+
+            formData.append(
+                campo === "foto" ? "foto" : `archivo_${campo}`,
+                estado.seleccionado
+            );
+
+            if (estado.actual) {
+
+                formData.append(`reemplazar_${campo}`, "1");
+            }
+
+        } else if (estado.quitar) {
+
+            formData.append(`quitar_${campo}`, "1");
+        }
+    }
+
 
     const url =
         editId === null ? "/api/voluntarios" : `/api/voluntarios/${editId}`;
@@ -436,13 +856,9 @@ async function guardarVoluntario(event) {
                 {
                     method,
 
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-
                     credentials: "include",
 
-                    body: JSON.stringify(body)
+                    body: formData
                 }
             );
 
@@ -616,6 +1032,11 @@ async function init() {
             select.addEventListener("change", () => actualizarOtro(id));
         }
     }
+
+
+    conectarAdjuntos();
+
+    calcularEdadLive();
 
 
     document
