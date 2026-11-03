@@ -658,7 +658,15 @@ async function cargarVoluntario(id) {
 
             if (!input) continue;
 
-            const valor = v[id];
+            let valor = v[id];
+
+            if (
+                id === "fecha_nacimiento" &&
+                valor !== null &&
+                valor !== undefined
+            ) {
+                valor = String(valor).slice(0, 10);
+            }
 
             input.value =
                 valor === null || valor === undefined ? "" : valor;

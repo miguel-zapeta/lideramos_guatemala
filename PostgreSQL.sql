@@ -299,6 +299,8 @@ CREATE TABLE archivo(
 	descripcion       VARCHAR(255),
 	fecha_subida      TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	id_usuario        INTEGER,
+	comprimido        BOOLEAN NOT NULL DEFAULT FALSE,
+	tamano_comprimido BIGINT,
 
 	CONSTRAINT fk_archivo_usuario
 		FOREIGN KEY (id_usuario)
