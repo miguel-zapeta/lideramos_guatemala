@@ -29,7 +29,6 @@ const CAMPOS = [
     "trayecto",
     "numero_comprobante",
     "proveedor",
-    "total_valor_base",
     "total_del_gasto"
 ];
 
@@ -148,7 +147,7 @@ async function cargarCategorias() {
         select.innerHTML =
             `<option value="">Seleccione una categoría</option>` +
             lista.map((c) =>
-                `<option value="${c.id_categoria}">${escapeHtml(c.nombre)} (${escapeHtml(c.rubro) || "Sin rubro"})</option>`
+                `<option value="${c.id_categoria}" data-rubro="${escapeHtml(c.rubro || "")}">${escapeHtml(c.nombre)} (${escapeHtml(c.rubro) || "Sin rubro"})</option>`
             ).join("");
 
     } catch (error) {
@@ -298,6 +297,7 @@ async function cargarGasto(id) {
 
                 opt.value = g.id_categoria;
                 opt.textContent = g.categoria || `Categoría #${g.id_categoria}`;
+                opt.dataset.rubro = g.rubro || "";
 
                 select.appendChild(opt);
             }
@@ -388,6 +388,34 @@ function leerNumero(id) {
 }
 
 
+function rubroSeleccionado() {
+
+    const select =
+        document.getElementById("id_categoria");
+
+    const opcion =
+        select.options[select.selectedIndex];
+
+    return (opcion?.dataset?.rubro || "").trim().toLowerCase();
+}
+
+
+function autoRellenarTotalGasto() {
+
+    const valorBase = leerNumero("valor_base");
+    const iva = leerNumero("iva");
+    const otros = leerNumero("otros_impuestos");
+
+    const total = [valorBase, iva, otros].reduce(
+        (suma, v) => suma + (typeof v === "number" ? v : 0),
+        0
+    );
+
+    document.getElementById("total_del_gasto").value =
+        total.toFixed(2);
+}
+
+
 function autoRellenarMontos() {
 
     const monto = leerNumero("monto");
@@ -396,11 +424,27 @@ function autoRellenarMontos() {
         return;
     }
 
-    const valorBase = monto / 1.12;
-    const iva = valorBase * 0.12;
 
-    document.getElementById("valor_base").value = valorBase.toFixed(2);
-    document.getElementById("iva").value = iva.toFixed(2);
+    if (rubroSeleccionado() === "salarios") {
+
+        // Salarios: sin IVA; el valor base es el monto tal
+        // como se ingresa.
+        document.getElementById("valor_base").value =
+            monto.toFixed(2);
+
+        document.getElementById("iva").value = "0.00";
+
+    } else {
+
+        const valorBase = monto / 1.12;
+        const iva = valorBase * 0.12;
+
+        document.getElementById("valor_base").value = valorBase.toFixed(2);
+        document.getElementById("iva").value = iva.toFixed(2);
+    }
+
+
+    autoRellenarTotalGasto();
 }
 
 
@@ -497,9 +541,7 @@ async function guardarGasto(event) {
         "valor_base",
         "iva",
         "otros_impuestos",
-        "numero_comprobante",
-        "total_valor_base",
-        "total_del_gasto"
+        "numero_comprobante"
     ]) {
 
         const valor = leerNumero(id);
@@ -715,6 +757,17 @@ async function init() {
     document
         .getElementById("monto")
         .addEventListener("input", autoRellenarMontos);
+
+    document
+        .getElementById("id_categoria")
+        .addEventListener("change", autoRellenarMontos);
+
+    for (const id of ["valor_base", "iva", "otros_impuestos"]) {
+
+        document
+            .getElementById(id)
+            .addEventListener("input", autoRellenarTotalGasto);
+    }
 
 
     const logoutButton =

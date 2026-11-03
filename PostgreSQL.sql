@@ -51,28 +51,13 @@ CREATE TABLE proyecto (
     fecha_inicio                             DATE,
     fecha_finalizacion                       DATE,
     estado                                   VARCHAR(20) NOT NULL DEFAULT 'planeado',
-	subvencion                               NUMERIC(14,2) NOT NULL DEFAULT 0,
-	fecha_tipo_cambio                        DATE,
-	tipo_cambio                              NUMERIC(14,2) NOT NULL DEFAULT 0,
-	fuente_tipo_cambio                       VARCHAR(255),
 	total_gastos_ejecutados                  NUMERIC(14,2) NOT NULL DEFAULT 0,
-    monto_total_solicitado_rise_up           NUMERIC(14,2) NOT NULL DEFAULT 0,
-	monto_total_subvencion                   NUMERIC(14,2) NOT NULL DEFAULT 0,
-	diferencia_entre_solicitado_y_subvencion NUMERIC(14,2) NOT NULL DEFAULT 0,
 	gestora_del_proyecto                     VARCHAR(255),
 	ente_patrocinador                        VARCHAR(255),
 	asociacion_gestora                       VARCHAR(255),
 
-	CONSTRAINT chk_proyecto_subvencion 
-		CHECK (subvencion >= 0), 
-	CONSTRAINT chk_proyecto_cambio 
-		CHECK (tipo_cambio >= 0), 
 	CONSTRAINT chk_proyecto_ejecutado 
 		CHECK (total_gastos_ejecutados >= 0), 
-	CONSTRAINT chk_proyecto_solicitado 
-		CHECK (monto_total_solicitado_rise_up >= 0),
-	CONSTRAINT chk_proyecto_tota_subvencion 
-		CHECK (monto_total_subvencion >= 0),
 
 	CONSTRAINT chk_proyecto_estado
 		CHECK (estado IN ('planeado', 'en proceso', 'finalizado'))
@@ -119,6 +104,72 @@ CREATE TABLE rubro (
     nombre             VARCHAR(100) NOT NULL UNIQUE,
     descripcion        VARCHAR(255),
 	estado             BOOLEAN NOT NULL DEFAULT TRUE
+);
+
+CREATE TABLE patrocinador (
+    id_patrocinador     SERIAL PRIMARY KEY,
+    tipo                VARCHAR(20) NOT NULL,
+    nombre_razon_social VARCHAR(150) NOT NULL,
+    dpi                 BIGINT,
+    persona_contacto    VARCHAR(100),
+    telefono            BIGINT,
+    correo              VARCHAR(150),
+    direccion           VARCHAR(255),
+    municipio           VARCHAR(30),
+    pais                VARCHAR(50),
+    fecha_registro      DATE NOT NULL DEFAULT CURRENT_DATE,
+    observaciones       VARCHAR(255),
+    estado              BOOLEAN NOT NULL DEFAULT TRUE,
+
+    CONSTRAINT chk_patrocinador_tipo
+        CHECK (tipo IN ('persona', 'empresa'))
+);
+
+CREATE TABLE proyecto_patrocinador (
+    id_proyecto_patrocinador       SERIAL PRIMARY KEY,
+    id_proyecto                    INTEGER NOT NULL,
+    id_patrocinador                INTEGER NOT NULL,
+    tipo_moneda                    VARCHAR(10),
+    tipo_aporte                    VARCHAR(20),
+    tipo_cambio                    NUMERIC(14,2) NOT NULL DEFAULT 0,
+    fecha_tipo_cambio              DATE,
+    fuente_tipo_cambio             VARCHAR(255),
+    subvencion_moneda_donante      NUMERIC(14,2) NOT NULL DEFAULT 0,
+    cantidad_solicitada_moneda_donante NUMERIC(14,2) NOT NULL DEFAULT 0,
+    subvencion_moneda_nacional     NUMERIC(14,2) NOT NULL DEFAULT 0,
+    diferencia_solicitado_subvencion NUMERIC(14,2) NOT NULL DEFAULT 0,
+    estado                         BOOLEAN NOT NULL DEFAULT TRUE,
+
+    CONSTRAINT fk_pp_proyecto
+        FOREIGN KEY (id_proyecto)
+        REFERENCES proyecto(id_proyecto)
+        ON DELETE RESTRICT,
+
+    CONSTRAINT fk_pp_patrocinador
+        FOREIGN KEY (id_patrocinador)
+        REFERENCES patrocinador(id_patrocinador)
+        ON DELETE RESTRICT,
+
+    CONSTRAINT chk_pp_moneda
+        CHECK (
+            tipo_moneda IS NULL OR
+            tipo_moneda IN ('GTQ', 'USD', 'EUR', 'CAD', 'MXN')
+        ),
+
+    CONSTRAINT chk_pp_aporte
+        CHECK (
+            tipo_aporte IS NULL OR
+            tipo_aporte IN ('efectivo', 'transferencia', 'cheque')
+        ),
+
+    CONSTRAINT chk_pp_tipo_cambio
+        CHECK (tipo_cambio >= 0),
+
+    CONSTRAINT chk_pp_subvencion_donante
+        CHECK (subvencion_moneda_donante >= 0),
+
+    CONSTRAINT chk_pp_solicitado_donante
+        CHECK (cantidad_solicitada_moneda_donante >= 0)
 );
 
 CREATE TABLE categoria_gasto (

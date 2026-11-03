@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 
 <head>
@@ -134,6 +134,19 @@
 
                     <span>
                         Cerrar sesión
+                    </span>
+
+                </a>
+
+
+                <a href="informacion-sistema.html" class="menu-item">
+
+                    <span class="icon">
+                        ℹ️
+                    </span>
+
+                    <span>
+                        Información del sistema
                     </span>
 
                 </a>
@@ -285,22 +298,6 @@
 
                                 <div class="form-group">
 
-                                    <label for="ente_patrocinador">
-                                        Ente patrocinador
-                                    </label>
-
-                                    <input
-                                        type="text"
-                                        id="ente_patrocinador"
-                                        name="ente_patrocinador"
-                                        placeholder="Ej. Nombre del ente patrocinador"
-                                    >
-
-                                </div>
-
-
-                                <div class="form-group">
-
                                     <label for="asociacion_gestora">
                                         Asociación gestora
                                     </label>
@@ -370,179 +367,6 @@
                         </div>
 
 
-                        <!-- FINANCIERO -->
-
-                        <div class="form-section">
-
-
-                            <div class="form-section-header">
-
-                                <div class="form-section-icon pink">
-                                    💰
-                                </div>
-
-
-                                <div>
-
-                                    <h3>
-                                        Información financiera
-                                    </h3>
-
-                                    <p>
-                                        Montos y tipo de cambio del proyecto.
-                                    </p>
-
-                                </div>
-
-                            </div>
-
-
-                            <div class="form-grid">
-
-
-                                <div class="form-group">
-
-                                    <label for="subvencion">
-                                        Subvención
-                                    </label>
-
-                                    <input
-                                        type="number"
-                                        id="subvencion"
-                                        name="subvencion"
-                                        min="0"
-                                        step="0.01"
-                                        placeholder="Ej. 50000.00"
-                                    >
-
-                                </div>
-
-
-                                <div class="form-group">
-
-                                    <label for="tipo_cambio">
-                                        Tipo de cambio
-                                    </label>
-
-                                    <input
-                                        type="number"
-                                        id="tipo_cambio"
-                                        name="tipo_cambio"
-                                        min="0"
-                                        step="0.01"
-                                        placeholder="Ej. 7.85"
-                                    >
-
-                                </div>
-
-
-                                <div class="form-group">
-
-                                    <label for="fecha_tipo_cambio">
-                                        Fecha tipo de cambio
-                                    </label>
-
-                                    <input
-                                        type="date"
-                                        id="fecha_tipo_cambio"
-                                        name="fecha_tipo_cambio"
-                                    >
-
-                                </div>
-
-
-                                <div class="form-group">
-
-                                    <label for="fuente_tipo_cambio">
-                                        Fuente tipo de cambio
-                                    </label>
-
-                                    <input
-                                        type="text"
-                                        id="fuente_tipo_cambio"
-                                        name="fuente_tipo_cambio"
-                                        placeholder="Ej. Banco Central"
-                                    >
-
-                                </div>
-
-
-                                <div class="form-group">
-
-                                    <label for="total_gastos_ejecutados">
-                                        Gastos ejecutados
-                                    </label>
-
-                                    <input
-                                        type="number"
-                                        id="total_gastos_ejecutados"
-                                        name="total_gastos_ejecutados"
-                                        min="0"
-                                        step="0.01"
-                                        placeholder="Ej. 12000.00"
-                                    >
-
-                                </div>
-
-
-                                <div class="form-group">
-
-                                    <label for="monto_total_solicitado_rise_up">
-                                        Solicitado Rise Up
-                                    </label>
-
-                                    <input
-                                        type="number"
-                                        id="monto_total_solicitado_rise_up"
-                                        name="monto_total_solicitado_rise_up"
-                                        min="0"
-                                        step="0.01"
-                                        placeholder="Ej. 60000.00"
-                                    >
-
-                                </div>
-
-
-                                <div class="form-group">
-
-                                    <label for="monto_total_subvencion">
-                                        Subvención total
-                                    </label>
-
-                                    <input
-                                        type="number"
-                                        id="monto_total_subvencion"
-                                        name="monto_total_subvencion"
-                                        min="0"
-                                        step="0.01"
-                                        placeholder="Ej. 55000.00"
-                                    >
-
-                                </div>
-
-
-                                <div class="form-group">
-
-                                    <label for="diferencia_entre_solicitado_y_subvencion">
-                                        Diferencia solicitado/subvención
-                                    </label>
-
-                                    <input
-                                        type="number"
-                                        id="diferencia_entre_solicitado_y_subvencion"
-                                        name="diferencia_entre_solicitado_y_subvencion"
-                                        min="0"
-                                        step="0.01"
-                                        placeholder="Ej. 5000.00"
-                                    >
-
-                                </div>
-
-
-                            </div>
-
-                        </div>
-
 
                         <div class="form-actions">
 
@@ -581,6 +405,344 @@
 
 
                     </form>
+
+
+                    <!-- =================================
+                         PATROCINADORES DEL PROYECTO
+                         ================================= -->
+
+                    <div class="form-section" id="donantesSection" style="display: none;">
+
+
+                        <div class="form-section-header">
+
+                            <div class="form-section-icon purple">
+                                🤝
+                            </div>
+
+
+                            <div>
+
+                                    <h3>
+                                        Patrocinadores
+                                    </h3>
+
+                                    <p id="donantesInfo">
+                                        Patrocinadores asignados a este proyecto.
+                                    </p>
+
+                                <label class="ver-inactivos">
+                                    <input
+                                        type="checkbox"
+                                        id="verInactivosDP"
+                                    >
+                                    <span>Ver inactivos</span>
+                                </label>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="mini-tabla">
+
+                            <table>
+
+                                <thead>
+
+                                    <tr>
+
+                                        <th>Patrocinador</th>
+
+                                        <th>Tipo de moneda</th>
+
+                                        <th>Tipo de aporte</th>
+
+                                        <th>Tipo de cambio</th>
+
+                                        <th>Fecha TC</th>
+
+                                        <th>Fuente TC</th>
+
+                                        <th>Subvención moneda donante</th>
+
+                                        <th>Solicitado moneda donante</th>
+
+                                        <th>Subvención moneda nacional</th>
+
+                                        <th>Diferencia</th>
+
+                                        <th>Estado</th>
+
+                                        <th>Acciones</th>
+
+                                    </tr>
+
+                                </thead>
+
+
+                                <tbody id="donantesTbody">
+
+                                    <tr>
+
+                                        <td colspan="12">
+                                            Cargando patrocinadores...
+                                        </td>
+
+                                    </tr>
+
+                                </tbody>
+
+                            </table>
+
+                            <div
+                                class="pagination-buttons"
+                                id="donantesPagination"
+                                style="margin-top: 12px;"
+                            ></div>
+
+                        </div>
+
+
+                        <div class="form-actions" id="donantesActions">
+
+                            <p
+                                id="donanteMessage"
+                                role="alert"
+                            ></p>
+
+                            <button
+                                type="button"
+                                class="save-button"
+                                id="agregarDonanteButton"
+                            >
+                                + Agregar patrocinador
+                            </button>
+
+                        </div>
+
+
+                        <!-- SUBFORMULARIO PATROCINADOR -->
+
+                        <div id="donanteForm" style="display: none; margin-top: 16px;">
+
+                            <div class="form-grid">
+
+
+                                <div class="form-group">
+
+                                    <label for="dp_donante">
+                                        Patrocinador
+                                        <span>*</span>
+                                    </label>
+
+                                    <select
+                                        id="dp_donante"
+                                        name="dp_donante"
+                                    >
+
+                                        <option value="">
+                                            Seleccione un patrocinador
+                                        </option>
+
+                                    </select>
+
+                                </div>
+
+
+                                <div class="form-group">
+
+                                    <label for="dp_moneda">
+                                        Tipo de moneda
+                                        <span>*</span>
+                                    </label>
+
+                                    <select
+                                        id="dp_moneda"
+                                        name="dp_moneda"
+                                    >
+
+                                        <option value="">Seleccionar...</option>
+                                        <option value="GTQ">GTQ</option>
+                                        <option value="USD">USD</option>
+                                        <option value="EUR">EUR</option>
+                                        <option value="CAD">CAD</option>
+                                        <option value="MXN">MXN</option>
+
+                                    </select>
+
+                                </div>
+
+
+                                <div class="form-group">
+
+                                    <label for="dp_aporte">
+                                        Tipo de aporte
+                                        <span>*</span>
+                                    </label>
+
+                                    <select
+                                        id="dp_aporte"
+                                        name="dp_aporte"
+                                    >
+
+                                        <option value="">Seleccionar...</option>
+                                        <option value="efectivo">Efectivo</option>
+                                        <option value="transferencia">Transferencia</option>
+                                        <option value="cheque">Cheque</option>
+
+                                    </select>
+
+                                </div>
+
+
+                                <div class="form-group">
+
+                                    <label for="dp_tipo_cambio">
+                                        Tipo de cambio
+                                    </label>
+
+                                    <input
+                                        type="number"
+                                        id="dp_tipo_cambio"
+                                        name="dp_tipo_cambio"
+                                        min="0"
+                                        step="0.01"
+                                        placeholder="Ej. 7.85"
+                                    >
+
+                                </div>
+
+
+                                <div class="form-group">
+
+                                    <label for="dp_fecha_tipo_cambio">
+                                        Fecha tipo de cambio
+                                    </label>
+
+                                    <input
+                                        type="date"
+                                        id="dp_fecha_tipo_cambio"
+                                        name="dp_fecha_tipo_cambio"
+                                    >
+
+                                </div>
+
+
+                                <div class="form-group">
+
+                                    <label for="dp_fuente_tipo_cambio">
+                                        Fuente tipo de cambio
+                                    </label>
+
+                                    <input
+                                        type="text"
+                                        id="dp_fuente_tipo_cambio"
+                                        name="dp_fuente_tipo_cambio"
+                                        placeholder="Ej. Banco Central"
+                                    >
+
+                                </div>
+
+
+                                <div class="form-group">
+
+                                    <label for="dp_subvencion">
+                                        Subvención en moneda del donante
+                                        <span>*</span>
+                                    </label>
+
+                                    <input
+                                        type="number"
+                                        id="dp_subvencion"
+                                        name="dp_subvencion"
+                                        min="0"
+                                        step="0.01"
+                                        placeholder="Ej. 5000.00"
+                                    >
+
+                                </div>
+
+
+                                <div class="form-group">
+
+                                    <label for="dp_solicitado">
+                                        Cantidad solicitada en moneda del donante
+                                    </label>
+
+                                    <input
+                                        type="number"
+                                        id="dp_solicitado"
+                                        name="dp_solicitado"
+                                        min="0"
+                                        step="0.01"
+                                        placeholder="Ej. 6000.00"
+                                    >
+
+                                </div>
+
+
+                                <div class="form-group">
+
+                                    <label for="dp_subvencion_nacional">
+                                        Subvención en moneda nacional
+                                    </label>
+
+                                    <input
+                                        type="number"
+                                        id="dp_subvencion_nacional"
+                                        name="dp_subvencion_nacional"
+                                        readonly
+                                        placeholder="Se calcula automáticamente"
+                                    >
+
+                                </div>
+
+
+                                <div class="form-group">
+
+                                    <label for="dp_diferencia">
+                                        Diferencia solicitado/subvención
+                                    </label>
+
+                                    <input
+                                        type="number"
+                                        id="dp_diferencia"
+                                        name="dp_diferencia"
+                                        readonly
+                                        placeholder="Se calcula automáticamente"
+                                    >
+
+                                </div>
+
+
+                            </div>
+
+
+                            <div class="form-actions">
+
+                                <button
+                                    type="button"
+                                    class="cancel-button"
+                                    id="cancelarDonanteButton"
+                                >
+                                    Cancelar
+                                </button>
+
+                                <button
+                                    type="button"
+                                    class="save-button"
+                                    id="guardarDonanteButton"
+                                >
+                                    ✓ Guardar patrocinador
+                                </button>
+
+                            </div>
+
+                        </div>
+
+
+                    </div>
 
 
                     <!-- =================================
@@ -636,7 +798,7 @@
 
                                         <th>Solicitado local</th>
 
-                                        <th>Solicitado USD</th>
+                                        <th id="thGeSolicitadoMoneda">Solicitado (moneda del donante)</th>
 
                                         <th>Estado</th>
 
@@ -782,16 +944,15 @@
                                 <div class="form-group">
 
                                     <label for="ge_usd">
-                                        Solicitado USD
+                                        <span id="geUsdLabel">Solicitado (moneda del donante)</span>
                                     </label>
 
                                     <input
                                         type="number"
                                         id="ge_usd"
                                         name="ge_usd"
-                                        min="0"
-                                        step="0.01"
-                                        placeholder="Ej. 130.00"
+                                        readonly
+                                        placeholder="Se calcula automáticamente"
                                     >
 
                                 </div>

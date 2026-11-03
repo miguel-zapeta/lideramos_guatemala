@@ -171,71 +171,21 @@ async function cargarProyectos() {
 }
 
 
-async function precargarTipoCambio(idProyecto) {
+function formatoMoneda(monto, moneda) {
 
-    document.getElementById("fecha_tipo_cambio").value = "";
-    document.getElementById("tipo_cambio").value = "";
-    document.getElementById("fuente_tipo_cambio").value = "";
+    const n = Number(monto);
 
+    const simbolos = {
+        GTQ: "Q",
+        USD: "$",
+        EUR: "€",
+        CAD: "C$",
+        MXN: "MX$"
+    };
 
-    if (!idProyecto) {
-        return;
-    }
+    const simbolo = simbolos[moneda] || "";
 
-
-    try {
-
-        const response =
-            await fetch(
-                `/api/proyectos/${idProyecto}`,
-                {
-                    method: "GET",
-                    credentials: "include"
-                }
-            );
-
-        if (!response.ok) {
-            return;
-        }
-
-        const data =
-            await response.json();
-
-        const p =
-            data.proyecto || {};
-
-
-        if (p.fecha_tipo_cambio) {
-
-            document.getElementById("fecha_tipo_cambio").value =
-                fechaCorta(p.fecha_tipo_cambio);
-        }
-
-
-        if (
-            p.tipo_cambio !== null &&
-            p.tipo_cambio !== undefined &&
-            Number(p.tipo_cambio) > 0
-        ) {
-
-            document.getElementById("tipo_cambio").value =
-                Number(p.tipo_cambio);
-        }
-
-
-        if (p.fuente_tipo_cambio) {
-
-            document.getElementById("fuente_tipo_cambio").value =
-                p.fuente_tipo_cambio;
-        }
-
-    } catch (error) {
-
-        console.error(
-            "Error precargando tipo de cambio:",
-            error
-        );
-    }
+    return `${simbolo} ${n.toFixed(2)}`.trim();
 }
 
 
@@ -244,6 +194,12 @@ function renderReporte(data) {
     const p = data.proyecto || {};
     const tc = Number(data.tipo_cambio);
 
+    const patro = data.patrocinadores || {};
+
+    const nombres = patro.nombres || "—";
+
+    const moneda = patro.moneda || "";
+
 
     document.getElementById("reporteTitulo").textContent =
         p.nombre || "—";
@@ -251,8 +207,11 @@ function renderReporte(data) {
     document.getElementById("repTipoCambio").textContent =
         `Tipo de cambio aplicado: ${Number.isFinite(tc) ? tc : "—"}`;
 
-    document.getElementById("repSubvencion").textContent =
-        formatoMonto(p.subvencion);
+    document.getElementById("repSubvencionDonante").textContent =
+        formatoMoneda(p.subvencion, moneda);
+
+    document.getElementById("repSubvencionNacional").textContent =
+        formatoMonto(p.subvencion_nacional);
 
     document.getElementById("repFechaTc").textContent =
         fechaCorta(data.fecha_tipo_cambio) || "—";
@@ -262,6 +221,16 @@ function renderReporte(data) {
 
     document.getElementById("repFuenteTc").textContent =
         data.fuente_tipo_cambio || "—";
+
+
+    document.getElementById("thSolLocal").textContent =
+        `Solicitado ${nombres} (local)`;
+
+    document.getElementById("thSolMoneda").textContent =
+        `Solicitado ${nombres} (${moneda || "moneda"})`;
+
+    document.getElementById("thEjecMoneda").textContent =
+        `Ejecutado (${moneda || "moneda"})`;
 
 
     const tbody =
@@ -298,9 +267,9 @@ function renderReporte(data) {
                     <td>${formatoMonto(categoria.costo_unidad)}</td>
                     <td>${categoria.unidades}</td>
                     <td>${formatoMonto(categoria.sol_local)}</td>
-                    <td>${formatoUsd(categoria.sol_usd)}</td>
+                    <td>${formatoMoneda(categoria.sol_usd, moneda)}</td>
                     <td>${formatoMonto(categoria.ejec_nacional)}</td>
-                    <td>${formatoUsd(categoria.ejec_usd)}</td>
+                    <td>${formatoMoneda(categoria.ejec_usd, moneda)}</td>
                 </tr>`;
         }
 
@@ -313,9 +282,9 @@ function renderReporte(data) {
                 <td></td>
                 <td></td>
                 <td><strong>${formatoMonto(s.sol_local)}</strong></td>
-                <td><strong>${formatoUsd(s.sol_usd)}</strong></td>
+                <td><strong>${formatoMoneda(s.sol_usd, moneda)}</strong></td>
                 <td><strong>${formatoMonto(s.ejec_nacional)}</strong></td>
-                <td><strong>${formatoUsd(s.ejec_usd)}</strong></td>
+                <td><strong>${formatoMoneda(s.ejec_usd, moneda)}</strong></td>
             </tr>`;
     }
 
@@ -328,9 +297,9 @@ function renderReporte(data) {
             <td></td>
             <td></td>
             <td><strong>${formatoMonto(t.sol_local)}</strong></td>
-            <td><strong>${formatoUsd(t.sol_usd)}</strong></td>
+            <td><strong>${formatoMoneda(t.sol_usd, moneda)}</strong></td>
             <td><strong>${formatoMonto(t.ejec_nacional)}</strong></td>
-            <td><strong>${formatoUsd(t.ejec_usd)}</strong></td>
+            <td><strong>${formatoMoneda(t.ejec_usd, moneda)}</strong></td>
         </tr>`;
 
 
@@ -346,15 +315,6 @@ async function generarReporte(event) {
     const idProyecto =
         document.getElementById("proyecto").value;
 
-    const tipoCambioRaw =
-        document.getElementById("tipo_cambio").value;
-
-    const fechaTc =
-        document.getElementById("fecha_tipo_cambio").value;
-
-    const fuenteTc =
-        document.getElementById("fuente_tipo_cambio").value.trim();
-
 
     if (!idProyecto) {
 
@@ -364,36 +324,12 @@ async function generarReporte(event) {
     }
 
 
-    const tipoCambio = Number(tipoCambioRaw);
-
-    if (
-        tipoCambioRaw === "" ||
-        !Number.isFinite(tipoCambio) ||
-        tipoCambio <= 0
-    ) {
-
-        mostrarMensaje(
-            "El tipo de cambio es obligatorio y debe ser mayor a 0.",
-            true
-        );
-
-        return;
-    }
-
-
+    // El tipo de cambio se toma de la información del
+    // patrocinador dentro del proyecto.
     const params =
         new URLSearchParams({
-            id_proyecto: idProyecto,
-            tipo_cambio: String(tipoCambio)
+            id_proyecto: idProyecto
         });
-
-    if (fechaTc) {
-        params.append("fecha_tipo_cambio", fechaTc);
-    }
-
-    if (fuenteTc !== "") {
-        params.append("fuente_tipo_cambio", fuenteTc);
-    }
 
 
     mostrarMensaje("Generando reporte...", false);
@@ -485,10 +421,17 @@ function exportarExcel() {
     const p = ultimoReporte.proyecto || {};
     const tc = Number(ultimoReporte.tipo_cambio);
 
+    const patro = ultimoReporte.patrocinadores || {};
+
+    const nombres = patro.nombres || "—";
+
+    const moneda = patro.moneda || "";
+
 
     const tabla = [
         [p.nombre || "Reporte comparativo"],
-        ["Subvención", Number(p.subvencion)],
+        ["Subvención en moneda del donante", formatoMoneda(p.subvencion, moneda)],
+        ["Subvención en moneda nacional", formatoMonto(p.subvencion_nacional)],
         ["Fecha tipo de cambio", fechaCorta(ultimoReporte.fecha_tipo_cambio) || "—"],
         ["Tipo de cambio", Number.isFinite(tc) ? tc : "—"],
         ["Fuente tipo de cambio", ultimoReporte.fuente_tipo_cambio || "—"],
@@ -497,10 +440,10 @@ function exportarExcel() {
             "Categoría gasto",
             "Costo por unidad (local)",
             "N.º unidades",
-            "Solicitado Rise Up (local)",
-            "Solicitado Rise Up (USD)",
+            `Solicitado ${nombres} (local)`,
+            `Solicitado ${nombres} (${moneda || "moneda"})`,
             "Ejecutado (nacional)",
-            "Ejecutado (USD)"
+            `Ejecutado (${moneda || "moneda"})`
         ]
     ];
 
@@ -610,14 +553,6 @@ async function init() {
 
 
     await cargarProyectos();
-
-
-    document
-        .getElementById("proyecto")
-        .addEventListener("change", (e) => {
-
-            precargarTipoCambio(e.target.value);
-        });
 
 
     document

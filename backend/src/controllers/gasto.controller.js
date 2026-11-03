@@ -13,6 +13,7 @@ const COLUMNAS_LISTA = `
     g.id_proyecto,
     g.id_categoria,
     c.nombre AS categoria,
+    r.nombre AS rubro,
     g.numero,
     g.fecha,
     g.numero_documento,
@@ -58,18 +59,31 @@ const COLUMNAS_RETURNING = `
 
 
 const MAPA_BUSQUEDA_GASTOS = {
+    proyecto: ["pr.nombre", "pr.id_proyecto::TEXT"],
+    numero: ["g.numero::TEXT"],
     descripcion: ["g.descripcion"],
     categoria: ["c.nombre"],
     fecha: ["TO_CHAR(g.fecha, 'YYYY-MM-DD')"],
+    serie: ["g.serie"],
+    numero_documento: ["g.numero_documento::TEXT"],
+    tipo_documento: ["g.tipo_documento"],
+    numero_comprobante: ["g.numero_comprobante::TEXT"],
     razon: ["g.razon_denominacion_social"],
     monto: ["g.monto::TEXT"],
     estado: [
         "CASE WHEN g.estado THEN 'activo' ELSE 'inactivo' END"
     ],
     todos: [
+        "pr.nombre",
+        "pr.id_proyecto::TEXT",
+        "g.numero::TEXT",
         "g.descripcion",
         "c.nombre",
         "TO_CHAR(g.fecha, 'YYYY-MM-DD')",
+        "g.serie",
+        "g.numero_documento::TEXT",
+        "g.tipo_documento",
+        "g.numero_comprobante::TEXT",
         "g.razon_denominacion_social",
         "g.monto::TEXT",
         "CASE WHEN g.estado THEN 'activo' ELSE 'inactivo' END"
@@ -155,9 +169,7 @@ function extraerCampos(body) {
         monto,
         trayecto,
         numero_comprobante,
-        proveedor,
-        total_valor_base,
-        total_del_gasto
+        proveedor
     } = body;
 
 
@@ -201,9 +213,7 @@ function extraerCampos(body) {
         valor_base: validarNumero(valor_base),
         iva: validarNumero(iva),
         otros_impuestos: validarNumero(otros_impuestos),
-        numero_comprobante: validarNumero(numero_comprobante),
-        total_valor_base: validarNumero(total_valor_base),
-        total_del_gasto: validarNumero(total_del_gasto)
+        numero_comprobante: validarNumero(numero_comprobante)
     };
 
     for (const [campo, valor] of Object.entries(opcionales)) {
@@ -212,6 +222,15 @@ function extraerCampos(body) {
             return { error: `El campo ${campo} debe ser un valor numérico mayor o igual a 0.` };
         }
     }
+
+
+    // Total del gasto siempre calculado: valor base + IVA + otros.
+    const totalDelGasto =
+        Math.round(
+            ((opcionales.valor_base || 0) +
+                (opcionales.iva || 0) +
+                (opcionales.otros_impuestos || 0)) * 100
+        ) / 100;
 
 
     const texto = (valor) =>
@@ -238,8 +257,7 @@ function extraerCampos(body) {
             texto(trayecto),
             opcionales.numero_comprobante,
             texto(proveedor),
-            opcionales.total_valor_base,
-            opcionales.total_del_gasto
+            totalDelGasto
         ]
     };
 }
@@ -310,6 +328,10 @@ async function listarGastos(
                 FROM gasto g
                 INNER JOIN categoria_gasto c
                     ON c.id_categoria = g.id_categoria
+                INNER JOIN rubro r
+                    ON r.id_rubro = c.id_rubro
+                INNER JOIN proyecto pr
+                    ON pr.id_proyecto = g.id_proyecto
                 ${where}
                 `,
                 paramsBase
@@ -335,6 +357,10 @@ async function listarGastos(
                 FROM gasto g
                 INNER JOIN categoria_gasto c
                     ON c.id_categoria = g.id_categoria
+                INNER JOIN rubro r
+                    ON r.id_rubro = c.id_rubro
+                INNER JOIN proyecto pr
+                    ON pr.id_proyecto = g.id_proyecto
                 ${where}
                 ORDER BY
                     g.id_gasto DESC
@@ -410,6 +436,10 @@ async function obtenerGasto(
                 FROM gasto g
                 INNER JOIN categoria_gasto c
                     ON c.id_categoria = g.id_categoria
+                INNER JOIN rubro r
+                    ON r.id_rubro = c.id_rubro
+                INNER JOIN proyecto pr
+                    ON pr.id_proyecto = g.id_proyecto
                 WHERE g.id_gasto = $1
                 LIMIT 1
                 `,
@@ -487,12 +517,11 @@ async function crearGasto(
                         trayecto,
                         numero_comprobante,
                         proveedor,
-                        total_valor_base,
                         total_del_gasto
                     )
                     VALUES (
                         $1, $2, $3, $4, $5, $6, $7, $8, $9,
-                        $10, $11, $12, $13, $14, $15, $16, $17, $18
+                        $10, $11, $12, $13, $14, $15, $16, $17
                     )
                     RETURNING
                         ${COLUMNAS_RETURNING}
@@ -595,9 +624,8 @@ async function editarGasto(
                         trayecto = $14,
                         numero_comprobante = $15,
                         proveedor = $16,
-                        total_valor_base = $17,
-                        total_del_gasto = $18
-                    WHERE id_gasto = $19
+                        total_del_gasto = $17
+                    WHERE id_gasto = $18
                     RETURNING
                         ${COLUMNAS_RETURNING}
                     `,

@@ -1,0 +1,501 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Nuevo patrocinador - Panel Administrativo</title>
+
+    <link rel="stylesheet" href="nuevoUsuario.css">
+
+</head>
+
+
+<body>
+
+
+    <!-- =========================
+         PANEL PRINCIPAL
+         ========================= -->
+
+    <div class="dashboard">
+
+
+        <!-- =========================
+             MENÚ LATERAL
+             ========================= -->
+
+        <aside class="sidebar">
+
+            <div class="sidebar-header">
+
+                <img src="Lideramos.png" alt="Logo de la organización" class="sidebar-logo" >
+
+            </div>
+
+
+            <!-- MENÚ -->
+
+            <nav class="menu">
+
+                <a href="usuarios.html" class="menu-item" data-modulo="usuarios">
+
+                    <span class="icon">👥</span>
+
+                    <span>Usuarios</span>
+
+                </a>
+
+
+                <a href="voluntarios.html" class="menu-item" data-modulo="voluntarios">
+
+                    <span class="icon">🤝</span>
+
+                    <span>Voluntarios</span>
+
+                </a>
+
+
+                <a href="finanzas.html" class="menu-item active" data-modulo="finanzas">
+
+                    <span class="icon">💰</span>
+
+                    <span>Finanzas</span>
+
+                </a>
+
+
+                <a href="actividades.html" class="menu-item" data-modulo="actividades">
+
+                    <span class="icon">📅</span>
+
+                    <span>Actividades</span>
+
+                </a>
+
+
+                <a href="archivos.html" class="menu-item" data-modulo="reportes">
+
+                    <span class="icon">📁</span>
+
+                    <span>Archivos</span>
+
+                </a>
+
+                <a href="publicaciones.html" class="menu-item" data-modulo="publicaciones">
+
+                    <span class="icon">📰</span>
+
+                    <span>Publicaciones</span>
+
+                </a>
+
+            </nav>
+
+
+            <!-- PARTE INFERIOR DEL MENÚ -->
+
+            <div class="sidebar-bottom">
+
+                <a href="#" class="menu-item" data-modulo="configuracion">
+
+                    <span class="icon">⚙️</span>
+
+                    <span>Configuración</span>
+
+                </a>
+
+                <a href="#" class="menu-item logout">
+
+                    <span class="icon">↪</span>
+
+                    <span>Cerrar sesión</span>
+
+                </a>
+
+
+                <a href="informacion-sistema.html" class="menu-item">
+
+                    <span class="icon">
+                        ℹ️
+                    </span>
+
+                    <span>
+                        Información del sistema
+                    </span>
+
+                </a>
+
+            </div>
+
+        </aside>
+
+
+        <!-- =========================
+             CONTENIDO
+             ========================= -->
+
+        <main class="main-content">
+
+
+            <!-- BARRA SUPERIOR -->
+
+            <header class="topbar">
+
+                <div class="page-title">
+
+                    <h1>Patrocinadores</h1>
+
+                    <p>Registro de patrocinadores</p>
+
+                </div>
+
+
+                <!-- ADMINISTRADOR -->
+
+                <div class="admin-profile">
+
+                    <div
+                        class="admin-avatar"
+                        id="currentUserAvatar"
+                    >
+                        US
+                    </div>
+
+                    <div class="admin-info">
+
+                        <strong id="currentUserName">
+                            Usuario
+                        </strong>
+
+                        <span id="currentUserRole">
+                            Administrador
+                        </span>
+
+                    </div>
+
+
+                </div>
+
+
+            </header>
+
+
+            <section class="content">
+
+
+                <div class="section-header">
+
+
+                    <div>
+
+                        <h2 id="formTitle">
+                            Crear nuevo patrocinador
+                        </h2>
+
+                        <p>
+                            Completa la información para registrar un nuevo patrocinador.
+                        </p>
+
+                    </div>
+
+
+                </div>
+
+
+                <div class="form-container">
+
+
+                    <form class="user-form" id="patrocinadorForm">
+
+
+                        <div class="form-section">
+
+
+                            <div class="form-section-header">
+
+                                <div class="form-section-icon orange">
+                                    🤝
+                                </div>
+
+
+                                <div>
+
+                                    <h3>
+                                        Información del patrocinador
+                                    </h3>
+
+                                    <p>
+                                        Datos básicos del patrocinador.
+                                    </p>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="form-grid">
+
+
+                                <!-- TIPO -->
+
+                                <div class="form-group">
+
+                                    <label for="tipo">
+                                        Tipo
+                                        <span>*</span>
+                                    </label>
+
+                                    <select
+                                        id="tipo"
+                                        name="tipo"
+                                        required
+                                    >
+                                        <option value="">Seleccionar...</option>
+                                        <option value="persona">Persona</option>
+                                        <option value="empresa">Empresa</option>
+                                    </select>
+
+                                </div>
+
+
+                                <!-- NOMBRE / RAZÓN SOCIAL -->
+
+                                <div class="form-group">
+
+                                    <label for="nombre_razon_social">
+                                        <span id="nombreLabel">Nombre</span>
+                                        <span>*</span>
+                                    </label>
+
+                                    <input
+                                        type="text"
+                                        id="nombre_razon_social"
+                                        name="nombre_razon_social"
+                                        placeholder="Nombre completo"
+                                        required
+                                    >
+
+                                </div>
+
+
+                                <!-- DPI -->
+
+                                <div class="form-group">
+
+                                    <label for="dpi">
+                                        DPI
+                                    </label>
+
+                                    <input
+                                        type="number"
+                                        id="dpi"
+                                        name="dpi"
+                                        placeholder="Ej. 1234567890101"
+                                    >
+
+                                </div>
+
+
+                                <!-- PERSONA DE CONTACTO -->
+
+                                <div class="form-group">
+
+                                    <label for="persona_contacto">
+                                        Persona de contacto
+                                    </label>
+
+                                    <input
+                                        type="text"
+                                        id="persona_contacto"
+                                        name="persona_contacto"
+                                        placeholder="Nombre de la persona de contacto"
+                                    >
+
+                                </div>
+
+
+                                <!-- TELÉFONO -->
+
+                                <div class="form-group">
+
+                                    <label for="telefono">
+                                        Teléfono
+                                    </label>
+
+                                    <input
+                                        type="number"
+                                        id="telefono"
+                                        name="telefono"
+                                        placeholder="Ej. 55551234"
+                                    >
+
+                                </div>
+
+
+                                <!-- CORREO -->
+
+                                <div class="form-group">
+
+                                    <label for="correo">
+                                        Correo
+                                    </label>
+
+                                    <input
+                                        type="email"
+                                        id="correo"
+                                        name="correo"
+                                        placeholder="correo@ejemplo.com"
+                                    >
+
+                                </div>
+
+
+                                <!-- DIRECCIÓN -->
+
+                                <div class="form-group">
+
+                                    <label for="direccion">
+                                        Dirección
+                                    </label>
+
+                                    <input
+                                        type="text"
+                                        id="direccion"
+                                        name="direccion"
+                                        placeholder="Dirección completa"
+                                    >
+
+                                </div>
+
+
+                                <!-- MUNICIPIO -->
+
+                                <div class="form-group">
+
+                                    <label for="municipio">
+                                        Municipio
+                                    </label>
+
+                                    <input
+                                        type="text"
+                                        id="municipio"
+                                        name="municipio"
+                                        placeholder="Ej. Guatemala"
+                                    >
+
+                                </div>
+
+
+                                <!-- PAÍS -->
+
+                                <div class="form-group">
+
+                                    <label for="pais">
+                                        País
+                                    </label>
+
+                                    <input
+                                        type="text"
+                                        id="pais"
+                                        name="pais"
+                                        placeholder="Ej. Guatemala"
+                                    >
+
+                                </div>
+
+
+                                <!-- FECHA DE REGISTRO (solo edición) -->
+
+                                <div class="form-group" id="fechaRegistroGroup" style="display: none;">
+
+                                    <label for="fecha_registro">
+                                        Fecha de registro
+                                    </label>
+
+                                    <input
+                                        type="date"
+                                        id="fecha_registro"
+                                        name="fecha_registro"
+                                        readonly
+                                    >
+
+                                </div>
+
+
+                                <!-- OBSERVACIONES -->
+
+                                <div class="form-group full-width">
+
+                                    <label for="observaciones">
+                                        Observaciones
+                                    </label>
+
+                                    <input
+                                        type="text"
+                                        id="observaciones"
+                                        name="observaciones"
+                                        placeholder="Observaciones adicionales"
+                                    >
+
+                                </div>
+
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="form-actions">
+
+
+                            <p
+                                id="formMessage"
+                                role="alert"
+                            ></p>
+
+
+                            <a href="patrocinadores.html" class="cancel-button">
+                                Cancelar
+                            </a>
+
+
+                            <button
+                                type="submit"
+                                class="save-button"
+                                id="submitButton"
+                            >
+                                ✓ Crear patrocinador
+                            </button>
+
+
+                        </div>
+
+
+                    </form>
+
+
+                </div>
+
+
+            </section>
+
+
+        </main>
+
+
+    </div>
+
+
+    <script src="menu.js"></script>
+    <script src="nuevoPatrocinador.js"></script>
+
+</body>
+
+</html>

@@ -136,6 +136,47 @@ async function proyectoFinalizado(idProyecto) {
 }
 
 
+/*
+Solicitado en moneda del donante = solicitado local /
+tipo de cambio del donante principal (primera fila
+activa de proyecto_patrocinador). Si no hay tipo de
+cambio, se guarda 0.
+*/
+
+async function calcularSolicitadoMonedaDonante(
+    idProyecto,
+    montoLocal
+) {
+
+    const result =
+        await pool.query(
+            `
+            SELECT tipo_cambio
+            FROM proyecto_patrocinador
+            WHERE id_proyecto = $1
+                AND estado = TRUE
+            ORDER BY id_proyecto_patrocinador
+            LIMIT 1
+            `,
+            [idProyecto]
+        );
+
+
+    const tc =
+        result.rows.length > 0
+            ? Number(result.rows[0].tipo_cambio)
+            : 0;
+
+
+    if (!(tc > 0)) {
+        return 0;
+    }
+
+
+    return Math.round((montoLocal / tc) * 100) / 100;
+}
+
+
 async function listarGastosEsperados(
     req,
     res
@@ -349,6 +390,15 @@ async function crearGastoEsperado(
         }
 
 
+        // El solicitado en moneda del donante siempre se
+        // recalcula con el tipo de cambio del donante.
+        valores[5] =
+            await calcularSolicitadoMonedaDonante(
+                valores[0],
+                valores[4]
+            );
+
+
         let result;
 
         try {
@@ -467,6 +517,15 @@ async function editarGastoEsperado(
             });
 
         }
+
+
+        // El solicitado en moneda del donante siempre se
+        // recalcula con el tipo de cambio del donante.
+        valores[5] =
+            await calcularSolicitadoMonedaDonante(
+                valores[0],
+                valores[4]
+            );
 
 
         let result;

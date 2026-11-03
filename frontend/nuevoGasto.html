@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 
 <head>
@@ -134,6 +134,19 @@
 
                     <span>
                         Cerrar sesión
+                    </span>
+
+                </a>
+
+
+                <a href="informacion-sistema.html" class="menu-item">
+
+                    <span class="icon">
+                        ℹ️
+                    </span>
+
+                    <span>
+                        Información del sistema
                     </span>
 
                 </a>
@@ -496,22 +509,6 @@
 
                                 <div class="form-group full-width">
 
-                                    <label for="descripcion">
-                                        Descripción
-                                    </label>
-
-                                    <input
-                                        type="text"
-                                        id="descripcion"
-                                        name="descripcion"
-                                        placeholder="Descripción del gasto"
-                                    >
-
-                                </div>
-
-
-                                <div class="form-group full-width">
-
                                     <label for="razon_denominacion_social">
                                         Razón / denominación social
                                     </label>
@@ -521,6 +518,22 @@
                                         id="razon_denominacion_social"
                                         name="razon_denominacion_social"
                                         placeholder="Razón social del emisor"
+                                    >
+
+                                </div>
+
+
+                                <div class="form-group full-width">
+
+                                    <label for="descripcion">
+                                        Descripción
+                                    </label>
+
+                                    <input
+                                        type="text"
+                                        id="descripcion"
+                                        name="descripcion"
+                                        placeholder="Descripción del gasto"
                                     >
 
                                 </div>
@@ -653,24 +666,6 @@
 
                                 <div class="form-group">
 
-                                    <label for="total_valor_base">
-                                        Total valor base
-                                    </label>
-
-                                    <input
-                                        type="number"
-                                        id="total_valor_base"
-                                        name="total_valor_base"
-                                        min="0"
-                                        step="0.01"
-                                        placeholder="Ej. 1000.00"
-                                    >
-
-                                </div>
-
-
-                                <div class="form-group">
-
                                     <label for="total_del_gasto">
                                         Total del gasto
                                     </label>
@@ -679,9 +674,8 @@
                                         type="number"
                                         id="total_del_gasto"
                                         name="total_del_gasto"
-                                        min="0"
-                                        step="0.01"
-                                        placeholder="Ej. 1120.00"
+                                        readonly
+                                        placeholder="Se calcula automáticamente"
                                     >
 
                                 </div>

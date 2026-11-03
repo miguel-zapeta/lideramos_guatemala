@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Información del sistema - Panel Administrativo</title>
+
+    <link rel="stylesheet" href="usuarios.css">
+
+    <style>
+        .logos-header {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 28px;
+            margin: 24px 0 32px;
+        }
+
+        .logos-header img {
+            max-height: 90px;
+            width: auto;
+        }
+
+        .info-card {
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 28px 32px;
+            max-width: 720px;
+            margin: 0 auto;
+        }
+
+        .info-card h2 {
+            margin: 0 0 18px;
+            font-size: 20px;
+        }
+
+        .info-fila {
+            display: flex;
+            gap: 10px;
+            padding: 9px 0;
+            border-bottom: 1px solid var(--light-gray);
+            font-size: 14px;
+        }
+
+        .info-fila:last-child {
+            border-bottom: none;
+        }
+
+        .info-etiqueta {
+            font-weight: bold;
+            color: var(--dark);
+            min-width: 170px;
+        }
+
+        .info-valor {
+            color: var(--gray);
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- =========================
+         PANEL PRINCIPAL
+         ========================= -->
+
+    <div class="dashboard">
+
+        <!-- =========================
+             MENÚ LATERAL
+             ========================= -->
+
+        <aside class="sidebar">
+
+            <div class="sidebar-header">
+
+                <img src="Lideramos.png" alt="Logo de la organización" class="sidebar-logo" >
+
+            </div>
+
+
+            <!-- MENÚ -->
+
+            <nav class="menu">
+
+                <a href="usuarios.html" class="menu-item" data-modulo="usuarios">
+
+                    <span class="icon">👥</span>
+
+                    <span>Usuarios</span>
+
+                </a>
+
+
+                <a href="voluntarios.html" class="menu-item" data-modulo="voluntarios">
+
+                    <span class="icon">🤝</span>
+
+                    <span>Voluntarios</span>
+
+                </a>
+
+
+                <a href="finanzas.html" class="menu-item" data-modulo="finanzas">
+
+                    <span class="icon">💰</span>
+
+                    <span>Finanzas</span>
+
+                </a>
+
+
+                <a href="actividades.html" class="menu-item" data-modulo="actividades">
+
+                    <span class="icon">📅</span>
+
+                    <span>Actividades</span>
+
+                </a>
+
+
+                <a href="archivos.html" class="menu-item" data-modulo="reportes">
+
+                    <span class="icon">📁</span>
+
+                    <span>Archivos</span>
+
+                </a>
+
+                <a href="publicaciones.html" class="menu-item" data-modulo="publicaciones">
+
+                    <span class="icon">📰</span>
+
+                    <span>Publicaciones</span>
+
+                </a>
+
+            </nav>
+
+
+            <!-- PARTE INFERIOR DEL MENÚ -->
+
+            <div class="sidebar-bottom">
+
+                <a href="#" class="menu-item" data-modulo="configuracion">
+
+                    <span class="icon">⚙️</span>
+
+                    <span>Configuración</span>
+
+                </a>
+
+                <a href="#" class="menu-item logout">
+
+                    <span class="icon">↪</span>
+
+                    <span>Cerrar sesión</span>
+
+                </a>
+
+                <a href="informacion-sistema.html" class="menu-item active">
+
+                    <span class="icon">ℹ️</span>
+
+                    <span>Información del sistema</span>
+
+                </a>
+
+            </div>
+
+        </aside>
+
+
+        <!-- =========================
+             CONTENIDO
+             ========================= -->
+
+        <main class="main-content">
+
+            <!-- BARRA SUPERIOR -->
+
+            <header class="topbar">
+
+                <div class="page-title">
+
+                    <h1>Información del sistema</h1>
+
+                    <p>Detalles y datos de contacto del sistema</p>
+
+                </div>
+
+
+                <div class="admin-profile">
+
+                    <div
+                        class="admin-avatar"
+                        id="currentUserAvatar"
+                    >
+                        US
+                    </div>
+
+                    <div class="admin-info">
+
+                        <strong id="currentUserName">
+                            Usuario
+                        </strong>
+
+                        <span id="currentUserRole">
+                            Rol
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </header>
+
+
+            <!-- CONTENIDO -->
+
+            <section class="content">
+
+
+                <!-- LOGOS -->
+
+                <div class="logos-header">
+
+                    <img src="Lideramos.png" alt="Logotipo de Lideramos Guatemala">
+
+                    <img src="Umg.png" alt="Logo de la Universidad Mariano Gálvez">
+
+                </div>
+
+
+                <!-- INFORMACIÓN -->
+
+                <div class="info-card">
+
+                    <h2>Acerca del sistema</h2>
+
+                    <div class="info-fila">
+                        <span class="info-etiqueta">Acerca del sistema:</span>
+                        <span class="info-valor">PLATAFORMA WEB PARA MANEJO DE ACTIVIDADES FINANZAS Y VISUALIZACION DE RESULTADOS DE LA ONG LIDERAMOS GUATEMALA</span>
+                    </div>
+
+                    <div class="info-fila">
+                        <span class="info-etiqueta">Desarrollador:</span>
+                        <span class="info-valor">Edgar Zapeta</span>
+                    </div>
+
+                    <div class="info-fila">
+                        <span class="info-etiqueta">Curso:</span>
+                        <span class="info-valor">Proyecto de Graduacion II</span>
+                    </div>
+
+                    <div class="info-fila">
+                        <span class="info-etiqueta">Organización:</span>
+                        <span class="info-valor">Lideramos Guatemala</span>
+                    </div>
+
+                    <div class="info-fila">
+                        <span class="info-etiqueta">Contacto:</span>
+                        <span class="info-valor">4512-4996</span>
+                    </div>
+
+                    <div class="info-fila">
+                        <span class="info-etiqueta">Fecha de versión:</span>
+                        <span class="info-valor">03/11/2026</span>
+                    </div>
+
+                    <div class="info-fila">
+                        <span class="info-etiqueta">Versión:</span>
+                        <span class="info-valor">1.2</span>
+                    </div>
+
+                </div>
+
+            </section>
+
+        </main>
+
+    </div>
+
+    <script src="menu.js"></script>
+    <script src="informacion-sistema.js"></script>
+
+</body>
+
+</html>

@@ -544,14 +544,12 @@ function exportarExcel() {
         "Fecha inicio": formatoFecha(p.fecha_inicio),
         "Fecha finalización": formatoFecha(p.fecha_finalizacion),
         "Estado": p.estado,
-        "Subvención": p.subvencion,
-        "Fecha tipo cambio": formatoFecha(p.fecha_tipo_cambio),
-        "Tipo cambio": p.tipo_cambio,
-        "Fuente tipo cambio": p.fuente_tipo_cambio,
+        "Subvención en moneda del donante (total)": p.subvencion,
         "Gastos ejecutados": p.total_gastos_ejecutados,
-        "Solicitado Rise Up": p.monto_total_solicitado_rise_up,
-        "Subvención total": p.monto_total_subvencion,
-        "Diferencia": p.diferencia_entre_solicitado_y_subvencion
+        "Cantidad solicitada en moneda del donante (total)": p.monto_total_solicitado_rise_up,
+        "Subvención en moneda nacional (total)": p.monto_total_subvencion,
+        "Diferencia solicitado/subvención (total)": p.diferencia_entre_solicitado_y_subvencion,
+        "Patrocinadores": p.ente_patrocinador
     }));
 
 

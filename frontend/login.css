@@ -87,6 +87,19 @@ body {
     display: block;
 }
 
+.logos-row {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 24px;
+    margin-bottom: 20px;
+}
+
+.logos-row .logo-img {
+    margin: 0;
+    display: inline-block;
+}
+
 .login-header h1 {
     color: var(--color-dark);
     font-size: 30px;

@@ -16,11 +16,24 @@ let gastosEsperados = [];
 let gastoEditId = null;
 let gastosListenersOk = false;
 
+let donantes = [];
+let donanteEditId = null;
+let donantesListenersOk = false;
+let donantePrincipal = null;
+
 let paginaGastosActual = 1;
+let paginaDonantesActual = 1;
 
 const LIMITE_PAGINA = 20;
 
 let metaGastosActual = {
+    total: 0,
+    pagina: 1,
+    limite: 20,
+    totalPaginas: 1
+};
+
+let metaDonantesActual = {
     total: 0,
     pagina: 1,
     limite: 20,
@@ -32,37 +45,19 @@ const CAMPOS = [
     "nombre",
     "fecha_inicio",
     "fecha_finalizacion",
-    "subvencion",
-    "fecha_tipo_cambio",
-    "tipo_cambio",
-    "fuente_tipo_cambio",
-    "total_gastos_ejecutados",
-    "monto_total_solicitado_rise_up",
-    "monto_total_subvencion",
-    "diferencia_entre_solicitado_y_subvencion",
     "gestora_del_proyecto",
-    "ente_patrocinador",
     "asociacion_gestora"
 ];
 
-const CAMPOS_NUMERO = [
-    "subvencion",
-    "tipo_cambio",
-    "total_gastos_ejecutados",
-    "monto_total_solicitado_rise_up",
-    "monto_total_subvencion",
-    "diferencia_entre_solicitado_y_subvencion"
-];
+const CAMPOS_NUMERO = [];
 
 const CAMPOS_FECHA = [
     "fecha_inicio",
-    "fecha_finalizacion",
-    "fecha_tipo_cambio"
+    "fecha_finalizacion"
 ];
 
 const CAMPOS_TEXTO = [
     "gestora_del_proyecto",
-    "ente_patrocinador",
     "asociacion_gestora"
 ];
 
@@ -364,12 +359,6 @@ async function guardarProyecto(event) {
     }
 
 
-    const fuente =
-        document.getElementById("fuente_tipo_cambio").value.trim();
-
-    body.fuente_tipo_cambio = fuente === "" ? null : fuente;
-
-
     for (const id of CAMPOS_TEXTO) {
 
         const texto =
@@ -552,6 +541,7 @@ async function init() {
             estadoActual !== "finalizado";
 
         initGastosEsperados(puedeGestionar);
+        initDonantes(puedeGestionar);
 
 
         if (estadoActual === "finalizado") {
@@ -589,6 +579,10 @@ async function init() {
                 setSoloLectura(false);
 
                 initGastosEsperados(
+                    permisos.includes("finanzas.editar")
+                );
+
+                initDonantes(
                     permisos.includes("finanzas.editar")
                 );
             });
@@ -680,6 +674,50 @@ async function cargarCategoriasGe() {
 
         select.innerHTML =
             `<option value="">No se pudieron cargar las categorías</option>`;
+    }
+}
+
+
+async function cargarDonantesOpciones() {
+
+    const select =
+        document.getElementById("dp_donante");
+
+    try {
+
+        const response =
+            await fetch(
+                "/api/patrocinadores/opciones",
+                {
+                    method: "GET",
+                    credentials: "include"
+                }
+            );
+
+        if (!response.ok) {
+            throw new Error("patrocinadores");
+        }
+
+        const data =
+            await response.json();
+
+        const lista = data.patrocinadores || [];
+
+        select.innerHTML =
+            `<option value="">Seleccione un patrocinador</option>` +
+            lista.map((p) =>
+                `<option value="${p.id_patrocinador}">${escapeHtml(p.nombre_razon_social)}</option>`
+            ).join("");
+
+    } catch (error) {
+
+        console.error(
+            "Error cargando patrocinadores:",
+            error
+        );
+
+        select.innerHTML =
+            `<option value="">No se pudieron cargar los patrocinadores</option>`;
     }
 }
 
@@ -903,7 +941,10 @@ function rellenarSubformGasto(g) {
     document.getElementById("ge_costo").value = g.costo_por_unidad_moneda_local;
     document.getElementById("ge_unidades").value = g.numero_de_unidades;
     document.getElementById("ge_local").value = g.monto_solicitado_rise_up_moneda_local;
-    document.getElementById("ge_usd").value = g.monto_solicitado_rise_up_usd;
+
+    // El solicitado en moneda del donante siempre se
+    // recalcula con el tipo de cambio del donante.
+    autoRellenarSolicitadoMoneda();
 }
 
 
@@ -997,6 +1038,107 @@ function autoRellenarSolicitadoLocal() {
 
     document.getElementById("ge_local").value =
         (costo * unidades).toFixed(2);
+
+    autoRellenarSolicitadoMoneda();
+}
+
+
+/*
+Solicitado en moneda del donante = solicitado local /
+tipo de cambio del donante principal (primera fila
+activa de los patrocinadores del proyecto).
+*/
+
+async function obtenerDonantePrincipal() {
+
+    try {
+
+        const response =
+            await fetch(
+                `/api/proyecto-patrocinadores?id_proyecto=${editId}&exportar=1`,
+                {
+                    method: "GET",
+                    credentials: "include"
+                }
+            );
+
+        if (!response.ok) {
+            throw new Error("donantes");
+        }
+
+        const data =
+            await response.json();
+
+        const filas = (data.proyecto_patrocinadores || [])
+            .slice()
+            .sort((a, b) =>
+                a.id_proyecto_patrocinador - b.id_proyecto_patrocinador
+            );
+
+        donantePrincipal = filas[0] || null;
+
+    } catch (error) {
+
+        console.error(
+            "Error cargando donante principal:",
+            error
+        );
+
+        donantePrincipal = null;
+    }
+
+
+    actualizarEtiquetasMonedaDonante();
+    autoRellenarSolicitadoMoneda();
+}
+
+
+function monedaDonante() {
+
+    return (donantePrincipal && donantePrincipal.tipo_moneda) || "";
+}
+
+
+function actualizarEtiquetasMonedaDonante() {
+
+    const moneda = monedaDonante();
+
+    const texto = moneda
+        ? `Solicitado ${moneda}`
+        : "Solicitado (moneda del donante)";
+
+    const th =
+        document.getElementById("thGeSolicitadoMoneda");
+
+    if (th) th.textContent = texto;
+
+    const etiqueta =
+        document.getElementById("geUsdLabel");
+
+    if (etiqueta) etiqueta.textContent = texto;
+}
+
+
+function autoRellenarSolicitadoMoneda() {
+
+    const local = leerMontoGasto("ge_local");
+
+    const tc =
+        donantePrincipal
+            ? Number(donantePrincipal.tipo_cambio)
+            : 0;
+
+
+    if (local === false || !(tc > 0)) {
+
+        document.getElementById("ge_usd").value = "";
+
+        return;
+    }
+
+
+    document.getElementById("ge_usd").value =
+        (local / tc).toFixed(2);
 }
 
 
@@ -1210,11 +1352,16 @@ function initGastosEsperados(gestionar) {
         document
             .getElementById("ge_unidades")
             .addEventListener("input", autoRellenarSolicitadoLocal);
+
+        document
+            .getElementById("ge_local")
+            .addEventListener("input", autoRellenarSolicitadoMoneda);
     }
 
 
     cargarCategoriasGe();
     cargarGastosEsperados();
+    obtenerDonantePrincipal();
 
 
     const verInactivosGE =
@@ -1228,6 +1375,656 @@ function initGastosEsperados(gestionar) {
             () => {
                 paginaGastosActual = 1;
                 cargarGastosEsperados();
+            }
+        );
+
+    }
+}
+
+
+/*
+=========================================
+PATROCINADORES DEL PROYECTO
+=========================================
+*/
+
+function puedeGestionarDonantes() {
+
+    return (
+        document.getElementById("agregarDonanteButton").style.display !== "none"
+    );
+}
+
+
+function mostrarMensajeDonante(texto, esError) {
+
+    const el =
+        document.getElementById("donanteMessage");
+
+    if (!el) return;
+
+    el.textContent = texto;
+    el.style.color = esError ? "#d23c78" : "green";
+}
+
+
+async function cargarDonantes() {
+
+    const tbody =
+        document.getElementById("donantesTbody");
+
+    try {
+
+        const verInactivos =
+            document.getElementById("verInactivosDP")?.checked;
+
+        const params =
+            new URLSearchParams({
+                id_proyecto: String(editId),
+                pagina: String(paginaDonantesActual),
+                limite: String(LIMITE_PAGINA)
+            });
+
+        if (verInactivos) {
+            params.set("ver_inactivos", "1");
+        }
+
+        const response =
+            await fetch(
+                `/api/proyecto-patrocinadores?${params.toString()}`,
+                {
+                    method: "GET",
+                    credentials: "include"
+                }
+            );
+
+
+        if (response.status === 401) {
+
+            window.location.replace(
+                "/login.html"
+            );
+
+            return;
+        }
+
+
+        if (!response.ok) {
+            throw new Error("carga");
+        }
+
+
+        const data =
+            await response.json();
+
+        donantes =
+            data.proyecto_patrocinadores || [];
+
+        metaDonantesActual = {
+            total: data.total || 0,
+            pagina: data.pagina || 1,
+            limite: data.limite || LIMITE_PAGINA,
+            totalPaginas: data.totalPaginas || 1
+        };
+
+
+        renderDonantes();
+
+
+    } catch (error) {
+
+        console.error(
+            "Error cargando donantes:",
+            error
+        );
+
+        tbody.innerHTML =
+            `<tr><td colspan="12">Error al cargar patrocinadores.</td></tr>`;
+    }
+}
+
+
+function renderDonantes() {
+
+    const tbody =
+        document.getElementById("donantesTbody");
+
+    const gestionar = puedeGestionarDonantes();
+
+
+    renderPaginacion({
+        contenedorId: "donantesPagination",
+        pagina: metaDonantesActual.pagina,
+        totalPaginas: metaDonantesActual.totalPaginas,
+        onCambiar: (nuevaPagina) => {
+            paginaDonantesActual = nuevaPagina;
+            cargarDonantes();
+        }
+    });
+
+
+    if (donantes.length === 0) {
+
+        if (metaDonantesActual.total > 0 && metaDonantesActual.pagina > 1) {
+            paginaDonantesActual = metaDonantesActual.pagina - 1;
+            cargarDonantes();
+            return;
+        }
+
+        tbody.innerHTML =
+            `<tr><td colspan="12">Sin patrocinadores registrados.</td></tr>`;
+
+        return;
+    }
+
+
+    tbody.innerHTML = donantes.map((d) => {
+
+        const estadoClass = d.estado ? "active" : "inactive";
+        const estadoTexto = d.estado ? "Activo" : "Inactivo";
+
+        return `
+            <tr>
+                <td>${escapeHtml(d.donante) || "—"}</td>
+                <td>${escapeHtml(d.tipo_moneda) || "—"}</td>
+                <td>${escapeHtml(d.tipo_aporte) || "—"}</td>
+                <td>${d.tipo_cambio ?? "—"}</td>
+                <td>${escapeHtml(d.fecha_tipo_cambio) || "—"}</td>
+                <td>${escapeHtml(d.fuente_tipo_cambio) || "—"}</td>
+                <td>${Number(d.subvencion_moneda_donante).toFixed(2)}</td>
+                <td>${Number(d.cantidad_solicitada_moneda_donante).toFixed(2)}</td>
+                <td>${Number(d.subvencion_moneda_nacional).toFixed(2)}</td>
+                <td>${Number(d.diferencia_solicitado_subvencion).toFixed(2)}</td>
+                <td><span class="status ${estadoClass}">${estadoTexto}</span></td>
+                <td>
+                    <div class="actions">
+                        ${gestionar ? `
+                        <button class="action edit" title="Editar" data-dp-editar="${d.id_proyecto_patrocinador}">
+                            ✏️
+                        </button>
+                        <button
+                            class="action ${d.estado ? "delete" : "edit"}"
+                            title="${d.estado ? "Desactivar" : "Activar"}"
+                            data-dp-id="${d.id_proyecto_patrocinador}"
+                            data-dp-estado="${!d.estado}"
+                        >
+                            ${d.estado ? "🗑️" : "✓"}
+                        </button>` : "—"}
+                    </div>
+                </td>
+            </tr>`;
+    }).join("");
+
+
+    tbody.querySelectorAll("button[data-dp-editar]").forEach((btn) => {
+
+        btn.addEventListener("click", () => {
+
+            mostrarSubformDonante(Number(btn.dataset.dpEditar));
+        });
+    });
+
+
+    tbody.querySelectorAll("button[data-dp-id]").forEach((btn) => {
+
+        btn.addEventListener("click", () => {
+
+            cambiarEstadoDonante(
+                Number(btn.dataset.dpId),
+                btn.dataset.dpEstado === "true"
+            );
+        });
+    });
+}
+
+
+function mostrarSubformDonante(id) {
+
+    donanteEditId = id || null;
+
+    const form =
+        document.getElementById("donanteForm");
+
+    form.style.display = "";
+
+    mostrarMensajeDonante("", false);
+
+
+    if (id) {
+
+        const d = donantes.find(
+            (x) => x.id_proyecto_patrocinador === id
+        );
+
+        if (!d) {
+
+            cargarDonantePorId(id);
+
+            return;
+        }
+
+        rellenarSubformDonante(d);
+
+    } else {
+
+        for (const campo of [
+            "dp_donante",
+            "dp_moneda",
+            "dp_aporte",
+            "dp_tipo_cambio",
+            "dp_fecha_tipo_cambio",
+            "dp_fuente_tipo_cambio",
+            "dp_subvencion",
+            "dp_solicitado",
+            "dp_subvencion_nacional",
+            "dp_diferencia"
+        ]) {
+            document.getElementById(campo).value = "";
+        }
+    }
+}
+
+
+function rellenarSubformDonante(d) {
+
+    const select =
+        document.getElementById("dp_donante");
+
+    // Si el patrocinador está inactivo no viene en
+    // /opciones; se añade para poder verlo al editar.
+    const valor = String(d.id_patrocinador);
+
+    const existe =
+        Array.from(select.options).some((o) => o.value === valor);
+
+    if (!existe) {
+
+        const opcion =
+            document.createElement("option");
+
+        opcion.value = valor;
+        opcion.textContent =
+            `${d.donante || "Patrocinador"} (inactivo)`;
+
+        select.appendChild(opcion);
+    }
+
+    select.value = valor;
+
+    document.getElementById("dp_moneda").value = d.tipo_moneda || "";
+    document.getElementById("dp_aporte").value = d.tipo_aporte || "";
+    document.getElementById("dp_tipo_cambio").value =
+        d.tipo_cambio === null || d.tipo_cambio === undefined ? "" : d.tipo_cambio;
+    document.getElementById("dp_fecha_tipo_cambio").value =
+        d.fecha_tipo_cambio || "";
+    document.getElementById("dp_fuente_tipo_cambio").value =
+        d.fuente_tipo_cambio || "";
+    document.getElementById("dp_subvencion").value = d.subvencion_moneda_donante;
+    document.getElementById("dp_solicitado").value = d.cantidad_solicitada_moneda_donante;
+
+    autoRellenarDonante();
+}
+
+
+async function cargarDonantePorId(id) {
+
+    try {
+
+        const response =
+            await fetch(
+                `/api/proyecto-patrocinadores/${id}`,
+                {
+                    method: "GET",
+                    credentials: "include"
+                }
+            );
+
+        if (response.status === 401) {
+
+            window.location.replace("/login.html");
+
+            return;
+        }
+
+        if (!response.ok) {
+            throw new Error("carga");
+        }
+
+        const data =
+            await response.json();
+
+        if (data.proyecto_patrocinador) {
+            rellenarSubformDonante(data.proyecto_patrocinador);
+        }
+
+    } catch (error) {
+
+        console.error(
+            "Error cargando donante:",
+            error
+        );
+
+        mostrarMensajeDonante(
+            "No se pudo cargar el patrocinador.",
+            true
+        );
+    }
+}
+
+
+function leerMontoDonante(id) {
+
+    const raw =
+        document.getElementById(id).value.trim();
+
+    if (raw === "") {
+        return 0;
+    }
+
+    const n = Number(raw);
+
+    if (!Number.isFinite(n) || n < 0) {
+        return false;
+    }
+
+    return n;
+}
+
+
+function autoRellenarDonante() {
+
+    const subvencion = leerMontoDonante("dp_subvencion");
+    const solicitado = leerMontoDonante("dp_solicitado");
+
+    const tipoCambio =
+        Number(document.getElementById("dp_tipo_cambio").value) || 0;
+
+
+    if (subvencion !== false && solicitado !== false) {
+
+        document.getElementById("dp_subvencion_nacional").value =
+            (subvencion * tipoCambio).toFixed(2);
+
+        document.getElementById("dp_diferencia").value =
+            (solicitado - subvencion).toFixed(2);
+    }
+}
+
+
+async function guardarDonante() {
+
+    const id_patrocinador =
+        Number(document.getElementById("dp_donante").value);
+
+
+    if (!Number.isInteger(id_patrocinador)) {
+
+        mostrarMensajeDonante("El patrocinador es obligatorio.", true);
+
+        return;
+    }
+
+
+    const body = {
+        id_proyecto: editId,
+        id_patrocinador
+    };
+
+
+    body.tipo_moneda =
+        document.getElementById("dp_moneda").value || null;
+
+    if (!body.tipo_moneda) {
+
+        mostrarMensajeDonante("El tipo de moneda es obligatorio.", true);
+
+        return;
+    }
+
+    body.tipo_aporte =
+        document.getElementById("dp_aporte").value || null;
+
+    if (!body.tipo_aporte) {
+
+        mostrarMensajeDonante("El tipo de aporte es obligatorio.", true);
+
+        return;
+    }
+
+    body.tipo_cambio =
+        leerMontoDonante("dp_tipo_cambio");
+
+    if (body.tipo_cambio === false) {
+
+        mostrarMensajeDonante(
+            "El tipo de cambio debe ser un número mayor o igual a 0.",
+            true
+        );
+
+        return;
+    }
+
+    body.fecha_tipo_cambio =
+        document.getElementById("dp_fecha_tipo_cambio").value || null;
+
+    body.fuente_tipo_cambio =
+        document.getElementById("dp_fuente_tipo_cambio").value.trim() || null;
+
+
+    for (const campo of [
+        "dp_subvencion",
+        "dp_solicitado"
+    ]) {
+
+        const valor = leerMontoDonante(campo);
+
+        if (valor === false) {
+
+            mostrarMensajeDonante(
+                "Los montos deben ser números mayores o iguales a 0.",
+                true
+            );
+
+            return;
+        }
+
+        if (campo === "dp_subvencion" && valor <= 0) {
+
+            mostrarMensajeDonante(
+                "La subvención en moneda del donante es obligatoria y debe ser mayor a 0.",
+                true
+            );
+
+            return;
+        }
+
+        body[{
+            "dp_subvencion": "subvencion_moneda_donante",
+            "dp_solicitado": "cantidad_solicitada_moneda_donante"
+        }[campo]] = valor;
+    }
+
+
+    const url =
+        donanteEditId === null
+            ? "/api/proyecto-patrocinadores"
+            : `/api/proyecto-patrocinadores/${donanteEditId}`;
+
+    const method =
+        donanteEditId === null ? "POST" : "PUT";
+
+
+    try {
+
+        const response =
+            await fetch(
+                url,
+                {
+                    method,
+
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+
+                    credentials: "include",
+
+                    body: JSON.stringify(body)
+                }
+            );
+
+        const data =
+            await response.json().catch(() => ({}));
+
+
+        if (response.status === 401) {
+
+            window.location.replace("/login.html");
+
+            return;
+        }
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                data.message || "No se pudo guardar el patrocinador."
+            );
+        }
+
+
+        document.getElementById("donanteForm").style.display = "none";
+
+        const eraNuevo = donanteEditId === null;
+
+        donanteEditId = null;
+
+        mostrarMensajeDonante(
+            eraNuevo
+                ? "Patrocinador registrado."
+                : "Patrocinador actualizado.",
+            false
+        );
+
+        if (eraNuevo) {
+            paginaDonantesActual = 1;
+        }
+
+        await cargarDonantes();
+        await obtenerDonantePrincipal();
+
+
+    } catch (error) {
+
+        console.error(error);
+
+        mostrarMensajeDonante(error.message, true);
+    }
+}
+
+
+async function cambiarEstadoDonante(id, estado) {
+
+    try {
+
+        const response =
+            await fetch(
+                `/api/proyecto-patrocinadores/${id}/estado`,
+                {
+                    method: "PATCH",
+
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+
+                    credentials: "include",
+
+                    body: JSON.stringify({ estado })
+                }
+            );
+
+
+        if (!response.ok) {
+
+            const data =
+                await response.json().catch(() => ({}));
+
+            throw new Error(
+                data.message || "No se pudo actualizar el estado."
+            );
+        }
+
+
+        await cargarDonantes();
+        await obtenerDonantePrincipal();
+
+
+    } catch (error) {
+
+        console.error(error);
+
+        alert(error.message);
+    }
+}
+
+
+function initDonantes(gestionar) {
+
+    document.getElementById("donantesSection").style.display = "";
+
+    document.getElementById("agregarDonanteButton").style.display =
+        gestionar ? "" : "none";
+
+
+    if (!donantesListenersOk) {
+
+        donantesListenersOk = true;
+
+        document
+            .getElementById("agregarDonanteButton")
+            .addEventListener("click", () => mostrarSubformDonante(null));
+
+        document
+            .getElementById("cancelarDonanteButton")
+            .addEventListener("click", () => {
+
+                document.getElementById("donanteForm").style.display = "none";
+
+                donanteEditId = null;
+            });
+
+        document
+            .getElementById("guardarDonanteButton")
+            .addEventListener("click", guardarDonante);
+
+        document
+            .getElementById("dp_subvencion")
+            .addEventListener("input", autoRellenarDonante);
+
+        document
+            .getElementById("dp_solicitado")
+            .addEventListener("input", autoRellenarDonante);
+
+        document
+            .getElementById("dp_tipo_cambio")
+            .addEventListener("input", autoRellenarDonante);
+    }
+
+
+    cargarDonantesOpciones();
+    cargarDonantes();
+
+
+    const verInactivosDP =
+        document.getElementById("verInactivosDP");
+
+
+    if (verInactivosDP) {
+
+        verInactivosDP.addEventListener(
+            "change",
+            () => {
+                paginaDonantesActual = 1;
+                cargarDonantes();
             }
         );
 
@@ -1287,21 +2084,89 @@ async function exportarProyecto() {
             ["Fecha de inicio", fechaCortaExport(p.fecha_inicio)],
             ["Fecha de finalización", fechaCortaExport(p.fecha_finalizacion)],
             ["Estado", p.estado],
-            ["Subvención", p.subvencion],
-            ["Fecha tipo de cambio", fechaCortaExport(p.fecha_tipo_cambio)],
-            ["Tipo de cambio", p.tipo_cambio],
-            ["Fuente tipo de cambio", p.fuente_tipo_cambio],
+            ["Subvención en moneda del donante (total)", p.subvencion],
             ["Gastos ejecutados", p.total_gastos_ejecutados],
-            ["Solicitado Rise Up", p.monto_total_solicitado_rise_up],
-            ["Subvención total", p.monto_total_subvencion],
-            ["Diferencia", p.diferencia_entre_solicitado_y_subvencion],
+            ["Cantidad solicitada en moneda del donante (total)", p.monto_total_solicitado_rise_up],
+            ["Subvención en moneda nacional (total)", p.monto_total_subvencion],
+            ["Diferencia solicitado/subvención (total)", p.diferencia_entre_solicitado_y_subvencion],
             ["Gestora del proyecto", p.gestora_del_proyecto],
-            ["Ente patrocinador", p.ente_patrocinador],
+            ["Patrocinadores", p.ente_patrocinador],
             ["Asociación gestora", p.asociacion_gestora],
-            [],
-            ["GASTOS ESPERADOS"],
-            ["ID", "Categoría", "Costo/u local", "N.º unidades", "Solicitado local", "Solicitado USD", "Estado"]
+            []
         ];
+
+
+        const verInactivosExportDp =
+            document.getElementById("verInactivosDP")?.checked;
+
+        const paramsDp =
+            new URLSearchParams({
+                id_proyecto: String(editId),
+                exportar: "1"
+            });
+
+        if (verInactivosExportDp) {
+            paramsDp.set("ver_inactivos", "1");
+        }
+
+        const respDp =
+            await fetch(
+                `/api/proyecto-patrocinadores?${paramsDp.toString()}`,
+                {
+                    method: "GET",
+                    credentials: "include"
+                }
+            );
+
+        if (!respDp.ok) {
+            throw new Error("No se pudieron obtener los patrocinadores.");
+        }
+
+        const dataDp =
+            await respDp.json();
+
+        const donantesExport = dataDp.proyecto_patrocinadores || [];
+
+        tabla.push(["PATROCINADORES"]);
+        tabla.push([
+            "ID", "Patrocinador", "Tipo de moneda", "Tipo de aporte",
+            "Tipo de cambio", "Fecha TC", "Fuente TC",
+            "Subvención moneda donante", "Solicitado moneda donante",
+            "Subvención moneda nacional", "Diferencia", "Estado"
+        ]);
+
+        if (donantesExport.length === 0) {
+
+            tabla.push(["Sin patrocinadores registrados"]);
+
+        } else {
+
+            for (const d of donantesExport) {
+
+                tabla.push([
+                    d.id_proyecto_patrocinador,
+                    d.donante,
+                    d.tipo_moneda,
+                    d.tipo_aporte,
+                    d.tipo_cambio,
+                    d.fecha_tipo_cambio,
+                    d.fuente_tipo_cambio,
+                    d.subvencion_moneda_donante,
+                    d.cantidad_solicitada_moneda_donante,
+                    d.subvencion_moneda_nacional,
+                    d.diferencia_solicitado_subvencion,
+                    d.estado ? "Activo" : "Inactivo"
+                ]);
+            }
+        }
+
+
+        tabla.push([]);
+        tabla.push(["GASTOS ESPERADOS"]);
+        tabla.push([
+            "ID", "Categoría", "Costo/u local", "N.º unidades", "Solicitado local",
+            `Solicitado ${monedaDonante() || "(moneda del donante)"}`, "Estado"
+        ]);
 
 
         const verInactivosExport =
@@ -1360,8 +2225,9 @@ async function exportarProyecto() {
             XLSX.utils.aoa_to_sheet(tabla);
 
         hoja["!cols"] = [
-            { wch: 24 }, { wch: 30 }, { wch: 14 }, { wch: 14 },
-            { wch: 18 }, { wch: 16 }, { wch: 12 }
+            { wch: 8 }, { wch: 28 }, { wch: 12 }, { wch: 12 },
+            { wch: 12 }, { wch: 12 }, { wch: 18 }, { wch: 22 },
+            { wch: 22 }, { wch: 22 }, { wch: 14 }, { wch: 10 }
         ];
 
         const libro = XLSX.utils.book_new();

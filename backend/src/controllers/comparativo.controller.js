@@ -54,15 +54,6 @@ async function generarReporteComparativo(
         const idProyecto =
             Number(req.query.id_proyecto);
 
-        const tipoCambio =
-            Number(req.query.tipo_cambio);
-
-        const fechaTipoCambio =
-            validarFecha(req.query.fecha_tipo_cambio);
-
-        const fuenteTipoCambio =
-            validarTexto(req.query.fuente_tipo_cambio);
-
 
         if (!Number.isInteger(idProyecto)) {
 
@@ -73,28 +64,71 @@ async function generarReporteComparativo(
         }
 
 
-        if (
-            req.query.tipo_cambio === undefined ||
-            req.query.tipo_cambio === null ||
-            req.query.tipo_cambio === "" ||
-            !Number.isFinite(tipoCambio) ||
-            tipoCambio <= 0
-        ) {
+        // El tipo de cambio se toma de la información del
+        // patrocinador dentro del proyecto, no de parámetros.
+        const patrocinadores =
+            await pool.query(
+                `
+                SELECT
+                    pa.nombre_razon_social,
+                    pp.tipo_moneda,
+                    pp.tipo_cambio,
+                    TO_CHAR(pp.fecha_tipo_cambio, 'YYYY-MM-DD') AS fecha_tipo_cambio,
+                    pp.fuente_tipo_cambio
+                FROM proyecto_patrocinador pp
+                INNER JOIN patrocinador pa
+                    ON pa.id_patrocinador = pp.id_patrocinador
+                WHERE pp.id_proyecto = $1
+                    AND pp.estado = TRUE
+                ORDER BY pp.id_proyecto_patrocinador
+                `,
+                [idProyecto]
+            );
+
+
+        if (patrocinadores.rows.length === 0) {
 
             return res.status(400).json({
                 message:
-                    "El tipo de cambio es obligatorio y debe ser mayor a 0."
+                    "Este proyecto no tiene patrocinadores registrados. Agrégalos en la sección Patrocinadores del proyecto antes de generar el reporte."
             });
         }
 
 
-        if (fechaTipoCambio === false) {
+        for (const fila of patrocinadores.rows) {
 
-            return res.status(400).json({
-                message:
-                    "La fecha del tipo de cambio debe tener formato AAAA-MM-DD."
-            });
+            const incompleto =
+                !fila.tipo_cambio ||
+                Number(fila.tipo_cambio) <= 0 ||
+                !fila.fecha_tipo_cambio ||
+                !fila.fuente_tipo_cambio;
+
+            if (incompleto) {
+
+                return res.status(400).json({
+                    message:
+                        "La información del patrocinador está incompleta. Completa el tipo de cambio, la fecha y la fuente en la sección Patrocinadores del proyecto antes de generar el reporte."
+                });
+            }
         }
+
+
+        const nombresPatrocinadores =
+            patrocinadores.rows
+                .map((f) => f.nombre_razon_social)
+                .join(", ");
+
+        const monedaPatrocinador =
+            patrocinadores.rows[0].tipo_moneda || "";
+
+        const tipoCambio =
+            Number(patrocinadores.rows[0].tipo_cambio);
+
+        const fechaTipoCambio =
+            patrocinadores.rows[0].fecha_tipo_cambio;
+
+        const fuenteTipoCambio =
+            patrocinadores.rows[0].fuente_tipo_cambio;
 
 
         const proyecto =
@@ -103,7 +137,18 @@ async function generarReporteComparativo(
                 SELECT
                     id_proyecto,
                     nombre,
-                    subvencion
+                    COALESCE((
+                        SELECT SUM(pp.subvencion_moneda_donante)
+                        FROM proyecto_patrocinador pp
+                        WHERE pp.id_proyecto = proyecto.id_proyecto
+                            AND pp.estado = TRUE
+                    ), 0) AS subvencion,
+                    COALESCE((
+                        SELECT SUM(pp.subvencion_moneda_nacional)
+                        FROM proyecto_patrocinador pp
+                        WHERE pp.id_proyecto = proyecto.id_proyecto
+                            AND pp.estado = TRUE
+                    ), 0) AS subvencion_nacional
                 FROM proyecto
                 WHERE id_proyecto = $1
                 LIMIT 1
@@ -296,6 +341,13 @@ async function generarReporteComparativo(
 
             proyecto:
                 proyecto.rows[0],
+
+            patrocinadores: {
+                nombres:
+                    nombresPatrocinadores,
+                moneda:
+                    monedaPatrocinador
+            },
 
             tipo_cambio:
                 tipoCambio,

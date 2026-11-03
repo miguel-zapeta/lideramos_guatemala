@@ -1,0 +1,392 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Patrocinadores - Panel Administrativo</title>
+
+    <link rel="stylesheet" href="usuarios.css">
+</head>
+
+<body>
+
+    <!-- =========================
+         PANEL PRINCIPAL
+         ========================= -->
+
+    <div class="dashboard">
+
+        <!-- =========================
+             MENÚ LATERAL
+             ========================= -->
+
+        <aside class="sidebar">
+
+            <div class="sidebar-header">
+
+                <img src="Lideramos.png" alt="Logo de la organización" class="sidebar-logo" >
+
+            </div>
+
+
+            <!-- MENÚ -->
+
+            <nav class="menu">
+
+                <a href="usuarios.html" class="menu-item" data-modulo="usuarios">
+
+                    <span class="icon">👥</span>
+
+                    <span>Usuarios</span>
+
+                </a>
+
+
+                <a href="voluntarios.html" class="menu-item" data-modulo="voluntarios">
+
+                    <span class="icon">🤝</span>
+
+                    <span>Voluntarios</span>
+
+                </a>
+
+
+                <a href="finanzas.html" class="menu-item active" data-modulo="finanzas">
+
+                    <span class="icon">💰</span>
+
+                    <span>Finanzas</span>
+
+                </a>
+
+
+                <a href="actividades.html" class="menu-item" data-modulo="actividades">
+
+                    <span class="icon">📅</span>
+
+                    <span>Actividades</span>
+
+                </a>
+
+
+                <a href="archivos.html" class="menu-item" data-modulo="reportes">
+
+                    <span class="icon">📁</span>
+
+                    <span>Archivos</span>
+
+                </a>
+
+                <a href="publicaciones.html" class="menu-item" data-modulo="publicaciones">
+
+                    <span class="icon">📰</span>
+
+                    <span>Publicaciones</span>
+
+                </a>
+
+            </nav>
+
+
+            <!-- PARTE INFERIOR DEL MENÚ -->
+
+            <div class="sidebar-bottom">
+
+                <a href="#" class="menu-item" data-modulo="configuracion">
+
+                    <span class="icon">⚙️</span>
+
+                    <span>Configuración</span>
+
+                </a>
+
+                <a href="#" class="menu-item logout">
+
+                    <span class="icon">↪</span>
+
+                    <span>Cerrar sesión</span>
+
+                </a>
+
+
+                <a href="informacion-sistema.html" class="menu-item">
+
+                    <span class="icon">
+                        ℹ️
+                    </span>
+
+                    <span>
+                        Información del sistema
+                    </span>
+
+                </a>
+
+            </div>
+
+        </aside>
+
+
+        <!-- =========================
+             CONTENIDO
+             ========================= -->
+
+        <main class="main-content">
+
+
+            <!-- BARRA SUPERIOR -->
+
+            <header class="topbar">
+
+                <div class="page-title">
+
+                    <h1>Patrocinadores</h1>
+
+                    <p>Personas y empresas que aportan a la organización</p>
+
+                </div>
+
+
+                <div class="admin-profile">
+
+                    <div
+                        class="admin-avatar"
+                        id="currentUserAvatar"
+                    >
+                        US
+                    </div>
+
+                    <div class="admin-info">
+
+                        <strong id="currentUserName">
+                            Usuario
+                        </strong>
+
+                        <span id="currentUserRole">
+                            Rol
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </header>
+
+
+            <!-- CONTENIDO DE PATROCINADORES -->
+
+            <section class="content">
+
+
+                <!-- ENCABEZADO -->
+
+                <div class="section-header">
+
+                    <div>
+
+                        <h2>Lista de patrocinadores</h2>
+
+                        <p>
+                            Consulta, edita o desactiva los patrocinadores registrados.
+                        </p>
+
+                    </div>
+
+
+                    <div class="header-actions">
+
+                        <a href="finanzas.html" class="link-volver">
+                            ← Volver
+                        </a>
+
+                        <button
+                            type="button"
+                            id="exportButton"
+                            class="new-user-button"
+                            title="Exportar a Excel lo mostrado en la tabla"
+                        >
+                            📥 Exportar Excel
+                        </button>
+
+                        <a href="nuevoPatrocinador.html" class="new-user-button">
+                            + Nuevo patrocinador
+                        </a>
+
+                    </div>
+
+
+                </div>
+
+
+                <!-- TARJETAS DE RESUMEN -->
+
+                <div class="statistics">
+
+                    <div class="stat-card">
+
+                        <div class="stat-icon users-icon">
+                            👥
+                        </div>
+
+                        <div>
+
+                            <span>Total de patrocinadores</span>
+
+                            <strong id="statTotal">—</strong>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="stat-card">
+
+                        <div class="stat-icon active-icon">
+                            ●
+                        </div>
+
+                        <div>
+
+                            <span>Patrocinadores activos</span>
+
+                            <strong id="statActivos">—</strong>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="stat-card">
+
+                        <div class="stat-icon inactive-icon">
+                            ○
+                        </div>
+
+                        <div>
+
+                            <span>Patrocinadores inactivos</span>
+
+                            <strong id="statInactivos">—</strong>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- TABLA -->
+
+                <div class="table-container">
+
+                    <div class="table-header">
+
+                        <h3>Patrocinadores registrados</h3>
+
+                        <div class="search-box">
+
+                            <span>🔍</span>
+
+                            <select id="searchField" title="Buscar por">
+                                <option value="todos">Todos</option>
+                                <option value="nombre">Nombre / Razón social</option>
+                                <option value="tipo">Tipo</option>
+                                <option value="contacto">Persona de contacto</option>
+                                <option value="dpi">DPI</option>
+                                <option value="telefono">Teléfono</option>
+                                <option value="correo">Correo</option>
+                                <option value="municipio">Municipio</option>
+                                <option value="pais">País</option>
+                                <option value="estado">Estado</option>
+                            </select>
+
+                            <input
+                                type="text"
+                                id="searchInput"
+                                placeholder="Buscar patrocinador..."
+                            >
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="table-responsive">
+
+                        <table>
+
+                            <thead>
+
+                                <tr>
+
+                                    <th>Patrocinador</th>
+
+                                    <th>Tipo</th>
+
+                                    <th>DPI</th>
+
+                                    <th>Contacto</th>
+
+                                    <th>Teléfono</th>
+
+                                    <th>Correo</th>
+
+                                    <th>Ubicación</th>
+
+                                    <th>Registro</th>
+
+                                    <th>Estado</th>
+
+                                    <th>Acciones</th>
+
+                                </tr>
+
+                            </thead>
+
+
+                            <tbody id="patrocinadoresTbody">
+
+                                <tr>
+
+                                    <td colspan="10">
+                                        Cargando patrocinadores...
+                                    </td>
+
+                                </tr>
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+
+                    <!-- PAGINACIÓN -->
+
+                    <div class="pagination">
+
+                        <span id="paginationInfo">
+                            Cargando patrocinadores...
+                        </span>
+
+                        <div class="pagination-buttons" id="paginationButtons"></div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+        </main>
+
+    </div>
+
+</body>
+
+<script src="vendor/xlsx.full.min.js"></script>
+<script src="menu.js"></script>
+<script src="escape.js"></script>
+<script src="paginacion.js"></script>
+<script src="patrocinadores.js"></script>
+
+</html>

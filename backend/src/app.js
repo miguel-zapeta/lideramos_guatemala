@@ -28,6 +28,12 @@ const rubroRoutes =
 const gastoRoutes =
     require("./routes/gasto.routes");
 
+const patrocinadorRoutes =
+    require("./routes/patrocinador.routes");
+
+const proyectoPatrocinadorRoutes =
+    require("./routes/proyecto_patrocinador.routes");
+
 const proyectoRoutes =
     require("./routes/proyecto.routes");
 
@@ -58,6 +64,9 @@ const publicacionRoutes =
 const requirePagePermission =
     require("./middleware/page-permission.middleware");
 
+const authenticatePage =
+    require("./middleware/page-auth.middleware");
+
 
 const PAGINAS = [
     ["usuarios.html", "usuarios.ver"],
@@ -67,6 +76,8 @@ const PAGINAS = [
     ["finanzas.html", "finanzas.ver"],
     ["gastos.html", "finanzas.ver"],
     ["nuevoGasto.html", "finanzas.ver"],
+    ["patrocinadores.html", "finanzas.ver"],
+    ["nuevoPatrocinador.html", "finanzas.ver"],
     ["categorias-gasto.html", "finanzas.ver"],
     ["nuevaCategoriaGasto.html", "finanzas.ver"],
     ["rubros.html", "finanzas.ver"],
@@ -212,6 +223,16 @@ app.use(
 app.use(
     "/api/gastos",
     gastoRoutes
+);
+
+app.use(
+    "/api/patrocinadores",
+    patrocinadorRoutes
+);
+
+app.use(
+    "/api/proyecto-patrocinadores",
+    proyectoPatrocinadorRoutes
 );
 
 app.use(
@@ -376,6 +397,27 @@ for (const [pagina, permiso] of PAGINAS) {
         }
     );
 }
+
+
+/*
+PÁGINAS DE ACCESO GENERAL
+Solo requieren sesión (sin permiso).
+*/
+
+app.get(
+    "/informacion-sistema.html",
+    authenticatePage,
+    (req, res) => {
+
+        res.sendFile(
+            path.join(
+                frontendPath,
+                "informacion-sistema.html"
+            )
+        );
+
+    }
+);
 
 
 /*

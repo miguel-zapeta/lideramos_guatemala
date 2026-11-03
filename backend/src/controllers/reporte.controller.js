@@ -332,7 +332,12 @@ async function generarReporteAcumulativo(
                     fecha_finalizacion,
                     ente_patrocinador,
                     asociacion_gestora,
-                    monto_total_solicitado_rise_up
+                    COALESCE((
+                        SELECT SUM(pp.subvencion_moneda_nacional)
+                        FROM proyecto_patrocinador pp
+                        WHERE pp.id_proyecto = proyecto.id_proyecto
+                            AND pp.estado = TRUE
+                    ), 0) AS subvencion_local
                 FROM proyecto
                 WHERE id_proyecto = $1
                 LIMIT 1
@@ -505,8 +510,8 @@ async function generarReporteAcumulativo(
         }
 
 
-        const montoSolicitado =
-            Number(proyecto.rows[0].monto_total_solicitado_rise_up || 0);
+        const subvencionLocal =
+            Number(proyecto.rows[0].subvencion_local || 0);
 
 
         return res.json({
@@ -523,11 +528,11 @@ async function generarReporteAcumulativo(
             total_general:
                 Number(totalGeneral.toFixed(2)),
 
-            monto_solicitado:
-                montoSolicitado,
+            subvencion_local:
+                subvencionLocal,
 
-            diferencia:
-                Number((montoSolicitado - totalGeneral).toFixed(2))
+            saldo:
+                Number((subvencionLocal - totalGeneral).toFixed(2))
 
         });
 

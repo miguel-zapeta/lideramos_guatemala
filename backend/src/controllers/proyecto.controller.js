@@ -1,4 +1,4 @@
-const pool =
+﻿const pool =
     require("../config/database");
 
 const {
@@ -21,17 +21,48 @@ const COLUMNAS = `
     fecha_inicio,
     fecha_finalizacion,
     estado,
-    subvencion,
-    fecha_tipo_cambio,
-    tipo_cambio,
-    fuente_tipo_cambio,
     total_gastos_ejecutados,
-    monto_total_solicitado_rise_up,
-    monto_total_subvencion,
-    diferencia_entre_solicitado_y_subvencion,
     gestora_del_proyecto,
     ente_patrocinador,
     asociacion_gestora
+`;
+
+
+/*
+Totales financieros calculados como suma de las
+filas activas de proyecto_patrocinador. Se devuelven
+con los nombres de siempre para que reportes y
+Excel sigan funcionando.
+*/
+
+const SUMAS_PATROCINADORES = `
+    COALESCE((
+        SELECT SUM(pp.subvencion_moneda_donante)
+        FROM proyecto_patrocinador pp
+        WHERE pp.id_proyecto = p.id_proyecto
+            AND pp.estado = TRUE
+    ), 0) AS subvencion,
+
+    COALESCE((
+        SELECT SUM(pp.cantidad_solicitada_moneda_donante)
+        FROM proyecto_patrocinador pp
+        WHERE pp.id_proyecto = p.id_proyecto
+            AND pp.estado = TRUE
+    ), 0) AS monto_total_solicitado_rise_up,
+
+    COALESCE((
+        SELECT SUM(pp.subvencion_moneda_nacional)
+        FROM proyecto_patrocinador pp
+        WHERE pp.id_proyecto = p.id_proyecto
+            AND pp.estado = TRUE
+    ), 0) AS monto_total_subvencion,
+
+    COALESCE((
+        SELECT SUM(pp.diferencia_solicitado_subvencion)
+        FROM proyecto_patrocinador pp
+        WHERE pp.id_proyecto = p.id_proyecto
+            AND pp.estado = TRUE
+    ), 0) AS diferencia_entre_solicitado_y_subvencion
 `;
 
 
@@ -91,16 +122,7 @@ function extraerCampos(body) {
         nombre,
         fecha_inicio,
         fecha_finalizacion,
-        subvencion,
-        fecha_tipo_cambio,
-        tipo_cambio,
-        fuente_tipo_cambio,
-        total_gastos_ejecutados,
-        monto_total_solicitado_rise_up,
-        monto_total_subvencion,
-        diferencia_entre_solicitado_y_subvencion,
         gestora_del_proyecto,
-        ente_patrocinador,
         asociacion_gestora
     } = body;
 
@@ -112,33 +134,13 @@ function extraerCampos(body) {
 
     const inicio = validarFecha(fecha_inicio);
     const fin = validarFecha(fecha_finalizacion);
-    const fechaTc = validarFecha(fecha_tipo_cambio);
 
-    if (inicio === false || fin === false || fechaTc === false) {
+    if (inicio === false || fin === false) {
         return { error: "Las fechas deben tener formato AAAA-MM-DD." };
     }
 
     if (inicio && fin && fin < inicio) {
         return { error: "La fecha de finalización no puede ser anterior al inicio." };
-    }
-
-
-    const numericos = {
-        subvencion: validarNumero(subvencion),
-        tipo_cambio: validarNumero(tipo_cambio),
-        total_gastos_ejecutados: validarNumero(total_gastos_ejecutados),
-        monto_total_solicitado_rise_up:
-            validarNumero(monto_total_solicitado_rise_up),
-        monto_total_subvencion: validarNumero(monto_total_subvencion),
-        diferencia_entre_solicitado_y_subvencion:
-            validarNumero(diferencia_entre_solicitado_y_subvencion)
-    };
-
-    for (const [campo, valor] of Object.entries(numericos)) {
-
-        if (valor === false) {
-            return { error: `El campo ${campo} debe ser un número mayor o igual a 0.` };
-        }
     }
 
 
@@ -153,16 +155,7 @@ function extraerCampos(body) {
             String(nombre).trim(),
             inicio,
             fin,
-            numericos.subvencion,
-            fechaTc,
-            numericos.tipo_cambio,
-            texto(fuente_tipo_cambio),
-            numericos.total_gastos_ejecutados,
-            numericos.monto_total_solicitado_rise_up,
-            numericos.monto_total_subvencion,
-            numericos.diferencia_entre_solicitado_y_subvencion,
             texto(gestora_del_proyecto),
-            texto(ente_patrocinador),
             texto(asociacion_gestora)
         ]
     };
@@ -284,7 +277,8 @@ async function listarProyectos(
             await pool.query(
                 `
                 SELECT
-                    ${COLUMNAS}
+                    ${COLUMNAS},
+                    ${SUMAS_PATROCINADORES}
                 FROM proyecto p
                 ${where}
                 ORDER BY p.id_proyecto DESC
@@ -357,9 +351,10 @@ async function obtenerProyecto(
             await pool.query(
                 `
                 SELECT
-                    ${COLUMNAS}
-                FROM proyecto
-                WHERE id_proyecto = $1
+                    ${COLUMNAS},
+                    ${SUMAS_PATROCINADORES}
+                FROM proyecto p
+                WHERE p.id_proyecto = $1
                 LIMIT 1
                 `,
                 [id]
@@ -419,21 +414,11 @@ async function crearProyecto(
                     nombre,
                     fecha_inicio,
                     fecha_finalizacion,
-                    subvencion,
-                    fecha_tipo_cambio,
-                    tipo_cambio,
-                    fuente_tipo_cambio,
-                    total_gastos_ejecutados,
-                    monto_total_solicitado_rise_up,
-                    monto_total_subvencion,
-                    diferencia_entre_solicitado_y_subvencion,
                     gestora_del_proyecto,
-                    ente_patrocinador,
                     asociacion_gestora
                 )
                 VALUES (
-                    $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11,
-                    $12, $13, $14
+                    $1, $2, $3, $4, $5
                 )
                 RETURNING
                     ${COLUMNAS}
@@ -552,19 +537,10 @@ async function editarProyecto(
                     nombre = $1,
                     fecha_inicio = $2,
                     fecha_finalizacion = $3,
-                    subvencion = $4,
-                    fecha_tipo_cambio = $5,
-                    tipo_cambio = $6,
-                    fuente_tipo_cambio = $7,
-                    total_gastos_ejecutados = $8,
-                    monto_total_solicitado_rise_up = $9,
-                    monto_total_subvencion = $10,
-                    diferencia_entre_solicitado_y_subvencion = $11,
-                    gestora_del_proyecto = $12,
-                    ente_patrocinador = $13,
-                    asociacion_gestora = $14,
-                    estado = COALESCE($15, estado)
-                WHERE id_proyecto = $16
+                    gestora_del_proyecto = $4,
+                    asociacion_gestora = $5,
+                    estado = COALESCE($6, estado)
+                WHERE id_proyecto = $7
                 RETURNING
                     ${COLUMNAS}
                 `,

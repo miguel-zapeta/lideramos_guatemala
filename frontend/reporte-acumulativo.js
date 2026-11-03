@@ -224,8 +224,8 @@ function renderReporte(data) {
         `<th>Categoría del gasto</th>` +
         meses.map((mes) => `<th>${mesCorto(mes)}</th>`).join("") +
         `<th>Gasto ejecutado por rubro</th>` +
-        `<th>Monto solicitado</th>` +
-        `<th>Diferencia</th>`;
+        `<th>Subvención en local</th>` +
+        `<th>Saldo</th>`;
 
 
     const tbody =
@@ -283,8 +283,8 @@ function renderReporte(data) {
             <td><strong>TOTALES</strong></td>
             ${meses.map((mes) => `<td><strong>${formatoMonto(totalesMes[mes] || 0)}</strong></td>`).join("")}
             <td><strong>${formatoMonto(data.total_general)}</strong></td>
-            <td><strong>${formatoMonto(data.monto_solicitado)}</strong></td>
-            <td><strong>${formatoMonto(data.diferencia)}</strong></td>
+            <td><strong>${formatoMonto(data.subvencion_local)}</strong></td>
+            <td><strong>${formatoMonto(data.saldo)}</strong></td>
         </tr>`;
 
 
@@ -444,8 +444,8 @@ function exportarExcel() {
             "Categoría del gasto",
             ...meses.map(mesCorto),
             "Gasto ejecutado por rubro",
-            "Monto solicitado",
-            "Diferencia"
+            "Subvención en local",
+            "Saldo"
         ]
     ];
 
@@ -486,8 +486,8 @@ function exportarExcel() {
 
     filaTotales.push(
         Number(ultimoReporte.total_general),
-        Number(ultimoReporte.monto_solicitado),
-        Number(ultimoReporte.diferencia)
+        Number(ultimoReporte.subvencion_local),
+        Number(ultimoReporte.saldo)
     );
 
     tabla.push([], filaTotales);
