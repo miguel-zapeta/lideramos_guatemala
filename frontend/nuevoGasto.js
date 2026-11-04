@@ -29,7 +29,9 @@ const CAMPOS = [
     "trayecto",
     "numero_comprobante",
     "proveedor",
-    "total_del_gasto"
+    "total_del_gasto",
+    "recibo",
+    "quitar_recibo"
 ];
 
 
@@ -209,6 +211,35 @@ async function cargarProyectos() {
 }
 
 
+function mostrarRecibo(g) {
+
+    const grupo =
+        document.getElementById("reciboActualGroup");
+
+    const recibo =
+        g.recibo || null;
+
+
+    if (!recibo) {
+
+        grupo.style.display = "none";
+
+        return;
+    }
+
+
+    grupo.style.display = "";
+
+    document.getElementById("reciboActualInfo").textContent =
+        recibo.nombre_archivo || "Recibo adjunto";
+
+    document.getElementById("reciboVerLink").href =
+        `/api/gastos/${g.id_gasto}/recibo`;
+
+    document.getElementById("quitar_recibo").checked = false;
+}
+
+
 async function cargarGasto(id) {
 
     try {
@@ -266,6 +297,10 @@ async function cargarGasto(id) {
 
         for (const campo of CAMPOS) {
 
+            if (campo === "recibo" || campo === "quitar_recibo") {
+                continue;
+            }
+
             const input = document.getElementById(campo);
 
             if (!input) continue;
@@ -279,6 +314,9 @@ async function cargarGasto(id) {
             input.value =
                 valor === null || valor === undefined ? "" : valor;
         }
+
+
+        mostrarRecibo(g);
 
 
         // La categoría del gasto puede estar inactiva:
@@ -521,20 +559,27 @@ async function guardarGasto(event) {
     }
 
 
-    const body = {
-        id_proyecto,
-        id_categoria,
-        numero,
-        monto,
-        fecha,
-        numero_documento,
-        serie,
-        tipo_documento: texto("tipo_documento"),
-        razon_denominacion_social: texto("razon_denominacion_social"),
-        descripcion: texto("descripcion"),
-        trayecto: texto("trayecto"),
-        proveedor: texto("proveedor")
-    };
+    const formData = new FormData();
+
+    const agregar = (clave, valor) =>
+        formData.append(
+            clave,
+            valor === null || valor === undefined ? "" : String(valor)
+        );
+
+
+    agregar("id_proyecto", id_proyecto);
+    agregar("id_categoria", id_categoria);
+    agregar("numero", numero);
+    agregar("monto", monto);
+    agregar("fecha", fecha);
+    agregar("numero_documento", numero_documento);
+    agregar("serie", serie);
+    agregar("tipo_documento", texto("tipo_documento"));
+    agregar("razon_denominacion_social", texto("razon_denominacion_social"));
+    agregar("descripcion", texto("descripcion"));
+    agregar("trayecto", texto("trayecto"));
+    agregar("proveedor", texto("proveedor"));
 
 
     for (const id of [
@@ -556,7 +601,24 @@ async function guardarGasto(event) {
             return;
         }
 
-        body[id] = valor;
+        agregar(id, valor);
+    }
+
+
+    // Recibo PDF: adjuntar, reemplazar o quitar.
+    const archivoRecibo =
+        document.getElementById("recibo").files[0] || null;
+
+    if (archivoRecibo) {
+
+        formData.append("recibo", archivoRecibo);
+
+    } else if (
+        editId !== null &&
+        document.getElementById("quitar_recibo").checked
+    ) {
+
+        formData.append("quitar_recibo", "1");
     }
 
 
@@ -567,6 +629,14 @@ async function guardarGasto(event) {
         editId === null ? "POST" : "PUT";
 
 
+    const guardado = iniciarGuardado({
+        boton: document.getElementById("submitButton"),
+        mostrar: mostrarMensaje
+    });
+
+    if (!guardado) return;
+
+
     try {
 
         const response =
@@ -575,13 +645,9 @@ async function guardarGasto(event) {
                 {
                     method,
 
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-
                     credentials: "include",
 
-                    body: JSON.stringify(body)
+                    body: formData
                 }
             );
 
@@ -623,6 +689,8 @@ async function guardarGasto(event) {
 
 
     } catch (error) {
+
+        guardado.error();
 
         console.error(error);
 

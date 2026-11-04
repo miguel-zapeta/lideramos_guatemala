@@ -7,8 +7,10 @@ const requirePermission =
     require("../middleware/permission.middleware");
 
 const {
+    subirReciboMiddleware,
     listarGastos,
     obtenerGasto,
+    obtenerGastoRecibo,
     crearGasto,
     editarGasto,
     cambiarEstado
@@ -34,6 +36,18 @@ router.get(
 
 
 router.get(
+    "/:id/recibo",
+    authenticate,
+
+    requirePermission(
+        "finanzas.ver"
+    ),
+
+    obtenerGastoRecibo
+);
+
+
+router.get(
     "/:id",
     authenticate,
 
@@ -53,6 +67,8 @@ router.post(
         "finanzas.crear"
     ),
 
+    subirReciboMiddleware,
+
     crearGasto
 );
 
@@ -64,6 +80,8 @@ router.put(
     requirePermission(
         "finanzas.editar"
     ),
+
+    subirReciboMiddleware,
 
     editarGasto
 );

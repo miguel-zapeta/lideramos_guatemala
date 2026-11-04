@@ -1,11 +1,168 @@
+const zlib = require("zlib");
+const path = require("path");
+const multer = require("multer");
+
 const pool =
     require("../config/database");
+
+const { compactar } =
+    require("./archivo.controller");
 
 const {
     leerPaginacion,
     construirBusqueda,
     metaPaginacion
 } = require("../utils/paginacion");
+
+
+/*
+Recibo PDF del gasto (opcional). Solo PDF,
+máximo 10 MB, en memoria.
+*/
+
+const LIMITE_RECIBO_BYTES = 10 * 1024 * 1024;
+
+
+const subirRecibo = multer({
+    storage: multer.memoryStorage(),
+
+    limits: {
+        fileSize: LIMITE_RECIBO_BYTES,
+        files: 1
+    },
+
+    fileFilter: (req, file, cb) => {
+
+        const esPdf =
+            file.mimetype === "application/pdf" ||
+            (file.originalname || "")
+                .toLowerCase()
+                .endsWith(".pdf");
+
+        if (!esPdf) {
+
+            const error =
+                new Error("El recibo debe ser un archivo PDF.");
+
+            error.status = 400;
+
+            return cb(error);
+        }
+
+        cb(null, true);
+    }
+});
+
+
+function subirReciboMiddleware(req, res, next) {
+
+    subirRecibo.single("recibo")(req, res, (error) => {
+
+        if (!error) {
+            return next();
+        }
+
+
+        if (error.code === "LIMIT_FILE_SIZE") {
+
+            return res.status(400).json({
+                message:
+                    "El recibo no debe superar los 10 MB."
+            });
+        }
+
+
+        return res.status(error.status || 500).json({
+            message:
+                error.message || "Error al subir el recibo."
+        });
+    });
+}
+
+
+async function guardarReciboGasto(
+    idGasto,
+    archivo,
+    idUsuario
+) {
+
+    const extension =
+        path.extname(archivo.originalname || "")
+            .replace(".", "")
+            .toLowerCase();
+
+    const {
+        contenido,
+        comprimido,
+        tamanoComprimido
+    } =
+        compactar(archivo.buffer);
+
+
+    const resultado =
+        await pool.query(
+            `
+            INSERT INTO archivo (
+                nombre_archivo,
+                tipo_mime,
+                extension_,
+                tamano_bytes,
+                contenido,
+                descripcion,
+                id_usuario,
+                comprimido,
+                tamano_comprimido
+            )
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+            RETURNING id_archivo
+            `,
+            [
+                archivo.originalname,
+                archivo.mimetype ||
+                    "application/pdf",
+                extension,
+                archivo.size,
+                contenido,
+                `Gasto ${idGasto} - recibo`,
+                idUsuario,
+                comprimido,
+                tamanoComprimido
+            ]
+        );
+
+
+    const idArchivo =
+        resultado.rows[0].id_archivo;
+
+
+    await pool.query(
+        `
+        INSERT INTO gasto_archivo (
+            id_gasto,
+            id_archivo
+        )
+        VALUES ($1, $2)
+        ON CONFLICT DO NOTHING
+        `,
+        [idGasto, idArchivo]
+    );
+}
+
+
+async function borrarReciboGasto(idGasto) {
+
+    await pool.query(
+        `
+        DELETE FROM archivo
+        WHERE id_archivo IN (
+            SELECT id_archivo
+            FROM gasto_archivo
+            WHERE id_gasto = $1
+        )
+        `,
+        [idGasto]
+    );
+}
 
 
 const COLUMNAS_LISTA = `
@@ -457,9 +614,29 @@ async function obtenerGasto(
         }
 
 
+        const recibo =
+            await pool.query(
+                `
+                SELECT
+                    a.id_archivo,
+                    a.nombre_archivo,
+                    a.tamano_bytes
+                FROM gasto_archivo ga
+                INNER JOIN archivo a
+                    ON a.id_archivo = ga.id_archivo
+                WHERE ga.id_gasto = $1
+                LIMIT 1
+                `,
+                [id]
+            );
+
+
         return res.json({
-            gasto:
-                result.rows[0]
+            gasto: {
+                ...result.rows[0],
+                recibo:
+                    recibo.rows[0] || null
+            }
         });
 
     } catch (error) {
@@ -541,6 +718,16 @@ async function crearGasto(
             }
 
             throw dbError;
+        }
+
+
+        if (req.file) {
+
+            await guardarReciboGasto(
+                result.rows[0].id_gasto,
+                req.file,
+                req.user.id_usuario
+            );
         }
 
 
@@ -657,6 +844,22 @@ async function editarGasto(
         }
 
 
+        if (req.file) {
+
+            await borrarReciboGasto(id);
+
+            await guardarReciboGasto(
+                id,
+                req.file,
+                req.user.id_usuario
+            );
+
+        } else if (req.body.quitar_recibo === "1") {
+
+            await borrarReciboGasto(id);
+        }
+
+
         return res.json({
 
             message:
@@ -674,6 +877,133 @@ async function editarGasto(
         return res.status(500).json({
             message:
                 "Error al actualizar gasto."
+        });
+
+    }
+}
+
+
+/*
+RECIBO DEL GASTO (GET /api/gastos/:id/recibo)
+Sirve el PDF adjunto (inline).
+*/
+
+async function obtenerGastoRecibo(
+    req,
+    res
+) {
+
+    try {
+
+        const id =
+            Number(req.params.id);
+
+
+        if (!Number.isInteger(id)) {
+
+            return res.status(400).json({
+                message:
+                    "ID de gasto inválido."
+            });
+
+        }
+
+
+        const result =
+            await pool.query(
+                `
+                SELECT
+                    a.nombre_archivo,
+                    a.tipo_mime,
+                    a.contenido,
+                    a.comprimido
+                FROM gasto_archivo ga
+                INNER JOIN archivo a
+                    ON a.id_archivo = ga.id_archivo
+                WHERE ga.id_gasto = $1
+                LIMIT 1
+                `,
+                [id]
+            );
+
+
+        if (result.rows.length === 0) {
+
+            return res.status(404).json({
+                message:
+                    "El gasto no tiene recibo adjunto."
+            });
+
+        }
+
+
+        const archivo =
+            result.rows[0];
+
+
+        let buffer =
+            archivo.contenido;
+
+
+        if (archivo.comprimido) {
+
+            try {
+
+                buffer =
+                    zlib.gunzipSync(buffer);
+
+            } catch (error) {
+
+                console.error(
+                    "Error descomprimiendo recibo:",
+                    error
+                );
+
+                return res.status(500).json({
+                    message:
+                        "No se pudo descomprimir el recibo."
+                });
+            }
+        }
+
+
+        const nombreAscii =
+            String(archivo.nombre_archivo || "recibo.pdf")
+                .replace(/[\r\n"\\]/g, "_");
+
+
+        res.setHeader(
+            "Content-Type",
+            archivo.tipo_mime
+        );
+
+        res.setHeader(
+            "Content-Length",
+            buffer.length
+        );
+
+        res.setHeader(
+            "Content-Disposition",
+            `inline; ` +
+            `filename="${nombreAscii}"; ` +
+            `filename*=UTF-8''${encodeURIComponent(archivo.nombre_archivo)}`
+        );
+
+        res.setHeader(
+            "Cache-Control",
+            "private, max-age=3600"
+        );
+
+
+        return res.send(buffer);
+
+    } catch (error) {
+
+        console.error(error);
+
+        return res.status(500).json({
+            message:
+                "Error al obtener el recibo."
         });
 
     }
@@ -769,8 +1099,10 @@ async function cambiarEstado(
 
 
 module.exports = {
+    subirReciboMiddleware,
     listarGastos,
     obtenerGasto,
+    obtenerGastoRecibo,
     crearGasto,
     editarGasto,
     cambiarEstado

@@ -290,6 +290,14 @@ async function guardarPatrocinador(event) {
         editId === null ? "POST" : "PUT";
 
 
+    const guardado = iniciarGuardado({
+        boton: document.getElementById("submitButton"),
+        mostrar: mostrarMensaje
+    });
+
+    if (!guardado) return;
+
+
     try {
 
         const response =
@@ -346,6 +354,8 @@ async function guardarPatrocinador(event) {
 
 
     } catch (error) {
+
+        guardado.error();
 
         console.error(error);
 

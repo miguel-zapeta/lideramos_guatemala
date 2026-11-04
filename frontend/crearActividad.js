@@ -1,4 +1,4 @@
-/*
+﻿/*
 =========================================
 NUEVA / VER / EDITAR ACTIVIDAD
 Crear: POST /api/actividades
@@ -10,10 +10,6 @@ El estado se cambia desde la lista (PATCH).
 
 let editId = null;
 let modoVer = false;
-
-let paginaAsistenciaActual = 1;
-
-const LIMITE_PAGINA = 20;
 
 
 const CAMPOS = [
@@ -434,6 +430,14 @@ async function guardarActividad(event) {
         editId === null ? "POST" : "PUT";
 
 
+    const guardado = iniciarGuardado({
+        boton: document.getElementById("submitButton"),
+        mostrar: mostrarMensaje
+    });
+
+    if (!guardado) return;
+
+
     try {
 
         const response =
@@ -490,6 +494,8 @@ async function guardarActividad(event) {
 
 
     } catch (error) {
+
+        guardado.error();
 
         console.error(error);
 
@@ -643,10 +649,21 @@ async function init() {
 
 let asistenciaListenersOk = false;
 
+let asistenciaGestionable = false;
+
+let asistenciaPersonas = [];
+
+let asistenciaPendiente = new Set();
+
+let asistenciaInicial = new Set();
+
 
 /*
 =========================================
 ASISTENCIA A LA ACTIVIDAD
+Checklist de todas las personas activas;
+los cambios se guardan con el botón
+"Guardar asistencia".
 =========================================
 */
 
@@ -662,10 +679,7 @@ function mostrarMensajeAsistencia(texto, esError) {
 }
 
 
-async function cargarPersonas() {
-
-    const select =
-        document.getElementById("asistenciaPersona");
+async function cargarPersonasAsistencia() {
 
     try {
 
@@ -678,13 +692,6 @@ async function cargarPersonas() {
                 }
             );
 
-        if (response.status === 401) {
-
-            window.location.replace("/login.html");
-
-            return;
-        }
-
         if (!response.ok) {
             throw new Error("personas");
         }
@@ -692,13 +699,12 @@ async function cargarPersonas() {
         const data =
             await response.json();
 
-        const personas = data.voluntarios || [];
-
-        select.innerHTML =
-            `<option value="">Seleccione una persona</option>` +
-            personas.map((p) =>
-                `<option value="${p.id_persona}">${escapeHtml(p.nombres)} ${escapeHtml(p.apellidos)}</option>`
-            ).join("");
+        return (data.voluntarios || []).map((p) => ({
+            id_persona: p.id_persona,
+            nombres: p.nombres,
+            apellidos: p.apellidos,
+            activo: true
+        }));
 
     } catch (error) {
 
@@ -707,136 +713,32 @@ async function cargarPersonas() {
             error
         );
 
-        select.innerHTML =
-            `<option value="">No se pudieron cargar las personas (requiere permiso de voluntarios)</option>`;
+        return [];
     }
 }
 
 
-async function cargarAsistencia() {
-
-    const tbody =
-        document.getElementById("asistenciaTbody");
-
-    const info =
-        document.getElementById("asistenciaInfo");
+async function cargarMarcadosAsistencia() {
 
     try {
 
-        const params =
-            new URLSearchParams({
-                id_actividad: String(editId),
-                pagina: String(paginaAsistenciaActual),
-                limite: String(LIMITE_PAGINA)
-            });
-
         const response =
             await fetch(
-                `/api/asistencias?${params.toString()}`,
+                `/api/asistencias?id_actividad=${editId}&todos=1`,
                 {
                     method: "GET",
                     credentials: "include"
                 }
             );
 
-
-        if (response.status === 401) {
-
-            window.location.replace("/login.html");
-
-            return;
-        }
-
-
         if (!response.ok) {
-            throw new Error("carga");
+            throw new Error("asistencia");
         }
-
 
         const data =
             await response.json();
 
-        const lista = data.asistencia || [];
-
-        const total = data.total || 0;
-
-        const totalPaginas = data.totalPaginas || 1;
-
-        const pagina = data.pagina || 1;
-
-        info.textContent =
-            total === 0
-                ? "Aún no hay personas marcadas en esta actividad."
-                : `${total} persona(s) asisten a esta actividad.`;
-
-
-        renderPaginacion({
-            contenedorId: "asistenciaPagination",
-            pagina,
-            totalPaginas,
-            onCambiar: (nuevaPagina) => {
-                paginaAsistenciaActual = nuevaPagina;
-                cargarAsistencia();
-            }
-        });
-
-
-        if (lista.length === 0) {
-
-            if (total > 0 && pagina > 1) {
-                paginaAsistenciaActual = pagina - 1;
-                cargarAsistencia();
-                return;
-            }
-
-            tbody.innerHTML =
-                `<tr><td colspan="4">Sin asistencia registrada.</td></tr>`;
-
-            return;
-        }
-
-
-        const gestionar =
-            document.getElementById("marcarAsistenciaButton").style.display !== "none";
-
-        tbody.innerHTML = lista.map((p, index) => {
-
-            const iniciales =
-                ((p.nombres || "").charAt(0) + (p.apellidos || "").charAt(0)).toUpperCase() || "?";
-
-            return `
-                <tr>
-                    <td>
-                        <div class="user">
-                            <div class="user-avatar avatar-pink">${escapeHtml(iniciales)}</div>
-                            <div>
-                                <strong>${escapeHtml(p.nombres)} ${escapeHtml(p.apellidos)}</strong>
-                                <span>ID: ${p.id_persona}</span>
-                            </div>
-                        </div>
-                    </td>
-                    <td>${escapeHtml(p.nombres) || "—"}</td>
-                    <td>${escapeHtml(p.apellidos) || "—"}</td>
-                    <td>
-                        <div class="actions">
-                            ${gestionar ? `
-                            <button class="action delete" title="Quitar asistencia" data-quitar="${p.id_persona}">
-                                ✖
-                            </button>` : "—"}
-                        </div>
-                    </td>
-                </tr>`;
-        }).join("");
-
-
-        tbody.querySelectorAll("button[data-quitar]").forEach((btn) => {
-
-            btn.addEventListener("click", () => {
-
-                quitarAsistencia(Number(btn.dataset.quitar));
-            });
-        });
-
+        return data.asistencia || [];
 
     } catch (error) {
 
@@ -845,33 +747,168 @@ async function cargarAsistencia() {
             error
         );
 
-        tbody.innerHTML =
-            `<tr><td colspan="4">Error al cargar asistencia.</td></tr>`;
+        return [];
     }
 }
 
 
-async function marcarAsistencia() {
+function actualizarContadorAsistencia() {
 
-    const idPersona =
-        Number(document.getElementById("asistenciaPersona").value);
+    const info =
+        document.getElementById("asistenciaInfo");
+
+    if (!info) return;
+
+    info.textContent =
+        `${asistenciaPendiente.size} de ${asistenciaPersonas.length} ` +
+        `personas marcadas como asistentes.`;
+}
 
 
-    if (!Number.isInteger(idPersona)) {
+function renderAsistencia() {
 
-        mostrarMensajeAsistencia("Seleccione una persona.", true);
+    const contenedor =
+        document.getElementById("asistenciaChecklist");
+
+
+    if (asistenciaPersonas.length === 0) {
+
+        contenedor.innerHTML =
+            "<p>No hay personas registradas.</p>";
+
+        actualizarContadorAsistencia();
 
         return;
     }
+
+
+    contenedor.innerHTML = asistenciaPersonas.map((p) => {
+
+        const marcada =
+            asistenciaPendiente.has(p.id_persona);
+
+        const iniciales =
+            ((p.nombres || "").charAt(0) +
+                (p.apellidos || "").charAt(0)).toUpperCase() || "?";
+
+        return `
+            <label class="asistencia-item">
+                <input
+                    type="checkbox"
+                    data-persona="${p.id_persona}"
+                    ${marcada ? "checked" : ""}
+                    ${asistenciaGestionable ? "" : "disabled"}
+                >
+                <div class="user">
+                    <div class="user-avatar avatar-pink">${escapeHtml(iniciales)}</div>
+                    <div>
+                        <strong>${escapeHtml(p.nombres)} ${escapeHtml(p.apellidos)}</strong>
+                        <span>ID: ${p.id_persona}${p.activo ? "" : " (inactivo)"}</span>
+                    </div>
+                </div>
+            </label>`;
+    }).join("");
+
+
+    contenedor
+        .querySelectorAll("input[data-persona]")
+        .forEach((cb) => {
+
+            cb.addEventListener("change", () => {
+
+                const id =
+                    Number(cb.dataset.persona);
+
+                if (cb.checked) {
+                    asistenciaPendiente.add(id);
+                } else {
+                    asistenciaPendiente.delete(id);
+                }
+
+                actualizarContadorAsistencia();
+            });
+        });
+
+
+    actualizarContadorAsistencia();
+}
+
+
+async function recargarAsistencia() {
+
+    const personas =
+        await cargarPersonasAsistencia();
+
+    const marcados =
+        await cargarMarcadosAsistencia();
+
+
+    // Personas ya marcadas que están inactivas se muestran
+    // como (inactivo) para no perderlas al guardar.
+    const idsActivas =
+        new Set(personas.map((p) => p.id_persona));
+
+    const inactivas =
+        marcados
+            .filter((m) => !idsActivas.has(m.id_persona))
+            .map((m) => ({
+                id_persona: m.id_persona,
+                nombres: m.nombres,
+                apellidos: m.apellidos,
+                activo: false
+            }));
+
+
+    asistenciaPersonas =
+        [...personas, ...inactivas];
+
+    asistenciaPendiente =
+        new Set(marcados.map((m) => m.id_persona));
+
+    asistenciaInicial =
+        new Set(asistenciaPendiente);
+
+
+    renderAsistencia();
+}
+
+
+async function guardarAsistencia() {
+
+    const iguales =
+        asistenciaInicial.size === asistenciaPendiente.size &&
+        [...asistenciaPendiente].every(
+            (id) => asistenciaInicial.has(id)
+        );
+
+
+    if (iguales) {
+
+        mostrarMensajeAsistencia(
+            "No hay cambios que guardar.",
+            false
+        );
+
+        return;
+    }
+
+
+    const guardado = iniciarGuardado({
+        boton: document.getElementById("guardarAsistenciaButton"),
+        mostrar: mostrarMensajeAsistencia,
+        reactivar: true
+    });
+
+    if (!guardado) return;
 
 
     try {
 
         const response =
             await fetch(
-                "/api/asistencias",
+                `/api/asistencias/${editId}`,
                 {
-                    method: "POST",
+                    method: "PUT",
 
                     headers: {
                         "Content-Type": "application/json"
@@ -880,8 +917,7 @@ async function marcarAsistencia() {
                     credentials: "include",
 
                     body: JSON.stringify({
-                        id_actividad: editId,
-                        id_persona: idPersona
+                        id_personas: [...asistenciaPendiente]
                     })
                 }
             );
@@ -901,21 +937,24 @@ async function marcarAsistencia() {
         if (!response.ok) {
 
             throw new Error(
-                data.message || "No se pudo registrar la asistencia."
+                data.message || "No se pudo guardar la asistencia."
             );
         }
 
 
-        document.getElementById("asistenciaPersona").value = "";
+        mostrarMensajeAsistencia(
+            data.message || "Asistencia guardada correctamente.",
+            false
+        );
 
-        mostrarMensajeAsistencia(data.message, false);
+        await recargarAsistencia();
 
-        paginaAsistenciaActual = 1;
-
-        await cargarAsistencia();
+        guardado.exito();
 
 
     } catch (error) {
+
+        guardado.error();
 
         console.error(error);
 
@@ -924,59 +963,13 @@ async function marcarAsistencia() {
 }
 
 
-async function quitarAsistencia(idPersona) {
-
-    try {
-
-        const response =
-            await fetch(
-                `/api/asistencias/${editId}/${idPersona}`,
-                {
-                    method: "DELETE",
-                    credentials: "include"
-                }
-            );
-
-
-        if (response.status === 401) {
-
-            window.location.replace("/login.html");
-
-            return;
-        }
-
-
-        if (!response.ok) {
-
-            const data =
-                await response.json().catch(() => ({}));
-
-            throw new Error(
-                data.message || "No se pudo quitar la asistencia."
-            );
-        }
-
-
-        await cargarAsistencia();
-
-
-    } catch (error) {
-
-        console.error(error);
-
-        alert(error.message);
-    }
-}
-
-
 function initAsistencia(gestionar) {
+
+    asistenciaGestionable = gestionar;
 
     document.getElementById("asistenciaSection").style.display = "";
 
-    document.getElementById("marcarAsistenciaButton").style.display =
-        gestionar ? "" : "none";
-
-    document.getElementById("asistenciaPersona").style.display =
+    document.getElementById("guardarAsistenciaButton").style.display =
         gestionar ? "" : "none";
 
 
@@ -985,13 +978,12 @@ function initAsistencia(gestionar) {
         asistenciaListenersOk = true;
 
         document
-            .getElementById("marcarAsistenciaButton")
-            .addEventListener("click", marcarAsistencia);
+            .getElementById("guardarAsistenciaButton")
+            .addEventListener("click", guardarAsistencia);
     }
 
 
-    cargarPersonas();
-    cargarAsistencia();
+    recargarAsistencia();
 }
 
 

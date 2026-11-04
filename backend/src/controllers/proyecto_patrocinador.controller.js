@@ -1,5 +1,11 @@
+const zlib = require("zlib");
+const PDFDocument = require("pdfkit");
+
 const pool =
     require("../config/database");
+
+const { compactar } =
+    require("./archivo.controller");
 
 const {
     leerPaginacion,
@@ -36,11 +42,18 @@ const COLUMNAS = `
     pp.tipo_cambio,
     TO_CHAR(pp.fecha_tipo_cambio, 'YYYY-MM-DD') AS fecha_tipo_cambio,
     pp.fuente_tipo_cambio,
+    TO_CHAR(pp.fecha_registro, 'YYYY-MM-DD') AS fecha_registro,
+    pp.descripcion,
     pp.subvencion_moneda_donante,
     pp.cantidad_solicitada_moneda_donante,
     pp.subvencion_moneda_nacional,
     pp.diferencia_solicitado_subvencion,
-    pp.estado
+    pp.estado,
+    EXISTS (
+        SELECT 1
+        FROM proyecto_patrocinador_archivo ppa
+        WHERE ppa.id_proyecto_patrocinador = pp.id_proyecto_patrocinador
+    ) AS tiene_recibo
 `;
 
 
@@ -142,6 +155,7 @@ function extraerCampos(body) {
         tipo_cambio,
         fecha_tipo_cambio,
         fuente_tipo_cambio,
+        descripcion,
         subvencion_moneda_donante,
         cantidad_solicitada_moneda_donante
     } = body;
@@ -245,7 +259,8 @@ function extraerCampos(body) {
             fechaTc,
             textoONulo(fuente_tipo_cambio),
             montos.subvencion_moneda_donante,
-            montos.cantidad_solicitada_moneda_donante
+            montos.cantidad_solicitada_moneda_donante,
+            textoONulo(descripcion)
         ]
     };
 }
@@ -288,6 +303,215 @@ function calcularDerivados(valores) {
         Math.round((solicitadoDonante - subvencionDonante) * 100) / 100;
 
     return { subvencionNacional, diferencia };
+}
+
+
+/*
+RECIBO PDF DEL PATROCINIO EN EFECTIVO
+Título "Recepciones variadas" + datos del
+patrocinio y firma al pie.
+*/
+
+function generarReciboPdf(datos) {
+
+    return new Promise((resolve, reject) => {
+
+        const doc =
+            new PDFDocument({
+                size: "LETTER",
+                margin: 50
+            });
+
+        const chunks = [];
+
+        doc.on("data", (chunk) => chunks.push(chunk));
+
+        doc.on("end", () =>
+            resolve(Buffer.concat(chunks))
+        );
+
+        doc.on("error", reject);
+
+
+        doc.fontSize(16)
+            .font("Helvetica-Bold")
+            .text("Recepciones variadas", {
+                align: "center"
+            });
+
+        doc.moveDown(2);
+
+
+        const fila = (etiqueta, valor) => {
+
+            doc.fontSize(11)
+                .font("Helvetica-Bold")
+                .text(`${etiqueta}: `, {
+                    continued: true
+                });
+
+            doc.font("Helvetica").text(
+                valor === null ||
+                valor === undefined ||
+                valor === ""
+                    ? "—"
+                    : String(valor)
+            );
+
+            doc.moveDown(0.6);
+        };
+
+
+        fila(
+            "Nombre del patrocinador",
+            datos.nombre
+        );
+
+        fila(
+            "Fecha de patrocinio",
+            datos.fecha
+        );
+
+        fila(
+            "Ubicación",
+            datos.ubicacion
+        );
+
+        fila(
+            "Descripción",
+            datos.descripcion
+        );
+
+        fila(
+            "Cantidad",
+            datos.cantidad
+        );
+
+
+        // Firma dos filas después del último dato.
+        doc.moveDown(2);
+
+        doc.fontSize(11)
+            .font("Helvetica")
+            .text("Firma______________");
+
+
+        doc.end();
+    });
+}
+
+
+async function borrarReciboPatrocinio(idFila) {
+
+    await pool.query(
+        `
+        DELETE FROM archivo
+        WHERE id_archivo IN (
+            SELECT id_archivo
+            FROM proyecto_patrocinador_archivo
+            WHERE id_proyecto_patrocinador = $1
+        )
+        `,
+        [idFila]
+    );
+}
+
+
+async function generarYGuardarRecibo(
+    idFila,
+    idUsuario
+) {
+
+    const result =
+        await pool.query(
+            `
+            SELECT
+                pp.id_proyecto,
+                pp.descripcion,
+                pp.subvencion_moneda_nacional,
+                TO_CHAR(pp.fecha_registro, 'YYYY-MM-DD') AS fecha_registro,
+                pa.nombre_razon_social,
+                pa.direccion
+            FROM proyecto_patrocinador pp
+            INNER JOIN patrocinador pa
+                ON pa.id_patrocinador = pp.id_patrocinador
+            WHERE pp.id_proyecto_patrocinador = $1
+            LIMIT 1
+            `,
+            [idFila]
+        );
+
+
+    if (result.rows.length === 0) {
+        return;
+    }
+
+
+    const d = result.rows[0];
+
+
+    const buffer =
+        await generarReciboPdf({
+            nombre: d.nombre_razon_social,
+            fecha: d.fecha_registro,
+            ubicacion: d.direccion,
+            descripcion: d.descripcion,
+            cantidad: Number(
+                d.subvencion_moneda_nacional
+            ).toFixed(2)
+        });
+
+
+    const {
+        contenido,
+        comprimido,
+        tamanoComprimido
+    } =
+        compactar(buffer);
+
+
+    const archivo =
+        await pool.query(
+            `
+            INSERT INTO archivo (
+                nombre_archivo,
+                tipo_mime,
+                extension_,
+                tamano_bytes,
+                contenido,
+                descripcion,
+                id_usuario,
+                comprimido,
+                tamano_comprimido
+            )
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+            RETURNING id_archivo
+            `,
+            [
+                `recibo_patrocinio_${idFila}.pdf`,
+                "application/pdf",
+                "pdf",
+                buffer.length,
+                contenido,
+                `Proyecto ${d.id_proyecto} - recibo patrocinio`,
+                idUsuario,
+                comprimido,
+                tamanoComprimido
+            ]
+        );
+
+
+    await pool.query(
+        `
+        INSERT INTO proyecto_patrocinador_archivo (
+            id_proyecto_patrocinador,
+            id_archivo
+        )
+        VALUES ($1, $2)
+        ON CONFLICT DO NOTHING
+        `,
+        [idFila, archivo.rows[0].id_archivo]
+    );
 }
 
 
@@ -520,10 +744,11 @@ async function crearProyectoPatrocinador(
                         fuente_tipo_cambio,
                         subvencion_moneda_donante,
                         cantidad_solicitada_moneda_donante,
+                        descripcion,
                         subvencion_moneda_nacional,
                         diferencia_solicitado_subvencion
                     )
-                    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+                    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
                     RETURNING
                         id_proyecto_patrocinador,
                         id_proyecto,
@@ -533,6 +758,8 @@ async function crearProyectoPatrocinador(
                         tipo_cambio,
                         TO_CHAR(fecha_tipo_cambio, 'YYYY-MM-DD') AS fecha_tipo_cambio,
                         fuente_tipo_cambio,
+                        TO_CHAR(fecha_registro, 'YYYY-MM-DD') AS fecha_registro,
+                        descripcion,
                         subvencion_moneda_donante,
                         cantidad_solicitada_moneda_donante,
                         subvencion_moneda_nacional,
@@ -562,6 +789,16 @@ async function crearProyectoPatrocinador(
 
 
         await actualizarEntePatrocinador(valores[0]);
+
+
+        // Pago en efectivo: se genera el recibo PDF.
+        if (valores[3] === "efectivo") {
+
+            await generarYGuardarRecibo(
+                result.rows[0].id_proyecto_patrocinador,
+                req.user.id_usuario
+            );
+        }
 
 
         return res.status(201).json({
@@ -663,9 +900,10 @@ async function editarProyectoPatrocinador(
                         fuente_tipo_cambio = $7,
                         subvencion_moneda_donante = $8,
                         cantidad_solicitada_moneda_donante = $9,
-                        subvencion_moneda_nacional = $10,
-                        diferencia_solicitado_subvencion = $11
-                    WHERE id_proyecto_patrocinador = $12
+                        descripcion = $10,
+                        subvencion_moneda_nacional = $11,
+                        diferencia_solicitado_subvencion = $12
+                    WHERE id_proyecto_patrocinador = $13
                     RETURNING
                         id_proyecto_patrocinador,
                         id_proyecto,
@@ -675,6 +913,8 @@ async function editarProyectoPatrocinador(
                         tipo_cambio,
                         TO_CHAR(fecha_tipo_cambio, 'YYYY-MM-DD') AS fecha_tipo_cambio,
                         fuente_tipo_cambio,
+                        TO_CHAR(fecha_registro, 'YYYY-MM-DD') AS fecha_registro,
+                        descripcion,
                         subvencion_moneda_donante,
                         cantidad_solicitada_moneda_donante,
                         subvencion_moneda_nacional,
@@ -717,6 +957,23 @@ async function editarProyectoPatrocinador(
         await actualizarEntePatrocinador(valores[0]);
 
 
+        // Pago en efectivo: el recibo se regenera con los
+        // datos actuales; si deja de ser efectivo se elimina.
+        if (valores[3] === "efectivo") {
+
+            await borrarReciboPatrocinio(id);
+
+            await generarYGuardarRecibo(
+                id,
+                req.user.id_usuario
+            );
+
+        } else {
+
+            await borrarReciboPatrocinio(id);
+        }
+
+
         return res.json({
 
             message:
@@ -734,6 +991,133 @@ async function editarProyectoPatrocinador(
         return res.status(500).json({
             message:
                 "Error al actualizar el donante."
+        });
+
+    }
+}
+
+
+/*
+RECIBO DEL PATROCINIO (GET /api/proyecto-patrocinadores/:id/recibo)
+Sirve el PDF generado (inline).
+*/
+
+async function obtenerReciboPatrocinio(
+    req,
+    res
+) {
+
+    try {
+
+        const id =
+            Number(req.params.id);
+
+
+        if (!Number.isInteger(id)) {
+
+            return res.status(400).json({
+                message:
+                    "ID de patrocinio inválido."
+            });
+
+        }
+
+
+        const result =
+            await pool.query(
+                `
+                SELECT
+                    a.nombre_archivo,
+                    a.tipo_mime,
+                    a.contenido,
+                    a.comprimido
+                FROM proyecto_patrocinador_archivo ppa
+                INNER JOIN archivo a
+                    ON a.id_archivo = ppa.id_archivo
+                WHERE ppa.id_proyecto_patrocinador = $1
+                LIMIT 1
+                `,
+                [id]
+            );
+
+
+        if (result.rows.length === 0) {
+
+            return res.status(404).json({
+                message:
+                    "El patrocinio no tiene recibo adjunto."
+            });
+
+        }
+
+
+        const archivo =
+            result.rows[0];
+
+
+        let buffer =
+            archivo.contenido;
+
+
+        if (archivo.comprimido) {
+
+            try {
+
+                buffer =
+                    zlib.gunzipSync(buffer);
+
+            } catch (error) {
+
+                console.error(
+                    "Error descomprimiendo recibo:",
+                    error
+                );
+
+                return res.status(500).json({
+                    message:
+                        "No se pudo descomprimir el recibo."
+                });
+            }
+        }
+
+
+        const nombreAscii =
+            String(archivo.nombre_archivo || "recibo.pdf")
+                .replace(/[\r\n"\\]/g, "_");
+
+
+        res.setHeader(
+            "Content-Type",
+            archivo.tipo_mime
+        );
+
+        res.setHeader(
+            "Content-Length",
+            buffer.length
+        );
+
+        res.setHeader(
+            "Content-Disposition",
+            `inline; ` +
+            `filename="${nombreAscii}"; ` +
+            `filename*=UTF-8''${encodeURIComponent(archivo.nombre_archivo)}`
+        );
+
+        res.setHeader(
+            "Cache-Control",
+            "private, max-age=3600"
+        );
+
+
+        return res.send(buffer);
+
+    } catch (error) {
+
+        console.error(error);
+
+        return res.status(500).json({
+            message:
+                "Error al obtener el recibo."
         });
 
     }
@@ -874,6 +1258,7 @@ async function cambiarEstado(
 module.exports = {
     listarProyectoPatrocinadores,
     obtenerProyectoPatrocinador,
+    obtenerReciboPatrocinio,
     crearProyectoPatrocinador,
     editarProyectoPatrocinador,
     cambiarEstado

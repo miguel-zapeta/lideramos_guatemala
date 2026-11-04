@@ -63,6 +63,12 @@ async function listarAsistencia(
         }
 
 
+        // ?todos=1 devuelve el conjunto completo (sin LIMIT),
+        // para el checklist de asistencia.
+        const todos =
+            req.query.todos === "1";
+
+
         const totalResult =
             await pool.query(
                 `
@@ -92,13 +98,16 @@ async function listarAsistencia(
                     ON p.id_persona = a.id_persona
                 WHERE a.id_actividad = $1
                 ORDER BY p.apellidos, p.nombres
-                LIMIT $2 OFFSET $3
+
+                ${todos ? "" : "LIMIT $2 OFFSET $3"}
                 `,
-                [
-                    idActividad,
-                    paginacion.limite,
-                    paginacion.offset
-                ]
+                todos
+                    ? [idActividad]
+                    : [
+                        idActividad,
+                        paginacion.limite,
+                        paginacion.offset
+                    ]
             );
 
 
@@ -108,8 +117,8 @@ async function listarAsistencia(
 
             ...metaPaginacion(
                 total,
-                paginacion.pagina,
-                paginacion.limite
+                todos ? 1 : paginacion.pagina,
+                todos ? Math.max(total, 1) : paginacion.limite
             )
         });
 
@@ -234,6 +243,153 @@ async function marcarAsistencia(
 }
 
 
+/*
+REEMPLAZAR ASISTENCIA (PUT /api/asistencias/:id_actividad)
+Guarda el conjunto completo de asistentes marcados:
+inserta los que faltan y elimina los que ya no están.
+*/
+
+async function reemplazarAsistencia(
+    req,
+    res
+) {
+
+    try {
+
+        const idActividad =
+            Number(req.params.id_actividad);
+
+        const idPersonas =
+            req.body.id_personas;
+
+
+        if (!Number.isInteger(idActividad)) {
+
+            return res.status(400).json({
+                message:
+                    "ID de actividad inválido."
+            });
+
+        }
+
+
+        if (!Array.isArray(idPersonas)) {
+
+            return res.status(400).json({
+                message:
+                    "id_personas debe ser una lista de IDs válidos."
+            });
+
+        }
+
+
+        const personas = [];
+
+        for (const valor of idPersonas) {
+
+            const n = Number(valor);
+
+            if (!Number.isInteger(n)) {
+
+                return res.status(400).json({
+                    message:
+                        "id_personas debe ser una lista de IDs válidos."
+                });
+            }
+
+            personas.push(n);
+        }
+
+
+        const unicos =
+            [...new Set(personas)];
+
+
+        const finalizado =
+            await proyectoFinalizadoPorActividad(idActividad);
+
+        if (finalizado === null) {
+
+            return res.status(400).json({
+                message:
+                    "La actividad indicada no existe."
+            });
+
+        }
+
+        if (finalizado) {
+
+            return res.status(403).json({
+                message:
+                    "El proyecto está finalizado y ya no se puede modificar."
+            });
+
+        }
+
+
+        // Se elimina lo que ya no está marcado...
+        await pool.query(
+            `
+            DELETE FROM asistencia
+            WHERE id_actividad = $1
+                AND NOT (id_persona = ANY($2::int[]))
+            `,
+            [idActividad, unicos]
+        );
+
+
+        // ...y se agregan las marcas nuevas.
+        if (unicos.length > 0) {
+
+            try {
+
+                await pool.query(
+                    `
+                    INSERT INTO asistencia (id_actividad, id_persona)
+                    SELECT $1, unnest($2::int[])
+                    ON CONFLICT DO NOTHING
+                    `,
+                    [idActividad, unicos]
+                );
+
+            } catch (dbError) {
+
+                if (dbError.code === "23503") {
+
+                    return res.status(400).json({
+                        message:
+                            "La actividad o la persona indicada no existe."
+                    });
+                }
+
+                throw dbError;
+            }
+        }
+
+
+        return res.json({
+
+            message:
+                "Asistencia guardada correctamente.",
+
+            total:
+                unicos.length
+
+        });
+
+    } catch (error) {
+
+        console.error(error);
+
+        return res.status(500).json({
+            message:
+                "Error al guardar la asistencia."
+        });
+
+    }
+}
+
+
 async function quitarAsistencia(
     req,
     res
@@ -324,5 +480,6 @@ async function quitarAsistencia(
 module.exports = {
     listarAsistencia,
     marcarAsistencia,
+    reemplazarAsistencia,
     quitarAsistencia
 };

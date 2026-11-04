@@ -113,19 +113,6 @@
             <div class="sidebar-bottom">
 
 
-                <a href="#" class="menu-item" data-modulo="configuracion">
-
-                    <span class="icon">
-                        ⚙️
-                    </span>
-
-                    <span>
-                        Configuración
-                    </span>
-
-                </a>
-
-
                 <a href="#" class="menu-item logout">
 
                     <span class="icon">
@@ -472,6 +459,59 @@
                                 </div>
 
 
+                                <!-- RECIBO (PDF) -->
+
+                                <div class="form-group full-width">
+
+                                    <label for="recibo">
+                                        Recibo (PDF)
+                                        <em style="font-weight: normal; color: #777777;">opcional</em>
+                                    </label>
+
+                                    <input
+                                        type="file"
+                                        id="recibo"
+                                        name="recibo"
+                                        accept="application/pdf,.pdf"
+                                    >
+
+                                </div>
+
+
+                                <div class="form-group full-width" id="reciboActualGroup" style="display: none;">
+
+                                    <label>
+                                        Recibo adjunto
+                                    </label>
+
+                                    <p id="reciboActualInfo">
+                                        —
+                                    </p>
+
+                                    <a
+                                        id="reciboVerLink"
+                                        href="#"
+                                        target="_blank"
+                                        rel="noopener"
+                                        class="cancel-button"
+                                    >
+                                        Ver recibo (PDF)
+                                    </a>
+
+                                    <label
+                                        id="quitarReciboGroup"
+                                        style="display: block; margin-top: 10px; font-size: 14px;"
+                                    >
+                                        <input
+                                            type="checkbox"
+                                            id="quitar_recibo"
+                                        >
+                                        Quitar recibo
+                                    </label>
+
+                                </div>
+
+
                             </div>
 
                         </div>
@@ -739,7 +779,8 @@
 
     <script src="menu.js"></script>
     <script src="escape.js"></script>
-    <script src="nuevoGasto.js"></script>
+    <script src="guardado.js"></script>
+<script src="nuevoGasto.js"></script>
 
 </body>
 

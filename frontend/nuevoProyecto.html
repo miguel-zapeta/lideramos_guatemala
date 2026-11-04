@@ -113,19 +113,6 @@
             <div class="sidebar-bottom">
 
 
-                <a href="#" class="menu-item" data-modulo="configuracion">
-
-                    <span class="icon">
-                        ⚙️
-                    </span>
-
-                    <span>
-                        Configuración
-                    </span>
-
-                </a>
-
-
                 <a href="#" class="menu-item logout">
 
                     <span class="icon">
@@ -375,11 +362,6 @@
                                 id="formMessage"
                                 role="alert"
                             ></p>
-
-
-                            <a href="proyectos.html" class="cancel-button">
-                                Volver
-                            </a>
 
 
                             <button
@@ -716,6 +698,38 @@
                                 </div>
 
 
+                                <div class="form-group">
+
+                                    <label for="dp_descripcion">
+                                        Descripción
+                                    </label>
+
+                                    <input
+                                        type="text"
+                                        id="dp_descripcion"
+                                        name="dp_descripcion"
+                                        placeholder="Descripción del patrocinio"
+                                    >
+
+                                </div>
+
+
+                                <div class="form-group" id="dpFechaRegistroGroup" style="display: none;">
+
+                                    <label for="dp_fecha_registro">
+                                        Fecha de registro
+                                    </label>
+
+                                    <input
+                                        type="date"
+                                        id="dp_fecha_registro"
+                                        name="dp_fecha_registro"
+                                        readonly
+                                    >
+
+                                </div>
+
+
                             </div>
 
 
@@ -990,6 +1004,17 @@
                 </div>
 
 
+                <!-- VOLVER -->
+
+                <div class="form-actions" style="justify-content: center; margin-top: 24px;">
+
+                    <a href="proyectos.html" class="cancel-button">
+                        ← Volver
+                    </a>
+
+                </div>
+
+
             </section>
 
 
@@ -1003,7 +1028,8 @@
     <script src="menu.js"></script>
     <script src="escape.js"></script>
     <script src="paginacion.js"></script>
-    <script src="nuevoProyecto.js"></script>
+    <script src="guardado.js"></script>
+<script src="nuevoProyecto.js"></script>
 
 </body>
 

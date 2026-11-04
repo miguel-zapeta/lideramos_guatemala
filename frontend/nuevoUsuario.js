@@ -339,6 +339,14 @@ async function guardarUsuario(event) {
     }
 
 
+    const guardado = iniciarGuardado({
+        boton: document.getElementById("submitButton"),
+        mostrar: mostrarMensaje
+    });
+
+    if (!guardado) return;
+
+
     try {
 
         const response =
@@ -395,6 +403,8 @@ async function guardarUsuario(event) {
 
 
     } catch (error) {
+
+        guardado.error();
 
         console.error(error);
 

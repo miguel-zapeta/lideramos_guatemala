@@ -670,6 +670,28 @@ async function listarArchivos(
             )`
         );
 
+        // Recibos de gastos (gasto_archivo): no se muestran
+        // en el módulo Archivos, solo al ver los detalles
+        // del gasto.
+        condiciones.push(
+            `NOT EXISTS (
+                SELECT 1
+                FROM gasto_archivo ga
+                WHERE ga.id_archivo = a.id_archivo
+            )`
+        );
+
+        // Recibos de patrocinios (proyecto_patrocinador_archivo):
+        // no se muestran en el módulo Archivos, solo en la
+        // sección Patrocinadores del proyecto.
+        condiciones.push(
+            `NOT EXISTS (
+                SELECT 1
+                FROM proyecto_patrocinador_archivo ppa
+                WHERE ppa.id_archivo = a.id_archivo
+            )`
+        );
+
 
         const where =
             condiciones.length > 0
@@ -971,6 +993,46 @@ async function eliminarArchivo(
             return res.status(403).json({
                 message:
                     "El archivo pertenece a un voluntario."
+            });
+        }
+
+
+        const vinculoGasto =
+            await pool.query(
+                `
+                SELECT 1
+                FROM gasto_archivo
+                WHERE id_archivo = $1
+                LIMIT 1
+                `,
+                [id]
+            );
+
+        if (vinculoGasto.rows.length > 0) {
+
+            return res.status(403).json({
+                message:
+                    "El archivo pertenece a un gasto."
+            });
+        }
+
+
+        const vinculoPatrocinio =
+            await pool.query(
+                `
+                SELECT 1
+                FROM proyecto_patrocinador_archivo
+                WHERE id_archivo = $1
+                LIMIT 1
+                `,
+                [id]
+            );
+
+        if (vinculoPatrocinio.rows.length > 0) {
+
+            return res.status(403).json({
+                message:
+                    "El archivo pertenece a un patrocinio."
             });
         }
 

@@ -9,6 +9,7 @@ const requirePermission =
 const {
     listarProyectoPatrocinadores,
     obtenerProyectoPatrocinador,
+    obtenerReciboPatrocinio,
     crearProyectoPatrocinador,
     editarProyectoPatrocinador,
     cambiarEstado
@@ -30,6 +31,18 @@ router.get(
     ),
 
     listarProyectoPatrocinadores
+);
+
+
+router.get(
+    "/:id/recibo",
+    authenticate,
+
+    requirePermission(
+        "finanzas.ver"
+    ),
+
+    obtenerReciboPatrocinio
 );
 
 

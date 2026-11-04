@@ -381,6 +381,14 @@ async function guardarProyecto(event) {
         editId === null ? "POST" : "PUT";
 
 
+    const guardado = iniciarGuardado({
+        boton: document.getElementById("submitButton"),
+        mostrar: mostrarMensaje
+    });
+
+    if (!guardado) return;
+
+
     try {
 
         const response =
@@ -437,6 +445,8 @@ async function guardarProyecto(event) {
 
 
     } catch (error) {
+
+        guardado.error();
 
         console.error(error);
 
@@ -1199,6 +1209,15 @@ async function guardarGastoEsperado() {
         gastoEditId === null ? "POST" : "PUT";
 
 
+    const guardado = iniciarGuardado({
+        boton: document.getElementById("guardarGastoButton"),
+        mostrar: mostrarMensajeGasto,
+        reactivar: true
+    });
+
+    if (!guardado) return;
+
+
     try {
 
         const response =
@@ -1256,8 +1275,12 @@ async function guardarGastoEsperado() {
 
         await cargarGastosEsperados();
 
+        guardado.exito();
+
 
     } catch (error) {
+
+        guardado.error();
 
         console.error(error);
 
@@ -1538,6 +1561,14 @@ function renderDonantes() {
                 <td><span class="status ${estadoClass}">${estadoTexto}</span></td>
                 <td>
                     <div class="actions">
+                        ${d.tipo_aporte === "efectivo" && d.tiene_recibo ? `
+                        <button
+                            class="action edit"
+                            title="Ver recibo (PDF)"
+                            data-dp-recibo="${d.id_proyecto_patrocinador}"
+                        >
+                            🧾
+                        </button>` : ""}
                         ${gestionar ? `
                         <button class="action edit" title="Editar" data-dp-editar="${d.id_proyecto_patrocinador}">
                             ✏️
@@ -1549,7 +1580,7 @@ function renderDonantes() {
                             data-dp-estado="${!d.estado}"
                         >
                             ${d.estado ? "🗑️" : "✓"}
-                        </button>` : "—"}
+                        </button>` : ""}
                     </div>
                 </td>
             </tr>`;
@@ -1572,6 +1603,18 @@ function renderDonantes() {
             cambiarEstadoDonante(
                 Number(btn.dataset.dpId),
                 btn.dataset.dpEstado === "true"
+            );
+        });
+    });
+
+
+    tbody.querySelectorAll("button[data-dp-recibo]").forEach((btn) => {
+
+        btn.addEventListener("click", () => {
+
+            window.open(
+                `/api/proyecto-patrocinadores/${btn.dataset.dpRecibo}/recibo`,
+                "_blank"
             );
         });
     });
@@ -1617,10 +1660,15 @@ function mostrarSubformDonante(id) {
             "dp_subvencion",
             "dp_solicitado",
             "dp_subvencion_nacional",
-            "dp_diferencia"
+            "dp_diferencia",
+            "dp_descripcion",
+            "dp_fecha_registro"
         ]) {
             document.getElementById(campo).value = "";
         }
+
+        document.getElementById("dpFechaRegistroGroup").style.display =
+            "none";
     }
 }
 
@@ -1659,8 +1707,27 @@ function rellenarSubformDonante(d) {
         d.fecha_tipo_cambio || "";
     document.getElementById("dp_fuente_tipo_cambio").value =
         d.fuente_tipo_cambio || "";
+    document.getElementById("dp_descripcion").value =
+        d.descripcion || "";
     document.getElementById("dp_subvencion").value = d.subvencion_moneda_donante;
     document.getElementById("dp_solicitado").value = d.cantidad_solicitada_moneda_donante;
+
+
+    const grupoFecha =
+        document.getElementById("dpFechaRegistroGroup");
+
+    if (d.fecha_registro) {
+
+        grupoFecha.style.display = "";
+
+        document.getElementById("dp_fecha_registro").value =
+            d.fecha_registro;
+
+    } else {
+
+        grupoFecha.style.display = "none";
+    }
+
 
     autoRellenarDonante();
 }
@@ -1810,6 +1877,9 @@ async function guardarDonante() {
     body.fuente_tipo_cambio =
         document.getElementById("dp_fuente_tipo_cambio").value.trim() || null;
 
+    body.descripcion =
+        document.getElementById("dp_descripcion").value.trim() || null;
+
 
     for (const campo of [
         "dp_subvencion",
@@ -1852,6 +1922,15 @@ async function guardarDonante() {
 
     const method =
         donanteEditId === null ? "POST" : "PUT";
+
+
+    const guardado = iniciarGuardado({
+        boton: document.getElementById("guardarDonanteButton"),
+        mostrar: mostrarMensajeDonante,
+        reactivar: true
+    });
+
+    if (!guardado) return;
 
 
     try {
@@ -1912,8 +1991,12 @@ async function guardarDonante() {
         await cargarDonantes();
         await obtenerDonantePrincipal();
 
+        guardado.exito();
+
 
     } catch (error) {
+
+        guardado.error();
 
         console.error(error);
 
@@ -2131,6 +2214,7 @@ async function exportarProyecto() {
         tabla.push([
             "ID", "Patrocinador", "Tipo de moneda", "Tipo de aporte",
             "Tipo de cambio", "Fecha TC", "Fuente TC",
+            "Fecha de registro", "Descripción",
             "Subvención moneda donante", "Solicitado moneda donante",
             "Subvención moneda nacional", "Diferencia", "Estado"
         ]);
@@ -2151,6 +2235,8 @@ async function exportarProyecto() {
                     d.tipo_cambio,
                     d.fecha_tipo_cambio,
                     d.fuente_tipo_cambio,
+                    d.fecha_registro,
+                    d.descripcion,
                     d.subvencion_moneda_donante,
                     d.cantidad_solicitada_moneda_donante,
                     d.subvencion_moneda_nacional,

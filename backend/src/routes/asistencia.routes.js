@@ -9,6 +9,7 @@ const requirePermission =
 const {
     listarAsistencia,
     marcarAsistencia,
+    reemplazarAsistencia,
     quitarAsistencia
 } = require(
     "../controllers/asistencia.controller"
@@ -40,6 +41,18 @@ router.post(
     ),
 
     marcarAsistencia
+);
+
+
+router.put(
+    "/:id_actividad",
+    authenticate,
+
+    requirePermission(
+        "actividades.editar"
+    ),
+
+    reemplazarAsistencia
 );
 
 

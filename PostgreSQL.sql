@@ -134,6 +134,8 @@ CREATE TABLE proyecto_patrocinador (
     tipo_cambio                    NUMERIC(14,2) NOT NULL DEFAULT 0,
     fecha_tipo_cambio              DATE,
     fuente_tipo_cambio             VARCHAR(255),
+    fecha_registro                 TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    descripcion                    VARCHAR(255),
     subvencion_moneda_donante      NUMERIC(14,2) NOT NULL DEFAULT 0,
     cantidad_solicitada_moneda_donante NUMERIC(14,2) NOT NULL DEFAULT 0,
     subvencion_moneda_nacional     NUMERIC(14,2) NOT NULL DEFAULT 0,
@@ -396,6 +398,40 @@ CREATE TABLE actividad_archivo (
 		ON DELETE CASCADE 
 );
 
+CREATE TABLE gasto_archivo (
+	id_gasto   INTEGER NOT NULL,
+	id_archivo INTEGER NOT NULL,
+
+	PRIMARY KEY (id_gasto, id_archivo),
+
+	CONSTRAINT fk_gasto_archivo_gasto
+		FOREIGN KEY (id_gasto)
+		REFERENCES gasto(id_gasto)
+		ON DELETE CASCADE,
+
+	CONSTRAINT fk_gasto_archivo_archivo
+		FOREIGN KEY (id_archivo)
+		REFERENCES archivo(id_archivo)
+		ON DELETE CASCADE
+);
+
+CREATE TABLE proyecto_patrocinador_archivo (
+	id_proyecto_patrocinador INTEGER NOT NULL,
+	id_archivo               INTEGER NOT NULL,
+
+	PRIMARY KEY (id_proyecto_patrocinador, id_archivo),
+
+	CONSTRAINT fk_ppa_patrocinio
+		FOREIGN KEY (id_proyecto_patrocinador)
+		REFERENCES proyecto_patrocinador(id_proyecto_patrocinador)
+		ON DELETE CASCADE,
+
+	CONSTRAINT fk_ppa_archivo
+		FOREIGN KEY (id_archivo)
+		REFERENCES archivo(id_archivo)
+		ON DELETE CASCADE
+);
+
 INSERT INTO rol (
     nombre,
     descripcion
@@ -412,6 +448,10 @@ VALUES
 (
     'Tecnico',
     'Acceso limitado al sistema'
+),
+(
+    'Superadministrador',
+    'Acceso total al sistema (todos los permisos)'
 )
 ON CONFLICT (nombre) DO NOTHING;
 
@@ -539,6 +579,15 @@ JOIN permiso p
 		'configuracion.editar'
     )
 WHERE r.nombre = 'Tecnico'
+ON CONFLICT DO NOTHING;
+
+INSERT INTO rol_permiso (id_rol, id_permiso)
+SELECT
+    r.id_rol,
+    p.id_permiso
+FROM rol r
+CROSS JOIN permiso p
+WHERE r.nombre = 'Superadministrador'
 ON CONFLICT DO NOTHING;
 
 CREATE TABLE password_reset_token (
